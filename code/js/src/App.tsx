@@ -7,7 +7,7 @@ import { Login } from './components/auth/login/login'
 import { Logout } from './components/auth/logout/logout'
 import { Register } from './components/auth/register'
 import { Lobby } from './components/auth/lobby/lobby'
-import { Game } from './components/game/game'
+import { PlaceShips } from './components/place-ships/place-ships'
 
 
 export function App() {
@@ -20,8 +20,7 @@ export function App() {
                 <Route path='logout' element={<Logout/>}/>
                 <Route path='register' element={<Register/>}/>
                 <Route path='lobby' element={<Lobby/>}/>
-                <Route path='game/:gameID' element={<Game/>}/>
-                <Route path='test-game' element={<Game/>}/>
+                <Route path='game/:gameID/' element={<PlaceShips/>}/>
                 </Route>
         </Routes>
     </BrowserRouter> 

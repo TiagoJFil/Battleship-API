@@ -1,8 +1,8 @@
 import { Orientation } from "../../components/utils/orientation";
-import { Square } from "./square";
+import { SquareDTO } from "./square";
 
 export interface ShipInfo {
-    initialSquare: Square,
+    initialSquare: SquareDTO,
     size: number,
     orientation: Orientation
 }

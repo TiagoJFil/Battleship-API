@@ -19,10 +19,6 @@ export function Home(){
             <li><Link to="/lobby">Join Queue</Link></li>
             <li><Link to="/test-game">Game</Link></li>
         </nav>
-
-        <div className="play-button-container">
-            <IconButton iconClass={styles.PLAY_ICON} onClick={() => navigate("/lobby") } />
-        </div>
         <Outlet/>
         <BottomNav />
     </div>)

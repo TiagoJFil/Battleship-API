@@ -136,6 +136,7 @@ export async function placeShips(gameID: number, ships: ShipInfo[]): Promise<Sir
 }
 
 export async function getGameRules(gameID: number): Promise<SirenEntity<GameRules>> {
+    console.log('here')
     const response = await axios({
         url: `${baseUrl}game/${gameID}/rules`,
         method: 'GET',
@@ -146,6 +147,5 @@ export async function getGameRules(gameID: number): Promise<SirenEntity<GameRule
     }).catch((e) => {
         throw e.response.data as Problem
     })
-
     return response.data
 }

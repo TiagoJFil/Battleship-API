@@ -5,7 +5,7 @@
   --board-height: 500px;
   --board-div-width-rel: calc(var(--board-width) / var( --num-tiles));
   --board-div-height-rel: calc(var(--board-width) / var( --num-tiles));
-  --num-tiles: 8;
+  --num-tiles: 10;
 }
 
 /*-*-*-*-*-*- BOARD -*-*-*-*-*-*/

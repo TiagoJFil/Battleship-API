@@ -18,8 +18,8 @@ export function getAuthInfo(): AuthInformation | null {
 }
 
 const fakeAuth = {
-    uid: 2,
-    token: '08807b44-45ec-45ac-bfc7-f9d8e2ec67d9'
+    uid: 1,
+    token: 'c527ca81-e264-4be2-a32c-4e735f758879'
 }
 
 export function isLoggedIn(): boolean {

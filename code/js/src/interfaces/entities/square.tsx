@@ -1,4 +1,4 @@
-export interface Square{
+export interface SquareDTO{
     row: Row,
     column: Column
 }

@@ -6,22 +6,20 @@ import { Ship } from "../utils/ship"
 
 interface Props{
     availableShips: Ship[],
-    selectShip: (shipSize: number) => void,
-    currentlyPlacing: Ship,
-    resetPlacement: () => void
+    shipSelected: Ship,
+    onClick: (shipID: number) => void,
+    onResetRequested: () => void
 }
 
 export function Fleet(
     props: Props
 ){
-    const remainingShips = props.availableShips.map((ship) => ship.size)
-
-    const shipsToPlace = remainingShips.map((shipSize) => {
+    const shipsToPlace = props.availableShips.map((ship) => {
         return <MiniShip
-            shipSize={shipSize}
-            availableShips={props.availableShips}
-            selectShip={props.selectShip}
-            currentlyPlacing={props.currentlyPlacing && props.currentlyPlacing.size === shipSize}
+            key={ship.id}
+            ship={ship}
+            onShipClicked={props.onClick}
+            currentlyPlacing={props.shipSelected && props.shipSelected.id === ship.id}
         />
     })
 
@@ -37,7 +35,7 @@ export function Fleet(
                 {props.availableShips.length > 0 ? fleet : "Ready to play!"}
             </div>
             <div>
-                <button onClick={props.resetPlacement}></button>
+                <button onClick={props.onResetRequested}></button>
             </div>
         </div>
     )

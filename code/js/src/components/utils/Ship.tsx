@@ -1,16 +1,26 @@
+import { Square } from "../board/place-ship-board"
 import { Orientation } from "./orientation"
-import { Position } from "./position"
 
 export class Ship{
+    id: number
     size: number
     orientation: Orientation
-    position: Position = null
-    placed: Boolean = false
 
-    constructor(size: number, orientation: Orientation, position: Position, placed: Boolean){
+    constructor(id:number, size: number, orientation: Orientation){
+        this.id = id
         this.size = size
         this.orientation = orientation
-        this.position = position
-        this.placed = placed
+    }
+
+    getSquares(initialSquare: Square): Square[]{
+        const squares: Square[] = []
+        for(let i = 0; i < this.size; i++){
+            if(this.orientation === Orientation.horizontal){
+                squares.push(new Square(initialSquare.row, initialSquare.column + i))
+            } else {
+                squares.push(new Square(initialSquare.row + i, initialSquare.column))
+            }
+        }
+        return squares
     }
 }
