@@ -3,10 +3,12 @@ package pt.isel.daw.battleship
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.platform.commons.logging.LoggerFactory
+import pt.isel.daw.battleship.data.Column
+import pt.isel.daw.battleship.data.Row
 import pt.isel.daw.battleship.data.Square
 import pt.isel.daw.battleship.data.column
 import pt.isel.daw.battleship.data.model.Board
-import pt.isel.daw.battleship.data.model.prettyPrint
+import pt.isel.daw.battleship.data.model.pretty
 import pt.isel.daw.battleship.data.row
 
 class BoardServiceTests {
@@ -113,11 +115,36 @@ class BoardServiceTests {
             boardAccumulator.shotTo(square)
         }
 
-        logger.info { "\n" + finalBoard.prettyPrint() }
+        logger.info { "\n" + finalBoard.pretty() }
 
         assert(finalBoard == expectedBoard)
 
     }
 
+
+    @Test
+    fun `placeShip works correctly`(){
+        val layout = "######" +
+                     "######" +
+                     "######" +
+                     "######" +
+                     "######" +
+                     "######"
+
+        val board = Board.fromLayout(layout)
+
+        val finalBoard = board.placeShip(
+            Square(Row(0), Column(0)),
+            Square(Row(0), Column(2))
+        )
+        println(finalBoard)
+        val expected = "BBB###" +
+                       "######" +
+                       "######" +
+                       "######" +
+                       "######" +
+                       "######"
+        assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
+    }
 
 }
