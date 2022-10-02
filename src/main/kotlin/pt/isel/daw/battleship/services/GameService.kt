@@ -1,80 +1,29 @@
 package pt.isel.daw.battleship.services
 
-import org.springframework.stereotype.Component
-import pt.isel.daw.battleship.data.GameRepository
-import pt.isel.daw.battleship.data.Id
-import pt.isel.daw.battleship.data.Tile
+import pt.isel.daw.battleship.data.Square
+import pt.isel.daw.battleship.data.column
+import pt.isel.daw.battleship.data.model.*
+import pt.isel.daw.battleship.data.row
 
 
-class GameService(
-    val repository: GameRepository
-) {
+fun main() {
 
-    val board1 = "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########"
+    val gameID = 0
+    val boardLayout =   "##########" +
+                        "##B###BB##" +
+                        "##B#######" +
+                        "##B#######" +
+                        "##########" +
+                        "##BBBBB###" +
+                        "#######B##" +
+                        "##BB###B##" +
+                        "#######B##" +
+                        "#######B##"
 
-    val board2 = "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########" +
-                 "#########"
-
-    //Allow an user to define a set of shots on each round.
-    fun makeShoot(tiles: List<Tile>, userId: Id, gameId: Id){
-//list because it depends on the number of shots of the game
-
-        // val game = repo.getGame(gameId)
-        // Match User
-        // ver se a tile é valida
-        // game.makeMove(tile)
-        // repo.updateGame(game)
-    }
-
-    //Allow an user to define the layout of their fleet in the grid.
-    fun setBoardLayout(layout: String, userId: Id, gameId : Id){
-
-        // get game from repo
-        //verify if layout is valid (Size,turn , then usual rules)
-
-        // game.setBoardLayout(layout)
-    }
+    var game = Game(gameID, Game.State.PLAYING, turnIdx = 0, boards=List(2){Board.fromLayout(boardLayout)})
 
 
-    fun queueGame(user: Id){
-
-        //repo.getUser(user)
-        //verify user id
-        
-        //ver se tem algum game running com esse user
-        //queue user
-    }
-
-    fun cancelQueue(user: Id){
-
-        //verify user id
-        //ver se o user ta queued
-        //remove user from queue
-    }
-
-    //Inform the user about the overall state of a game, namely: game phase (layout definition phase, shooting phase, completed phase).
-    fun getGameState(game : Id){
-
-        //verify game id
-        //return game state
-    }
+    game = game.makeShot(Square(0.row, 0.column))
 
 
 

@@ -1,14 +1,9 @@
 package pt.isel.daw.battleship.data
 
-import org.springframework.stereotype.Component
+import pt.isel.daw.battleship.data.model.Game
 
-@Component
 interface GameRepository {
 
     fun getGames(): List<Game>
-
-    fun getWaitingForPlayerGames(): List<Game>
-
-
 
 }
