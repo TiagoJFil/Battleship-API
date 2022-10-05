@@ -1,8 +1,7 @@
 package pt.isel.daw.battleship.data.model
 
-import pt.isel.daw.battleship.data.Column
-import pt.isel.daw.battleship.data.Row
-import pt.isel.daw.battleship.data.Square
+import pt.isel.daw.battleship.data.*
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -13,7 +12,7 @@ data class Board(val matrix: List<SquareType>) {
         private val representationMap = SquareType.values().associateBy { it.representation }
 
         fun fromLayout(layout: String): Board {
-            require(layout.isNotBlank()){ "Layout must not be blank. "}
+            require(layout.isNotBlank()) { "Layout must not be blank. " }
             val boardSide = sqrt(layout.length.toDouble())
             require(boardSide % 1.0 == 0.0) { "Layout must represent a square." }
 
@@ -25,6 +24,12 @@ data class Board(val matrix: List<SquareType>) {
         }
 
     }
+
+    sealed class SearchResult
+
+    object ClearDiagonals : SearchResult()
+    data class ClearShipNeighbours(val shipSquares: List<Square>) : SearchResult()
+
 
     enum class SquareType(val representation: Char) {
         ShipPart('B'),
@@ -53,17 +58,87 @@ data class Board(val matrix: List<SquareType>) {
      * @throws IllegalArgumentException if the square is out of bounds of the board
      */
     fun shotTo(square: Square): Board {
-        val squareIndex = requireValidIndex(square)
-        val newBoardList = matrix.mapIndexed { idx, squareType ->
-            if(idx != squareIndex) return@mapIndexed squareType
+        val shotSquareIdx = requireValidIndex(square)
+        val isHit = isHit(square)
+        val searchResult = if (isHit) searchKnownWaterSquares(square) else null
 
-            if(isHit(square))
+        val squares = when (searchResult) {
+            is ClearShipNeighbours ->
+                searchResult.shipSquares
+                    .flatMap { it.getNeighbours() + it.getDiagonals() }
+                    .distinct()
+                    .filter { get(it) == SquareType.Water }
+            is ClearDiagonals -> square.getDiagonals()
+            else -> emptyList()
+        }
+        val knownWaterSquaresIdx = squares.map { getIndexFrom(it) }.toSet()
+
+        val newBoardList = matrix.mapIndexed { idx, squareType ->
+            if (idx != shotSquareIdx && idx !in knownWaterSquaresIdx) return@mapIndexed squareType
+
+            if (isHit && idx !in knownWaterSquaresIdx)
                 SquareType.Hit
             else
                 SquareType.Shot
-
         }
         return Board(newBoardList)
+    }
+
+    /**
+     * Gets the diagonal neighbours of a square
+     */
+    private fun Square.getDiagonals(): List<Square> {
+        val topLDiagonal = Square((row.ordinal - 1).row, (column.ordinal - 1).column)
+        val topRDiagonal = Square((row.ordinal - 1).row, (column.ordinal + 1).column)
+        val bottomLDiagonal = Square((row.ordinal + 1).row, (column.ordinal - 1).column)
+        val bottomRDiagonal = Square((row.ordinal + 1).row, (column.ordinal + 1).column)
+
+        return listOf<Square>(
+            topLDiagonal, topRDiagonal, bottomLDiagonal, bottomRDiagonal
+        ).filter {
+            getIndexFrom(it) in matrix.indices
+        }
+    }
+
+    /**
+     * Gets the neighbours of a square
+     */
+    private fun Square.getNeighbours(): List<Square> {
+        val top = Square((row.ordinal - 1).row, column)
+        val bottom = Square((row.ordinal + 1).row, column)
+        val left = Square(row, (column.ordinal - 1).column)
+        val right = Square(row, (column.ordinal + 1).column)
+
+        return listOf<Square>(
+            top, bottom, left, right
+        ).filter {
+            getIndexFrom(it) in matrix.indices
+        }
+    }
+
+    /**
+     * Searches for the known water squares after a hit and returns a result [SearchResult] that shows its format:
+     * - All around
+     * - Diagonal
+     */
+    fun searchKnownWaterSquares(initialSquare: Square): SearchResult {
+        val seen = mutableSetOf<Square>()
+        val frontier = LinkedList<Square>()
+
+        frontier.add(initialSquare)
+
+        while (frontier.isNotEmpty()) {
+            val square = frontier.removeFirst()
+            val neighbours = square.getNeighbours()
+
+            if (neighbours.any { get(it) == SquareType.ShipPart && it !in seen }) return ClearDiagonals
+
+            val hits = neighbours.filter { get(it) == SquareType.Hit && it !in seen }
+            seen.add(square)
+            frontier.addAll(hits)
+        }
+
+        return ClearShipNeighbours(seen.toList())
     }
 
     /**
@@ -91,17 +166,19 @@ data class Board(val matrix: List<SquareType>) {
      */
     private fun isHit(square: Square) = get(square) == SquareType.ShipPart
 
-    fun placeShip(initialSquare : Square,finalSquare: Square): Board {
+    /**
+     * Places a ship on the board given an initial square and final square
+     */
+    fun placeShip(initialSquare: Square, finalSquare: Square): Board {
         requireValidIndex(initialSquare)
         requireValidIndex(finalSquare)
 
-
-        val shipSquaresIndexs = getShipSquares(initialSquare,finalSquare)
+        val shipSquaresIndexs = getShipSquares(initialSquare, finalSquare)
             .map { square -> getIndexFrom(square) }
 
         return Board(
             matrix.mapIndexed { idx, squareType ->
-                if(shipSquaresIndexs.contains(idx)) SquareType.ShipPart
+                if (shipSquaresIndexs.contains(idx)) SquareType.ShipPart
                 else squareType
             }
         )
@@ -111,15 +188,14 @@ data class Board(val matrix: List<SquareType>) {
 }
 
 
-
-private fun getShipSquares(initialSquare: Square, finalSquare: Square) : List<Square> {
+private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Square> {
     val squareList = mutableListOf<Square>()
 
-    val squaresVector = Vector(initialSquare,finalSquare)
+    val squaresVector = Vector(initialSquare, finalSquare)
 
-    for(it in 0..abs(squaresVector.direction)){
+    for (it in 0..abs(squaresVector.direction)) {
         squareList.add(
-            if(squaresVector.orientation == Orientation.Horizontal)
+            if (squaresVector.orientation == Orientation.Horizontal)
                 Square(
                     initialSquare.row,
                     Column(initialSquare.column.ordinal + it * squaresVector.factor)
@@ -139,32 +215,33 @@ private fun getShipSquares(initialSquare: Square, finalSquare: Square) : List<Sq
 class Vector(initialSquare: Square, finalSquare: Square) {
 
 
-    val orientation = Orientation.get(initialSquare,finalSquare) ?: throw IllegalArgumentException("The squares are not in the same row or column")
+    val orientation = Orientation.get(initialSquare, finalSquare)
+        ?: throw IllegalArgumentException("The squares are not in the same row or column")
 
-    val direction = if(orientation == Orientation.Horizontal)
+    val direction = if (orientation == Orientation.Horizontal)
         finalSquare.column - initialSquare.column
     else
         finalSquare.row - initialSquare.row
 
     val absDirection = abs(direction)
 
-    val factor = if(direction > 0) 1 else -1
+    val factor = if (direction > 0) 1 else -1
 }
 
 enum class Orientation {
     Horizontal,
     Vertical;
 
-    companion object{
-        fun get( initialSquare: Square, finalSquare: Square ): Orientation?{
-            val verticalSize = abs( initialSquare.row - finalSquare.row)
-            val horizontalSize = abs( initialSquare.column -  finalSquare.column)
+    companion object {
+        fun get(initialSquare: Square, finalSquare: Square): Orientation? {
+            val verticalSize = abs(initialSquare.row - finalSquare.row)
+            val horizontalSize = abs(initialSquare.column - finalSquare.column)
 
-            return if(verticalSize == 0){
+            return if (verticalSize == 0) {
                 Horizontal
-            } else if(horizontalSize == 0){
+            } else if (horizontalSize == 0) {
                 Vertical
-            }else {
+            } else {
                 null
             }
         }
@@ -181,7 +258,7 @@ fun Board.isInEndGameState() = matrix.none { it == Board.SquareType.ShipPart }
  * Returns a board filled with water
  */
 fun Board.Companion.empty(boardSide: Int) = Board(
-    List(boardSide * boardSide){ Board.SquareType.Water }
+    List(boardSide * boardSide) { Board.SquareType.Water }
 )
 
 /**
