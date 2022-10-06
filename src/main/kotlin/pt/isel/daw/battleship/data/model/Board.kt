@@ -188,6 +188,20 @@ data class Board(val matrix: List<SquareType>) {
 }
 
 
+fun Board.placeShips(boatList: List<Pair<Square, Square>>): Board =
+        boatList.fold(this){ acc, pair ->
+            acc.placeShip(pair.first,pair.second)
+        }
+
+fun Board.makeShots(tiles: List<Square>): Board {
+    var newBoard = this
+    for (tile in tiles){
+        newBoard = newBoard.shotTo(tile)
+    }
+    return newBoard
+}
+
+
 private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Square> {
     val squareList = mutableListOf<Square>()
 

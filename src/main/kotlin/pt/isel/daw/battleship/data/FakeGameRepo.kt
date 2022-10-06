@@ -14,4 +14,6 @@ class FakeGameRepo: GameRepository {
 
     fun hasGame(gameId: Id) = table[gameId] != null
 
+    override fun getGame(gameId: Id): Game? = table[gameId]
+
 }
