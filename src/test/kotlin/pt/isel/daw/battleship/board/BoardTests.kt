@@ -9,8 +9,7 @@ import pt.isel.daw.battleship.data.Column
 import pt.isel.daw.battleship.data.Row
 import pt.isel.daw.battleship.data.Square
 import pt.isel.daw.battleship.data.column
-import pt.isel.daw.battleship.data.model.Board
-import pt.isel.daw.battleship.data.model.pretty
+import pt.isel.daw.battleship.data.model.*
 import pt.isel.daw.battleship.data.row
 
 class BoardTests {
@@ -161,6 +160,36 @@ class BoardTests {
                 "######" +
                 "######" +
                 "######"
+        assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
+    }
+
+
+    @Test
+    fun `placeShips works`(){
+        val layout = "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######"
+
+        val board = Board.fromLayout(layout)
+
+        val finalBoard = board.placeShips(
+                listOf(
+                        ShipInfo(Square(0.row, 0.column), Game.Carrier(4),Orientation.Horizontal ),
+                        ShipInfo(Square(2.row, 1.column), Game.Battleship(3),Orientation.Vertical ),
+                )
+        )
+
+        val expected =
+                "BBBB##" +
+                "######" +
+                "#B####" +
+                "#B####" +
+                "#B####" +
+                "######"
+
         assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
     }
 

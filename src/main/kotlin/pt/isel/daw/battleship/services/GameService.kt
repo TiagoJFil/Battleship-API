@@ -31,14 +31,14 @@ fun main() {
 
 
 class GameService(
-        val repository: GameRepository,
+        val gameRepo: GameRepository,
         val boardRepo : BoardRepository,
 ) {
 
-    //Allow an user to define a set of shots on each round.
+    //Allow a user to define a set of shots on each round.
     fun makeShoot(tiles: List<Square>, userId: Id, gameId: Id){
         //list because it depends on the number of shots of the game
-        val game = repository.getGame(gameId) ?: throw Exception("Game not found")
+        val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
         val uid = game.turnPlayer.id
         if(uid != userId) throw Exception("Not your turn")
 
@@ -48,17 +48,23 @@ class GameService(
         boardRepo.updateBoard(gameId, newBoard)
     }
 
-    //Allow an user to define the layout of their fleet in the grid.
-    fun setBoardLayout(boatList: List<Pair<Square,Square>>, userId: Id, gameId : Id){
-        val game = repository.getGame(gameId) ?: throw Exception("Game not found")
+
+    //Allow a user to define the layout of their fleet in the grid.
+    fun setBoardLayout(shipList: List<ShipInfo>, userId: Id, gameId : Id){
+        val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
         val uid = game.turnPlayer.id
         if(uid != userId) throw Exception("Not your turn")
 
         val board = game.turnBoard
-        val newBoard = board.placeShips(boatList)
+
+
+        //verify if ships are valid according to gamerules
+        val gameRules = game.rules
+        gameRules.verifyShips(shipList)
+
+        val newBoard = board.placeShips(shipList)
 
         boardRepo.updateBoard(gameId, newBoard)
-
     }
 
 

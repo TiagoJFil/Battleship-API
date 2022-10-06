@@ -6,6 +6,7 @@ import org.junit.platform.commons.logging.LoggerFactory
 import pt.isel.daw.battleship.data.Square
 import pt.isel.daw.battleship.data.column
 import pt.isel.daw.battleship.data.model.Board
+import pt.isel.daw.battleship.data.model.makeShots
 import pt.isel.daw.battleship.data.model.pretty
 import pt.isel.daw.battleship.data.row
 
@@ -80,7 +81,8 @@ class BoardShotTests {
 
         val newBoard = board.shotTo(targetSquare)
 
-        val expectedLayout =  "#OBO" +
+        val expectedLayout =
+                "#OBO" +
                 "##X#" +
                 "#OBO" +
                 "####"
@@ -92,7 +94,8 @@ class BoardShotTests {
 
     @Test
     fun `Shot on a ship part gives back a board with a hit and shots around the ship`(){
-        val layout = "#OXO" +
+        val layout =
+                "#OXO" +
                 "#OXO" +
                 "#OBO" +
                 "####"
@@ -104,7 +107,8 @@ class BoardShotTests {
 
         val newBoard = board.shotTo(targetSquare)
 
-        val expectedLayout =  "#OXO" +
+        val expectedLayout =
+                "#OXO" +
                 "#OXO" +
                 "#OXO" +
                 "#OOO"
@@ -116,7 +120,8 @@ class BoardShotTests {
 
     @Test
     fun `Shot on a ship with only 1 part gives back a board with a hit and shots around the ship`(){
-        val layout = "####" +
+        val layout =
+                "####" +
                 "##B#" +
                 "####" +
                 "####"
@@ -128,10 +133,40 @@ class BoardShotTests {
 
         val newBoard = board.shotTo(targetSquare)
 
-        val expectedLayout =  "#OOO" +
+        val expectedLayout =
+                "#OOO" +
                 "#OXO" +
                 "#OOO" +
                 "####"
+
+        val expectedBoard = Board.fromLayout(expectedLayout)
+
+        Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
+    }
+
+
+    @Test
+    fun `Multiple shots on the board`(){
+        val layout =
+                "##B##" +
+                "##B##" +
+                "##B##" +
+                "#####" +
+                "#####"
+
+        val board = Board.fromLayout(layout)
+        val newBoard = board.makeShots(listOf(
+                Square(0.row,2.column),
+                Square(1.row,2.column),
+                Square(2.row,0.column),
+        ))
+
+        val expectedLayout =
+                "#OXO#" +
+                "#OXO#" +
+                "OOBO#" +
+                "#####" +
+                "#####"
 
         val expectedBoard = Board.fromLayout(expectedLayout)
 

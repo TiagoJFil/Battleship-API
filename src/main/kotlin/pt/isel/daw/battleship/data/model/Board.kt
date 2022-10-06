@@ -1,9 +1,13 @@
 package pt.isel.daw.battleship.data.model
 
 import pt.isel.daw.battleship.data.*
+import pt.isel.daw.battleship.services.GameService
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
+
+data class ShipInfo(val initialSquare: Square, val ship : Game.Ship, val orientation : Orientation)
+
 
 data class Board(val matrix: List<SquareType>) {
 
@@ -185,12 +189,44 @@ data class Board(val matrix: List<SquareType>) {
 
     }
 
+    //to the right
+    //and down
+    fun placeShip(initialSquare: Square, ship: Game.Ship, orientation: Orientation): Board{
+        requireValidIndex(initialSquare)
+
+        val shipSize = ship.size
+        //get the endSquare
+        val endSquare = if(orientation == Orientation.Horizontal){
+            Square(initialSquare.row, (initialSquare.column.ordinal + shipSize - 1).column)
+        } else {
+            Square((initialSquare.row.ordinal + shipSize - 1).row, initialSquare.column)
+        }
+        //remover o -1 sque
+
+        requireValidIndex(endSquare)
+
+        val shipSquaresIndexs = getShipSquares(initialSquare, endSquare)
+                .map { square -> getIndexFrom(square) }
+
+        return Board(
+                matrix.mapIndexed { idx, squareType ->
+                    if (shipSquaresIndexs.contains(idx)) SquareType.ShipPart
+                    else squareType
+                }
+        )
+    }
+
 }
 
 
-fun Board.placeShips(boatList: List<Pair<Square, Square>>): Board =
-        boatList.fold(this){ acc, pair ->
+fun Board.placeShipList(shipInfoList: List<Pair<Square, Square>>): Board =
+        shipInfoList.fold(this){ acc, pair ->
             acc.placeShip(pair.first,pair.second)
+        }
+
+fun Board.placeShips(shipInfoList : List<ShipInfo>) : Board =
+        shipInfoList.fold(this){ acc, shipInfo ->
+            acc.placeShip(shipInfo.initialSquare, shipInfo.ship, shipInfo.orientation)
         }
 
 fun Board.makeShots(tiles: List<Square>): Board {
@@ -207,7 +243,7 @@ private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Squ
 
     val squaresVector = Vector(initialSquare, finalSquare)
 
-    for (it in 0..abs(squaresVector.direction)) {
+    for (it in 0..squaresVector.absDirection) {
         squareList.add(
             if (squaresVector.orientation == Orientation.Horizontal)
                 Square(
