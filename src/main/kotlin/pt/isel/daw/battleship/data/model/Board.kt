@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 data class ShipInfo(val initialSquare: Square, val ship : Game.Ship, val orientation : Orientation)
 
 
-data class Board(val matrix: List<SquareType>) {
+class Board(val matrix: List<SquareType>) {
 
     companion object {
 
@@ -229,13 +229,11 @@ fun Board.placeShips(shipInfoList : List<ShipInfo>) : Board =
             acc.placeShip(shipInfo.initialSquare, shipInfo.ship, shipInfo.orientation)
         }
 
-fun Board.makeShots(tiles: List<Square>): Board {
-    var newBoard = this
-    for (tile in tiles){
-        newBoard = newBoard.shotTo(tile)
+fun Board.makeShots(tiles: List<Square>): Board =
+    tiles.fold(this) { acc, square ->
+        acc.shotTo(square)
     }
-    return newBoard
-}
+
 
 
 private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Square> {

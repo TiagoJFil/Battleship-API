@@ -17,15 +17,17 @@ fun main() {
                         "##BB###B##" +
                         "#######B##" +
                         "#######B##"
+    val gameservice = GameService(FakeGameRepo(), FakeBoardRepo())
 
     var game = Game(gameID, Game.State.PLAYING, turnIdx = 0, boards=List(2){Board.fromLayout(boardLayout)})
 
+    gameservice.gameRepo.updateGame(game.Id,game)
 
-    game = game.makeShot(Square(0.row, 0.column))
+  //  game = game.makeShot(Square(0.row, 0.column))
 
+    gameservice.makeShots(listOf(Square(1.row, 2.column)), 1, gameID)
 
-
-
+    gameservice.gameRepo.getGame(gameID)?.boards?.forEach { println(it.pretty() + "\n") }
 
 }
 
@@ -36,16 +38,16 @@ class GameService(
 ) {
 
     //Allow a user to define a set of shots on each round.
-    fun makeShoot(tiles: List<Square>, userId: Id, gameId: Id){
+    fun makeShots(tiles: List<Square>, userId: Id, gameId: Id){
         //list because it depends on the number of shots of the game
         val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
         val uid = game.turnPlayer.id
         if(uid != userId) throw Exception("Not your turn")
 
-        val board = game.oppositeTurnBoard
-        val newBoard = board.makeShots(tiles)
+        val newGame = game.makeShot(tiles)
 
-        boardRepo.updateBoard(gameId, newBoard)
+     //   boardRepo.updateBoard(gameId, newBoard)
+        gameRepo.updateGame(gameId,newGame)
     }
 
 
@@ -55,16 +57,9 @@ class GameService(
         val uid = game.turnPlayer.id
         if(uid != userId) throw Exception("Not your turn")
 
-        val board = game.turnBoard
 
-
-        //verify if ships are valid according to gamerules
-        val gameRules = game.rules
-        gameRules.verifyShips(shipList)
-
-        val newBoard = board.placeShips(shipList)
-
-        boardRepo.updateBoard(gameId, newBoard)
+        val newGame = game.placeShips(shipList)
+        gameRepo.updateGame(gameId,newGame)
     }
 
 
