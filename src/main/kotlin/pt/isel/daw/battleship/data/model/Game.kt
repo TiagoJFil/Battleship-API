@@ -21,11 +21,11 @@ data class Game(
 
 
     sealed class Ship(val size: Int)
-    inner class Carrier() : Ship(0)//rules.shipRules.carrierSize)
-    inner class Battleship(size: Int) : Ship(size)
-    inner class Cruiser(size: Int) : Ship(size)
-    inner class Submarine(size: Int) : Ship(size)
-    inner class Destroyer(size: Int) : Ship(size)
+    class Carrier(size : Int) : Ship(size)//rules.shipRules.carrierSize)
+    class Battleship(size: Int) : Ship(size)
+    class Cruiser(size: Int) : Ship(size)
+    class Submarine(size: Int) : Ship(size)
+    class Destroyer(size: Int) : Ship(size)
 
 
     enum class State {

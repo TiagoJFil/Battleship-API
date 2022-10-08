@@ -1,7 +1,6 @@
 package pt.isel.daw.battleship.data.model
 
 import pt.isel.daw.battleship.data.*
-import pt.isel.daw.battleship.services.GameService
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -9,7 +8,7 @@ import kotlin.math.sqrt
 data class ShipInfo(val initialSquare: Square, val ship : Game.Ship, val orientation : Orientation)
 
 
-class Board(val matrix: List<SquareType>) {
+data class Board(val matrix: List<SquareType>) {
 
     companion object {
 
@@ -33,7 +32,6 @@ class Board(val matrix: List<SquareType>) {
 
     object ClearDiagonals : SearchResult()
     data class ClearShipNeighbours(val shipSquares: List<Square>) : SearchResult()
-
 
     enum class SquareType(val representation: Char) {
         ShipPart('B'),
@@ -69,7 +67,7 @@ class Board(val matrix: List<SquareType>) {
         val squares = when (searchResult) {
             is ClearShipNeighbours ->
                 searchResult.shipSquares
-                    .flatMap { it.getNeighbours() + it.getDiagonals() }
+                    .flatMap { it.getAxisNeighbours() + it.getDiagonals() }
                     .distinct()
                     .filter { get(it) == SquareType.Water }
             is ClearDiagonals -> square.getDiagonals()
@@ -92,13 +90,13 @@ class Board(val matrix: List<SquareType>) {
      * Gets the diagonal neighbours of a square
      */
     private fun Square.getDiagonals(): List<Square> {
-        val topLDiagonal = Square((row.ordinal - 1).row, (column.ordinal - 1).column)
-        val topRDiagonal = Square((row.ordinal - 1).row, (column.ordinal + 1).column)
-        val bottomLDiagonal = Square((row.ordinal + 1).row, (column.ordinal - 1).column)
-        val bottomRDiagonal = Square((row.ordinal + 1).row, (column.ordinal + 1).column)
+        val topLDiagonal = SquareOrNull((row.ordinal - 1), (column.ordinal - 1))
+        val topRDiagonal = SquareOrNull((row.ordinal - 1), (column.ordinal + 1))
+        val bottomLDiagonal = SquareOrNull((row.ordinal + 1), (column.ordinal - 1))
+        val bottomRDiagonal = SquareOrNull((row.ordinal + 1), (column.ordinal + 1))
 
-        return listOf<Square>(
-            topLDiagonal, topRDiagonal, bottomLDiagonal, bottomRDiagonal
+        return listOfNotNull(
+                topLDiagonal, topRDiagonal, bottomLDiagonal, bottomRDiagonal
         ).filter {
             getIndexFrom(it) in matrix.indices
         }
@@ -107,13 +105,51 @@ class Board(val matrix: List<SquareType>) {
     /**
      * Gets the neighbours of a square
      */
-    private fun Square.getNeighbours(): List<Square> {
-        val top = Square((row.ordinal - 1).row, column)
-        val bottom = Square((row.ordinal + 1).row, column)
-        val left = Square(row, (column.ordinal - 1).column)
-        val right = Square(row, (column.ordinal + 1).column)
+    private fun Square.getNeighbours() : List<Square> {
+        val axis = this.getAxisNeighbours()
+        val diagonals = this.getDiagonals()
+        return axis + diagonals
+    }
 
-        return listOf<Square>(
+    /**
+     * Check around the given squares
+     */
+    private fun checkForAdjacentShips(shipSquares: List<Square>) {
+        val seen = mutableListOf<Square>()
+        val unchecked = LinkedList(shipSquares)
+        shipSquares.forEach { seen.add(it) }
+
+
+        while (unchecked.isNotEmpty()) {
+            val square = unchecked.removeFirst()
+            val neighbours = square.getNeighbours()
+            neighbours.forEach {
+                if (it !in seen) {
+                    if (get(it) == SquareType.ShipPart) {
+                        throw IllegalArgumentException("Ships cannot be adjacent.")
+                    }
+                    seen.add(it)
+
+                }
+            }
+        }
+
+    }
+
+    private fun SquareOrNull(rowVal: Int, columnVal: Int): Square? {
+        return if (rowVal >= 0 && columnVal >= 0) Square(rowVal.row, columnVal.column) else null
+    }
+
+    /**
+     * Gets the neighbours of a square on the y axis and x axis
+     */
+    private fun Square.getAxisNeighbours(): List<Square> {
+        val top = SquareOrNull((row.ordinal - 1), column.ordinal)
+        val bottom = SquareOrNull((row.ordinal + 1), column.ordinal)
+        val left = SquareOrNull(row.ordinal, (column.ordinal - 1))
+        val right = SquareOrNull(row.ordinal, (column.ordinal + 1))
+
+        return listOfNotNull(
             top, bottom, left, right
         ).filter {
             getIndexFrom(it) in matrix.indices
@@ -133,7 +169,7 @@ class Board(val matrix: List<SquareType>) {
 
         while (frontier.isNotEmpty()) {
             val square = frontier.removeFirst()
-            val neighbours = square.getNeighbours()
+            val neighbours = square.getAxisNeighbours()
 
             if (neighbours.any { get(it) == SquareType.ShipPart && it !in seen }) return ClearDiagonals
 
@@ -160,6 +196,9 @@ class Board(val matrix: List<SquareType>) {
      * Checks if the index from the given square is valid
      */
     private fun requireValidIndex(square: Square): Int {
+        if( square.row.ordinal  > boardSide || square.column.ordinal > boardSide) {
+            throw IllegalArgumentException("Square is out of bounds of the board.")
+        }
         val index = getIndexFrom(square)
         require(index in matrix.indices) { "The index from the specified tile is not in the bounds of the board" }
         return index
@@ -170,6 +209,7 @@ class Board(val matrix: List<SquareType>) {
      */
     private fun isHit(square: Square) = get(square) == SquareType.ShipPart
 
+
     /**
      * Places a ship on the board given an initial square and final square
      */
@@ -177,8 +217,13 @@ class Board(val matrix: List<SquareType>) {
         requireValidIndex(initialSquare)
         requireValidIndex(finalSquare)
 
-        val shipSquaresIndexs = getShipSquares(initialSquare, finalSquare)
-            .map { square -> getIndexFrom(square) }
+        val shipSquares = getShipSquares(initialSquare, finalSquare)
+        //need to verify if there is a ship there
+        checkShipSquares(shipSquares)
+        checkForAdjacentShips(shipSquares)
+
+
+        val shipSquaresIndexs = shipSquares.map { square -> getIndexFrom(square) }
 
         return Board(
             matrix.mapIndexed { idx, squareType ->
@@ -189,8 +234,12 @@ class Board(val matrix: List<SquareType>) {
 
     }
 
-    //to the right
-    //and down
+    private fun checkShipSquares(shipSquares: List<Square>) {
+        shipSquares.forEach {
+            if (get(it) == SquareType.ShipPart ) throw IllegalArgumentException("There is already a ship in this square.")
+        }
+    }
+
     fun placeShip(initialSquare: Square, ship: Game.Ship, orientation: Orientation): Board{
         requireValidIndex(initialSquare)
 
@@ -294,7 +343,6 @@ enum class Orientation {
             }
         }
     }
-
 }
 
 /**

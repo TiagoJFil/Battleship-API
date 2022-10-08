@@ -15,7 +15,8 @@ import pt.isel.daw.battleship.data.row
 class BoardTests {
 
     companion object {
-        const val FOUR_BY_FOUR_EMPTY_LAYOUT = "####" +
+        const val FOUR_BY_FOUR_EMPTY_LAYOUT =
+                "####" +
                 "####" +
                 "####" +
                 "####"
@@ -31,7 +32,8 @@ class BoardTests {
     @Test
     fun `Creating a board with an invalid tile representation gives IllegalArgumentException`() {
 
-        val layout = "##" +
+        val layout =
+                "##" +
                 "'#"
 
         assertThrows<IllegalArgumentException> {
@@ -43,7 +45,8 @@ class BoardTests {
     @Test
     fun `Creating a board that does not represent a square gives IllegalArgumentException`() {
 
-        val layout = "####" +
+        val layout =
+                "####" +
                 "####"
 
         assertThrows<IllegalArgumentException> {
@@ -72,7 +75,8 @@ class BoardTests {
         val square2 = Square(Row(5), Column(0))
         val square3 = Square(Row(3), Column(4))
 
-        val layout = "####B#" +
+        val layout =
+                "####B#" +
                 "######" +
                 "######" +
                 "######" +
@@ -95,7 +99,8 @@ class BoardTests {
         assertThrows<IllegalArgumentException> {
             val square = Square(Row(50), Column(20))
 
-            val layout = "####" +
+            val layout =
+                    "####" +
                     "####"
 
             val board = Board.fromLayout(layout)
@@ -106,7 +111,8 @@ class BoardTests {
 
     @Test
     fun `Board to String representation`() {
-        val layout = "#BX#" +
+        val layout =
+                "#BX#" +
                 "O###" +
                 "#BBX" +
                 "#O#O"
@@ -118,7 +124,8 @@ class BoardTests {
 
     @Test
     fun `Shot to a tile`() {
-        val layout = "####" +
+        val layout =
+                "####" +
                 "####" +
                 "####" +
                 "####"
@@ -126,7 +133,8 @@ class BoardTests {
         val board = Board.fromLayout(layout)
         val newBoard = board.shotTo(Square(Row(2), Column(3)))
 
-        val newLayout = "####" +
+        val newLayout =
+                "####" +
                 "####" +
                 "###O" +
                 "####"
@@ -138,7 +146,8 @@ class BoardTests {
 
     @Test
     fun `placeShip works correctly`() {
-        val layout = "######" +
+        val layout =
+                "######" +
                 "######" +
                 "######" +
                 "######" +
@@ -148,13 +157,15 @@ class BoardTests {
         val board = Board.fromLayout(layout)
 
         val finalBoard = board.placeShip(
+
             Square(Row(0), Column(0)),
             Square(Row(0), Column(2))
         )
 
         println(finalBoard)
 
-        val expected = "BBB###" +
+        val expected =
+                "BBB###" +
                 "######" +
                 "######" +
                 "######" +
@@ -166,7 +177,8 @@ class BoardTests {
 
     @Test
     fun `placeShips works`(){
-        val layout = "######" +
+        val layout =
+                "######" +
                 "######" +
                 "######" +
                 "######" +
@@ -191,6 +203,56 @@ class BoardTests {
                 "######"
 
         assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
+    }
+
+    @Test
+    fun `cant place a ship next to another`(){
+        val layout =
+                "######" +
+                "######" +
+                "##BBB#" +
+                "######" +
+                "#B####" +
+                "#B####"
+
+        val board = Board.fromLayout(layout)
+
+        assertThrows<IllegalArgumentException> {
+            board.placeShip(
+                    Square(Row(0), Column(1)),
+                    Square(Row(1), Column(1))
+            )
+        }
+
+    }
+
+    @Test
+    fun `cant place a ship outside the board`(){
+        assertThrows<IllegalArgumentException> {
+            val board = Board.fromLayout(FOUR_BY_FOUR_EMPTY_LAYOUT)
+            board.placeShip(Square(0.row, 3.column), Square(0.row, 7.column))
+        }
+    }
+
+    @Test
+    fun `cant place a ship on top of another`(){
+
+        val layout =
+                "#BBB##" +
+                "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######"
+
+        val board = Board.fromLayout(layout)
+
+        assertThrows<IllegalArgumentException> {
+            board.placeShip(
+                    Square(0.row, 0.column),
+                    Square(0.row, 2.column)
+            )
+        }
     }
 
 
