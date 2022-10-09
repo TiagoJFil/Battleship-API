@@ -7,4 +7,6 @@ interface GameRepository {
     fun getGames(): List<Game>
 
     fun getGame(gameId: Id): Game?
+
+    fun updateGame(gameId: Id, game: Game)
 }

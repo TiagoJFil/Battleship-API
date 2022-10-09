@@ -61,6 +61,7 @@ class BoardShotTests {
             boardAccumulator.shotTo(square)
         }
 
+        logger.info { "\n" + expectedBoard.pretty() }
         logger.info { "\n" + finalBoard.pretty() }
 
         assert(finalBoard == expectedBoard)
@@ -126,12 +127,13 @@ class BoardShotTests {
                 "####"
 
 
+
         val board = Board.fromLayout(layout)
         val targetSquare = Square(1.row, 2.column)
 
 
         val newBoard = board.shotTo(targetSquare)
-
+        newBoard.pretty().let{ println(it)}
         val expectedLayout =
                 "#OOO" +
                 "#OXO" +
