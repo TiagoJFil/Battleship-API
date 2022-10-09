@@ -74,10 +74,9 @@ class BoardShotTests {
                 "##B#" +
                 "####"
 
-
         val board = Board.fromLayout(layout)
-        val targetSquare = Square(1.row, 2.column)
 
+        val targetSquare = Square(1.row, 2.column)
 
         val newBoard = board.shotTo(targetSquare)
 

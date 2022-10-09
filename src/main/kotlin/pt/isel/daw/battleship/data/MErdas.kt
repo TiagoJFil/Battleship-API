@@ -1,6 +1,6 @@
 package pt.isel.daw.battleship.data
 
-typealias Id = Int;
+typealias Id = Int
 
 data class Square(val row: Row, val column: Column)
 data class Row(val ordinal: Int){

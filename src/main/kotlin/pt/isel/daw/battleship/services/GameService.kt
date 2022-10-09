@@ -36,7 +36,7 @@ class GameService(
 ) {
 
     //Allow a user to define a set of shots on each round.
-    fun makeShoot(tiles: List<Square>, userId: Id, gameId: Id){
+    fun makeShot(tiles: List<Square>, userId: Id, gameId: Id){
         //list because it depends on the number of shots of the game
         val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
         val uid = game.turnPlayer.id
