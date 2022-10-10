@@ -1,7 +1,7 @@
-package pt.isel.daw.battleship.data.model
+package pt.isel.daw.battleship.domain.model
 
-import pt.isel.daw.battleship.data.Id
-import pt.isel.daw.battleship.data.Square
+import pt.isel.daw.battleship.domain.Id
+import pt.isel.daw.battleship.domain.Square
 
 data class Player (val id : Id, val name : String )
 

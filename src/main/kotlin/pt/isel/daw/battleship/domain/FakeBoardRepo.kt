@@ -1,6 +1,6 @@
-package pt.isel.daw.battleship.data
+package pt.isel.daw.battleship.domain
 
-import pt.isel.daw.battleship.data.model.Board
+import pt.isel.daw.battleship.domain.model.Board
 
 class FakeBoardRepo : BoardRepository {
 

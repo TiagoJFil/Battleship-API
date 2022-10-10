@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.platform.commons.logging.LoggerFactory
-import pt.isel.daw.battleship.data.Column
-import pt.isel.daw.battleship.data.Row
-import pt.isel.daw.battleship.data.Square
-import pt.isel.daw.battleship.data.column
-import pt.isel.daw.battleship.data.model.*
-import pt.isel.daw.battleship.data.row
+import pt.isel.daw.battleship.domain.Column
+import pt.isel.daw.battleship.domain.Row
+import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.domain.column
+import pt.isel.daw.battleship.domain.model.*
+import pt.isel.daw.battleship.domain.row
 
 class BoardTests {
 
@@ -254,6 +254,94 @@ class BoardTests {
             )
         }
     }
+
+    @Test
+    fun `place a list of ships`(){
+
+        val layout =
+                "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######"
+
+        val board = Board.fromLayout(layout)
+
+        val ships = listOf(
+                Pair(Square(0.row, 0.column), Square(0.row, 2.column)),
+                Pair(Square(1.row, 4.column), Square(1.row, 5.column)),
+                Pair(Square(2.row, 1.column), Square(4.row, 1.column)),
+        )
+
+        val finalBoard = board.placeShipList(ships)
+
+        val expected =
+                "BBB###" +
+                "####BB" +
+                "#B####" +
+                "#B####" +
+                "#B####" +
+                "######"
+
+        assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
+    }
+
+    @Test
+    fun `Cant place an invalid list of ships`() {
+
+        val layout =
+                        "######" +
+                        "######" +
+                        "######" +
+                        "######" +
+                        "######" +
+                        "######"
+
+        val board = Board.fromLayout(layout)
+
+        val ships = listOf(
+                Pair(Square(0.row, 0.column), Square(0.row, 2.column)),
+                Pair(Square(1.row, 3.column), Square(1.row, 5.column)),
+                Pair(Square(2.row, 1.column), Square(4.row, 1.column)),
+        )
+        assertThrows<IllegalArgumentException> {
+            board.placeShipList(ships)
+        }
+
+    }
+        /*
+            @Test
+            fun `Cant create a board with adjacent ships`(){
+                val layout =
+                        "#B####" +
+                        "#B####" +
+                        "#B###" +
+                        "#B####" +
+                        "#B####" +
+                        "#B####"
+
+                assertThrows<IllegalArgumentException> {
+                    Board.fromLayout(layout)
+                }
+            }
+
+            @Test
+            fun `Cant create a board with ships overlapping`(){
+                val layout =
+                        "##B###" +
+                        "##BBB#" +
+                        "##B###" +
+                        "##B###" +
+                        "######" +
+                        "######"
+
+                assertThrows<IllegalArgumentException> {
+                    Board.fromLayout(layout)
+                }
+            }
+            */
+
 
 
 }

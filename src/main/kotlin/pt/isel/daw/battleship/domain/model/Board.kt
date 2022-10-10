@@ -1,14 +1,17 @@
-package pt.isel.daw.battleship.data.model
+package pt.isel.daw.battleship.domain.model
 
-import pt.isel.daw.battleship.data.*
+import pt.isel.daw.battleship.domain.*
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
 
 data class ShipInfo(val initialSquare: Square, val ship : Game.Ship, val orientation : Orientation)
 
-
+//TODO: ver em relaçao a dar display da board ao user
 data class Board(val matrix: List<SquareType>) {
+
+    val boardSide : Int =  sqrt(matrix.size.toDouble()).toInt()
+
 
     companion object {
 
@@ -37,10 +40,11 @@ data class Board(val matrix: List<SquareType>) {
         ShipPart('B'),
         Shot('O'),
         Hit('X'),
-        Water('#')
-    }
+        Water('#');
 
-    val boardSide = sqrt(matrix.size.toDouble()).toInt()
+        override fun toString(): String = representation.toString()
+
+    }
 
 
     /**
@@ -50,7 +54,6 @@ data class Board(val matrix: List<SquareType>) {
      * @throws IllegalArgumentException if the square is out of bounds of the board
      */
     operator fun get(square: Square): SquareType = matrix[requireValidIndex(square)]
-
 
     /**
      * Makes a shot to the specified square
@@ -63,6 +66,9 @@ data class Board(val matrix: List<SquareType>) {
         val shotSquareIdx = requireValidIndex(square)
         val isHit = isHit(square)
         val searchResult = if (isHit) searchKnownWaterSquares(square) else null
+        if(matrix[shotSquareIdx] == SquareType.Hit
+                ||
+           matrix[shotSquareIdx] == SquareType.Shot) throw IllegalArgumentException("Square already shot")
 
         val squares = when (searchResult) {
             is ClearShipNeighbours ->
@@ -73,6 +79,7 @@ data class Board(val matrix: List<SquareType>) {
             is ClearDiagonals -> square.getDiagonals()
             else -> emptyList()
         }
+
         val knownWaterSquaresIdx = squares.map { getIndexFrom(it) }.toSet()
 
         val newBoardList = matrix.mapIndexed { idx, squareType ->
@@ -136,10 +143,6 @@ data class Board(val matrix: List<SquareType>) {
 
     }
 
-    private fun SquareOrNull(rowVal: Int, columnVal: Int): Square? {
-        return if (rowVal >= 0 && columnVal >= 0) Square(rowVal.row, columnVal.column) else null
-    }
-
     /**
      * Gets the neighbours of a square on the y axis and x axis
      */
@@ -182,15 +185,18 @@ data class Board(val matrix: List<SquareType>) {
     }
 
     /**
-     * String representation of the Board
-     */
-    override fun toString(): String = this.matrix.joinToString("") { it.representation.toString() }
-
-
-    /**
      * Gets the index from a given square in the Board
      */
     private fun getIndexFrom(square: Square): Int = square.row.ordinal * boardSide + square.column.ordinal
+
+    /**
+     * Gets the square from a given index in the Board
+     */
+    private fun getSquareFrom(index: Int): Square {
+        val row = index / boardSide
+        val column = index % boardSide
+        return Square(row.row, column.column)
+    }
 
     /**
      * Checks if the index from the given square is valid
@@ -250,19 +256,31 @@ data class Board(val matrix: List<SquareType>) {
         } else {
             Square((initialSquare.row.ordinal + shipSize - 1).row, initialSquare.column)
         }
-        //remover o -1 sque
+        return placeShip(initialSquare,endSquare)
+    }
 
-        requireValidIndex(endSquare)
 
-        val shipSquaresIndexs = getShipSquares(initialSquare, endSquare)
-                .map { square -> getIndexFrom(square) }
-
-        return Board(
-                matrix.mapIndexed { idx, squareType ->
-                    if (shipSquaresIndexs.contains(idx)) SquareType.ShipPart
-                    else squareType
+    /**
+     * String representation of the board that can have the ships hidden
+     */
+     fun toString(hiddenShips : Boolean = false): String {
+        val method: (SquareType) -> String =
+            if (hiddenShips) {
+                {
+                    if (it == SquareType.ShipPart) SquareType.Water.toString()
+                    else it.toString()
                 }
-        )
+            } else {
+                { it.representation.toString() }
+            }
+
+        return matrix.joinToString("") { method(it) }
+    }
+    /**
+     * String representation of the Board
+     */
+    override fun toString(): String {
+        return toString(false)
     }
 
 }

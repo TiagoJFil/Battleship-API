@@ -2,15 +2,16 @@ package pt.isel.daw.battleship.board
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import pt.isel.daw.battleship.data.Column
-import pt.isel.daw.battleship.data.Row
-import pt.isel.daw.battleship.data.Square
-import pt.isel.daw.battleship.data.model.Board
+import pt.isel.daw.battleship.domain.Column
+import pt.isel.daw.battleship.domain.Row
+import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.domain.model.Board
 
 class BoardSearchTests {
     @Test
     fun `Get known water squares`() {
-        val layout = "######" +
+        val layout =
+                "######" +
                 "###B##" +
                 "###B##" +
                 "###X##" +
@@ -26,7 +27,8 @@ class BoardSearchTests {
 
     @Test
     fun `Get known water squares with only one ship part to hit`() {
-        val layout = "######" +
+        val layout =
+                "######" +
                 "###X##" +
                 "###X##" +
                 "###X##" +
@@ -50,7 +52,8 @@ class BoardSearchTests {
 
     @Test
     fun `Get known water squares with shots in the water`() {
-        val layout = "##O#O#" +
+        val layout =
+                "##O#O#" +
                 "##OXO#" +
                 "##OXO#" +
                 "##OXO#" +

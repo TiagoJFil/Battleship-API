@@ -48,6 +48,18 @@ create table Game {
     player2 int foreign key references Player(id)
 }
 
+
+create table Authors(
+    name varchar(20) primary key,
+    email varchar(255) constraint email_invalid check(email ~* '^[A-Z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$')
+    github varchar(255)
+)
+
+create table SystemInfo(
+    name varchar(20) primary key,
+    version varchar(20)
+)
+
 create view RunningGames as
     select "User".id , Game.id,
       from "User" join Player on "User".id = Player.id 

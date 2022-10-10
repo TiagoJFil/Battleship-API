@@ -1,6 +1,10 @@
-package pt.isel.daw.battleship.data
+package pt.isel.daw.battleship.domain
 
 typealias Id = Int;
+
+fun SquareOrNull(rowVal: Int, columnVal: Int): Square? {
+    return if (rowVal >= 0 && columnVal >= 0) Square(rowVal.row, columnVal.column) else null
+}
 
 data class Square(val row: Row, val column: Column)
 data class Row(val ordinal: Int){

@@ -3,12 +3,12 @@ package pt.isel.daw.battleship.board
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.logging.LoggerFactory
-import pt.isel.daw.battleship.data.Square
-import pt.isel.daw.battleship.data.column
-import pt.isel.daw.battleship.data.model.Board
-import pt.isel.daw.battleship.data.model.makeShots
-import pt.isel.daw.battleship.data.model.pretty
-import pt.isel.daw.battleship.data.row
+import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.domain.column
+import pt.isel.daw.battleship.domain.model.Board
+import pt.isel.daw.battleship.domain.model.makeShots
+import pt.isel.daw.battleship.domain.model.pretty
+import pt.isel.daw.battleship.domain.row
 
 class BoardShotTests {
 
@@ -146,7 +146,6 @@ class BoardShotTests {
         Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
     }
 
-
     @Test
     fun `Multiple shots on the board`(){
         val layout =
@@ -173,5 +172,53 @@ class BoardShotTests {
         val expectedBoard = Board.fromLayout(expectedLayout)
 
         Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
+    }
+
+    @Test
+    fun `Cant shoot twice on the same square`(){
+        val layout =
+                "###" +
+                "#O#" +
+                "###"
+
+        val board = Board.fromLayout(layout)
+
+
+        Assertions.assertThrows(IllegalArgumentException::class.java){
+            val newBoard = board.shotTo(Square(1.row,1.column))
+
+        }
+    }
+
+    @Test
+    fun `Cant shoot on a square that is out of bounds`(){
+        val layout =
+                "###" +
+                "#O#" +
+                "###"
+
+        val board = Board.fromLayout(layout)
+
+
+        Assertions.assertThrows(IllegalArgumentException::class.java){
+            val newBoard = board.shotTo(Square(5.row,1.column))
+
+        }
+    }
+
+    @Test
+    fun `Cant shoot twice on the same square that had a boat`(){
+        val layout =
+                        "###" +
+                        "#X#" +
+                        "###"
+
+        val board = Board.fromLayout(layout)
+
+
+        Assertions.assertThrows(IllegalArgumentException::class.java){
+            val newBoard = board.shotTo(Square(1.row,1.column))
+
+        }
     }
 }

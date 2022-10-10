@@ -1,7 +1,7 @@
 package pt.isel.daw.battleship.services
 
-import pt.isel.daw.battleship.data.*
-import pt.isel.daw.battleship.data.model.*
+import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.model.*
 
 
 fun main() {
@@ -12,7 +12,7 @@ fun main() {
                         "##B#######" +
                         "##B#######" +
                         "##########" +
-                        "##BBBBB###" +
+                        "##BBBB####" +
                         "#######B##" +
                         "##BB###B##" +
                         "#######B##" +
@@ -39,7 +39,8 @@ class GameService(
 
     //Allow a user to define a set of shots on each round.
     fun makeShots(tiles: List<Square>, userId: Id, gameId: Id){
-        //list because it depends on the number of shots of the game
+        //verificaçeos
+
         val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
         val uid = game.turnPlayer.id
         if(uid != userId) throw Exception("Not your turn")
@@ -53,6 +54,9 @@ class GameService(
 
     //Allow a user to define the layout of their fleet in the grid.
     fun setBoardLayout(shipList: List<ShipInfo>, userId: Id, gameId : Id){
+       //verificaçeos
+
+
         val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
         val uid = game.turnPlayer.id
         if(uid != userId) throw Exception("Not your turn")
@@ -79,8 +83,25 @@ class GameService(
         //remove user from queue
     }
 
+
+    fun getEnemyFleetState(gameId: Id, userId: Id){
+
+    }
+
+    fun getFleetState(gameId: Id, userId: Id){
+
+    }
+
     //Inform the user about the overall state of a game, namely: game phase (layout definition phase, shooting phase, completed phase).
-    fun getGameState(game : Id){
+    fun getGameState(userId: Id, gameId : Id){
+       //verificaçoes
+
+
+        if(gameRepo.hasGame(gameId)) throw Exception("Game not found")
+        if(!gameRepo.verifyTurn(userId, gameId))  throw Exception("Not your turn")
+
+        val gameState = gameRepo.getGameState(gameId)
+
 
         //verify game id
         //return game state
