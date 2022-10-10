@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.data
+package pt.isel.daw.battleship.repository
 
 import pt.isel.daw.battleship.data.model.Board
 

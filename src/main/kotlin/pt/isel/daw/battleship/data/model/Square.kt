@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.data
+package pt.isel.daw.battleship.data.model
 
 typealias Id = Int
 

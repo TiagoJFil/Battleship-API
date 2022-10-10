@@ -4,13 +4,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.platform.commons.logging.LoggerFactory
-import pt.isel.daw.battleship.data.Column
-import pt.isel.daw.battleship.data.Row
-import pt.isel.daw.battleship.data.Square
-import pt.isel.daw.battleship.data.column
+import pt.isel.daw.battleship.data.model.Column
+import pt.isel.daw.battleship.data.model.Row
+import pt.isel.daw.battleship.data.model.Square
+import pt.isel.daw.battleship.data.model.column
 import pt.isel.daw.battleship.data.model.*
-import pt.isel.daw.battleship.data.row
+import pt.isel.daw.battleship.data.model.row
 
 class BoardTests {
 

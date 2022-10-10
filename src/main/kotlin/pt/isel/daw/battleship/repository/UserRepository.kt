@@ -1,0 +1,11 @@
+package pt.isel.daw.battleship.repository
+
+
+import pt.isel.daw.battleship.services.User
+import pt.isel.daw.battleship.utils.ID
+import pt.isel.daw.battleship.utils.UserToken
+
+interface UserRepository {
+    fun getUsersRanking(): List<Pair<User, Int>>
+    fun addUser(userName: String, userAuthToken: UserToken, hashedPassword: String): ID
+}

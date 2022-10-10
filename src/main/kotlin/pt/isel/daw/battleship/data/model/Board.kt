@@ -1,6 +1,5 @@
 package pt.isel.daw.battleship.data.model
 
-import pt.isel.daw.battleship.data.*
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
