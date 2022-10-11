@@ -42,7 +42,7 @@ class GameService(
     //Allow a user to define a set of shots on each round.
     fun makeShots(tiles: List<Square>, userId: Id, gameId: Id) {
         return transactionFactory.execute {
-            val gameRepo = it.gamesRepository
+            val gameRepo = gamesRepository
             //list because it depends on the number of shots of the game
             val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
             val uid = game.turnPlayer.id
@@ -58,7 +58,7 @@ class GameService(
     //Allow a user to define the layout of their fleet in the grid.
     fun setBoardLayout(shipList: List<ShipInfo>, userId: Id, gameId: Id) {
         return transactionFactory.execute {
-            val gameRepo = it.gamesRepository
+            val gameRepo = gamesRepository
 
             val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
             val uid = game.turnPlayer.id
@@ -74,8 +74,8 @@ class GameService(
      */
     fun getStatistics(): GameStatistics {
         return transactionFactory.execute {
-            val nGames = it.gamesRepository.getNumOfGames()
-            val ranking = it.usersRepository.getUsersRanking()
+            val nGames = gamesRepository.getNumOfGames()
+            val ranking = usersRepository.getUsersRanking()
             return@execute GameStatistics(nGames, ranking)
         }
     }
@@ -99,11 +99,28 @@ class GameService(
         //remove user from queue
     }
 
-    //Inform the user about the overall state of a game, namely: game phase (layout definition phase, shooting phase, completed phase).
-    fun getGameState(game: Id) {
+    fun getEnemyFleetState(gameId: Id, userId: Id){
 
-        //verify game id
-        //return game state
+    }
+
+    fun getFleetState(gameId: Id, userId: Id){
+
+    }
+
+    //Inform the user about the overall state of a game, namely: game phase (layout definition phase, shooting phase, completed phase).
+    fun getGameState(userId: Id, gameId : Id){
+        //verificaçoes
+
+        return transactionFactory.execute {
+            if (gamesRepository.hasGame(gameId)) throw Exception("Game not found")
+            if (!gamesRepository.verifyTurn(userId, gameId)) throw Exception("Not your turn")
+
+            val gameState = gamesRepository.getGameState(gameId)
+
+
+            //verify game id
+            //return game state
+        }
     }
 }
 

@@ -50,6 +50,17 @@ create table FleetComposition {
 
 
 
+create table Authors(
+                        name varchar(20) primary key,
+                        email varchar(255) constraint email_invalid check(email ~* '^[A-Z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$')
+    github varchar(255)
+)
+
+create table SystemInfo(
+                           name varchar(20) primary key,
+                           version varchar(20)
+)
+
 
 
 -------------------------------------------------------------------------------------------------------------------------
