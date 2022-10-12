@@ -32,6 +32,7 @@ data class Game(
         FINISHED
     }
 
+    fun toGame(): Game = Game(Id, state, rules, boards, players, turnIdx)
 }
 
 /**
@@ -73,6 +74,7 @@ fun Game.copyBoard(turnIdx: Int,newBoard: Board) = this.copy(
  * Returns the next turn index
  */
 fun Game.nextTurn(): Int = if(turnIdx > 0) 0 else 1
+
 
 
 private fun Int.verifyShipSize(size: Int?) {
