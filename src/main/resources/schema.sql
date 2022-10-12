@@ -1,56 +1,52 @@
-create table token{
-    userID int foreign key references user(id),
-    token varchar(255),
-}
-
-create table "User" (
-    id serial primary key,
-    "name" varchar(20),
-    passwordID varchar(20) foreign key references Password(id)
-)
-
 create table Password (
      id serial primary key,
      password varchar(20)
 )
 
-create table Board {
+create table "User" (
+    id serial primary key,
+    "name" varchar(20),
+    passwordID int,
+    foreign key(passwordID) references Password(id)
+)
+
+create table token(
+    userID int,
+    token varchar(255),
+    foreign key(userID) references "User"(id)
+);
+
+create table Board (
     id serial primary key,
     layout text
-}
+)
 
-create table Game {
+create table FleetComposition (
     id serial primary key,
-    rules int foreign key references GameRules(id),
-    "state" varchar(20) foreign key check ( "state" in ("Placing","Running","Ended")),
-    player1 int foreign key references Player(id),
-    player2 int foreign key references Player(id),
-    boardP1 int foreign key references Board(id)
-    boardP2 int foreign key references Board(id),
-    winner int foreign key references user(id)
-}
+    shipSize int,
+    numOfShips int,
+)
 
-create table GameRules {
+
+create table GameRules (
     id serial primary key,
     boardSide int,
     shotsPerTurn int,
     maxTimeToDefineLayout int,
     maxTimeToPlay int,
-    fleetComposition int foreign key references FleetComposition(id)
-}
+    fleetComposition int, foreign key(fleetComposition) references FleetComposition(id)
+)
 
-create table FleetComposition {
+create table Game (
     id serial primary key,
-    carrier int,
-    battleship int,
-    cruiser int,
-    submarine int,
-    destroyer int
-}
-
-
-
-
+    rules int, foreign key(rules) references GameRules(id),
+    "state" varchar(20) check ( "state" like 'Placing' or "state" like 'Running' or "state" like 'Ended'),
+    player1 int, foreign key(player1) references "User"(id),
+    player2 int, foreign key(player2) references "User"(id),
+    boardP1 int, foreign key(boardP1) references Board(id),
+    boardP2 int, foreign key(boardP2) references Board(id),
+    winner int, foreign key(winner) references "User"(id)
+)
 
 -------------------------------------------------------------------------------------------------------------------------
 create view RunningGames as
