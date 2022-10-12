@@ -77,12 +77,27 @@ class GameService(
         //remove user from queue
     }
 
-    //Inform the user about the overall state of a game, namely: game phase (layout definition phase, shooting phase, completed phase).
-    fun getGameState(gameID: Id): Game.State {
+    fun getEnemyFleetState(gameId: Id, userId: Id){
+
+    }
+
+    fun getFleetState(gameId: Id, userId: Id){
+
+    }
+
+    fun getGameState(userId: Id, gameId : Id){
+        //verificaçoes
+
         return transactionFactory.execute {
-            val gameRepo = it.gamesRepository
-            val game = gameRepo.getGame(gameID) ?: throw Exception("Game not found")
-            return@execute game.state
+            val gamesRepository = it.gamesRepository
+            if (gamesRepository.hasGame(gameId)) throw Exception("Game not found")
+            if (!gamesRepository.verifyTurn(userId, gameId)) throw Exception("Not your turn")
+
+            val gameState = gamesRepository.getGameState(gameId)
+
+
+            //verify game id
+            //return game state
         }
     }
 }

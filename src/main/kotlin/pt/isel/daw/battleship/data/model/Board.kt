@@ -36,7 +36,10 @@ data class Board(val matrix: List<SquareType>) {
         ShipPart('B'),
         Shot('O'),
         Hit('X'),
-        Water('#')
+        Water('#');
+
+
+        override fun toString(): String = representation.toString()
     }
 
     val boardSide = sqrt(matrix.size.toDouble()).toInt()
@@ -62,6 +65,9 @@ data class Board(val matrix: List<SquareType>) {
         val shotSquareIdx = requireValidIndex(square)
         val isHit = isHit(square)
         val searchResult = if (isHit) searchKnownWaterSquares(square) else null
+        if(matrix[shotSquareIdx] == SquareType.Hit
+                ||
+                matrix[shotSquareIdx] == SquareType.Shot) throw IllegalArgumentException("Square already shot")
 
         val squares = when (searchResult) {
             is ClearShipNeighbours ->
@@ -135,9 +141,7 @@ data class Board(val matrix: List<SquareType>) {
 
     }
 
-    private fun SquareOrNull(rowVal: Int, columnVal: Int): Square? {
-        return if (rowVal >= 0 && columnVal >= 0) Square(rowVal.row, columnVal.column) else null
-    }
+
 
     /**
      * Gets the neighbours of a square on the y axis and x axis
@@ -180,10 +184,6 @@ data class Board(val matrix: List<SquareType>) {
         return ClearShipNeighbours(seen.toList())
     }
 
-    /**
-     * String representation of the Board
-     */
-    override fun toString(): String = this.matrix.joinToString("") { it.representation.toString() }
 
 
     /**
@@ -264,6 +264,29 @@ data class Board(val matrix: List<SquareType>) {
         )
     }
 
+
+    /**
+     * String representation of the board that can have the ships hidden
+     */
+    fun toString(hiddenShips : Boolean = false): String {
+        val method: (SquareType) -> String =
+                if (hiddenShips) {
+                    {
+                        if (it == SquareType.ShipPart) SquareType.Water.toString()
+                        else it.toString()
+                    }
+                } else {
+                    { it.representation.toString() }
+                }
+
+        return matrix.joinToString("") { method(it) }
+    }
+    /**
+     * String representation of the Board
+     */
+    override fun toString(): String {
+        return toString(false)
+    }
 }
 
 

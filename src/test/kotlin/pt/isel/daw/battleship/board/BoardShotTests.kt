@@ -173,4 +173,54 @@ class BoardShotTests {
 
         Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
     }
+
+
+
+    @Test
+    fun `Cant shoot twice on the same square`(){
+        val layout =
+                "###" +
+                        "#O#" +
+                        "###"
+
+        val board = Board.fromLayout(layout)
+
+
+        Assertions.assertThrows(IllegalArgumentException::class.java){
+            val newBoard = board.shotTo(Square(1.row,1.column))
+
+        }
+    }
+
+    @Test
+    fun `Cant shoot on a square that is out of bounds`(){
+        val layout =
+                "###" +
+                        "#O#" +
+                        "###"
+
+        val board = Board.fromLayout(layout)
+
+
+        Assertions.assertThrows(IllegalArgumentException::class.java){
+            val newBoard = board.shotTo(Square(5.row,1.column))
+
+        }
+    }
+
+    @Test
+    fun `Cant shoot twice on the same square that had a boat`(){
+        val layout =
+                "###" +
+                        "#X#" +
+                        "###"
+
+        val board = Board.fromLayout(layout)
+
+
+        Assertions.assertThrows(IllegalArgumentException::class.java){
+            val newBoard = board.shotTo(Square(1.row,1.column))
+
+        }
+    }
 }

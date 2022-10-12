@@ -8,6 +8,9 @@ import pt.isel.daw.battleship.repository.GameRepository
 class FakeGameRepo(handle: Handle) : GameRepository {
 
     private val table = mutableMapOf<Id, Game>()
+    override fun getGameState(gameId: Id): Pair<Game.State, Id?> {
+        TODO("Not yet implemented")
+    }
 
     override fun getGames(): List<Game> = table.values.toList()
 
@@ -19,7 +22,10 @@ class FakeGameRepo(handle: Handle) : GameRepository {
         table[game.Id] = game
     }
 
-    fun hasGame(gameId: Id) = table[gameId] != null
+    override fun hasGame(gameId: Id) = table[gameId] != null
+    override fun verifyTurn(userId: Id, gameId: Id): Boolean {
+        TODO("Not yet implemented")
+    }
 
     override fun getGame(gameId: Id): Game? = table[gameId]
     override fun updateGame(gameId: Id, game: Game) {
