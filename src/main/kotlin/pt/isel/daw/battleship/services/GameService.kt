@@ -86,7 +86,7 @@ class GameService(
 
     }
 
-    fun getGameState(userId: Id, gameId : Id){
+    fun getGameState(userId: Id, gameId : Id): GameState{
         //verificaçoes
 
         return transactionFactory.execute {
@@ -96,6 +96,7 @@ class GameService(
 
             val gameState = gamesRepository.getGameState(gameId)
 
+            return@execute GameState(gameState.first, gameState.second)
 
             //verify game id
             //return game state
@@ -103,4 +104,5 @@ class GameService(
     }
 }
 
+data class GameState(val state: State, val winner: User?)
 data class GameStatistics(val nGames: Int, val ranking: List<Pair<UserName, Int>>)

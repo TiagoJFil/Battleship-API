@@ -2,6 +2,8 @@ package pt.isel.daw.battleship.repository
 
 import pt.isel.daw.battleship.model.Id
 import pt.isel.daw.battleship.model.Game
+import pt.isel.daw.battleship.services.dto.GameDTO
+import pt.isel.daw.battleship.services.User
 
 interface GameRepository {
 
@@ -11,7 +13,7 @@ interface GameRepository {
      * Gets the [Game.State] of a game and the Winner id if the state is [Game.State.FINISHED]
      * @param gameId the id of the game
      */
-    fun getGameState(gameId: Id): Pair<Game.State, Id?>
+    fun getGameState(gameId: Id): Pair<State, User?>
 
 
     /**
@@ -22,7 +24,7 @@ interface GameRepository {
     /**
      * Gets the [Game] with the given id
      */
-    fun getGame(gameId: Id): Game?
+    fun getGame(gameId: Id): GameDTO?
 
     /**
      * Updates a [Game]
