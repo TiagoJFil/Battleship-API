@@ -1,4 +1,4 @@
-
+begin transaction ;
 
 create table "User" (
     id serial primary key,
@@ -12,39 +12,43 @@ create table token(
     foreign key(userID) references "User"(id)
 );
 
-create table Board (
-    layout text,
-    gameId int ,
-    userId int ,
-    primary key (gameId, userId),
-    foreign key (gameId) references Game(id),
-    foreign key (userId) references "User"(id)
-)
-
 create table FleetComposition (
-    fleetName varchar(20),
-    shipSize int,
-    numOfShips int,
-    primary key (fleetName, shipSize)
+                                  fleetName varchar(20),
+                                  shipSize int,
+                                  numOfShips int,
+                                  primary key (fleetName, shipSize)
 );
 
 create table GameRules (
-    id serial primary key,
-    boardSide int,
-    shotsPerTurn int,
-    layoutDefinitionTimeout int,
-    playTimeout int,
-    fleetComposition varchar(20), foreign key(fleetComposition) references FleetComposition(id)
+                           id serial primary key,
+                           boardSide int,
+                           shotsPerTurn int,
+                           layoutDefinitionTimeout int,
+                           playTimeout int,
+                           fleetComposition varchar(20),
+                           foreign key(fleetComposition) references FleetComposition(fleetName)
 );
 
 create table Game (
-    id serial primary key,
-    rules int, foreign key(rules) references GameRules(id),
-    "state" varchar(20) check ( "state" like 'Placing' or "state" like 'Running' or "state" like 'Ended' or "state" like 'Waiting'),
-    player1 int, foreign key(player1) references "User"(id),
-    player2 int, foreign key(player2) references "User"(id),
-    winner int, foreign key(winner) references "User"(id)
+                      id serial primary key,
+                      rules int, foreign key(rules) references GameRules(id),
+                      "state" varchar(20) check ( "state" like 'Placing' or "state" like 'Running' or "state" like 'Ended' or "state" like 'Waiting'),
+                      turn int check (turn >= 1 and turn <= 2),
+                      player1 int, foreign key(player1) references "User"(id),
+                      player2 int, foreign key(player2) references "User"(id),
+                      winner int, foreign key(winner) references "User"(id)
 );
+
+
+create table Board (
+    layout text,
+    gameId int,
+    userId int,
+    primary key (gameId, userId),
+    foreign key (gameId) references Game(id),
+    foreign key (userId) references "User"(id)
+);
+
 
 create table Authors(
     name varchar(20) primary key,
@@ -57,6 +61,7 @@ create table SystemInfo(
        version varchar(20)
 );
 
+commit ;
 -------------------------------------------------------------------------------------------------------------------------
 create view RunningGames as
     select "User".id , Game.id,

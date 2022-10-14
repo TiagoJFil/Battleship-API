@@ -8,7 +8,7 @@ import pt.isel.daw.battleship.model.Game
 import pt.isel.daw.battleship.model.Game.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.services.entities.User
-import pt.isel.daw.battleship.services.dto.GameDTO
+import pt.isel.daw.battleship.services.dto.GameDBTO
 
 
 class JdbiGamesRepository(
@@ -19,10 +19,10 @@ class JdbiGamesRepository(
         TODO("Not yet implemented")
     }
 
-    override fun getGame(gameId: Id): GameDTO? {
+    override fun getGame(gameId: Id): Game? {
         return handle.createQuery("""SELECT * FROM game WHERE id = :gameId""")
             .bind("gameId", gameId)
-            .mapTo<GameDTO>()
+            .mapTo<GameDBTO>()
             .firstOrNull()
     }
 

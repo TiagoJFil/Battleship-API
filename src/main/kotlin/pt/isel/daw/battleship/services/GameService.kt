@@ -7,6 +7,7 @@ import pt.isel.daw.battleship.services.transactions.Transaction
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransaction
 import pt.isel.daw.battleship.repository.jdbi.configure
+import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.utils.UserName
 
 
@@ -104,5 +105,5 @@ class GameService(
     }
 }
 
-data class GameState(val state: State, val winner: User?)
+data class GameState(val state: Game.State, val winner: User?)
 data class GameStatistics(val nGames: Int, val ranking: List<Pair<UserName, Int>>)

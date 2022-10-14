@@ -1,8 +1,8 @@
 package pt.isel.daw.battleship.services.entities
 
 
-import pt.isel.daw.battleship.data.model.Game
-import pt.isel.daw.battleship.data.model.Id
+import pt.isel.daw.battleship.model.Game
+import pt.isel.daw.battleship.model.Id
 
 data class GameMapper(
     val Id: Id,
