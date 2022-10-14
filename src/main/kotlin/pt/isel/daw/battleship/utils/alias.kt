@@ -4,3 +4,4 @@ typealias UserToken = String
 typealias UserID = ID
 typealias ID = Int
 typealias UserName = String
+typealias ShipSize = Int

@@ -13,30 +13,30 @@ create table token(
 );
 
 create table FleetComposition (
-                                  fleetName varchar(20),
-                                  shipSize int,
-                                  numOfShips int,
-                                  primary key (fleetName, shipSize)
+   fleetName varchar(20),
+   shipSize int,
+   numOfShips int,
+   gameRulesID int,
+   foreign key(gameRulesID) references GameRules(id),
+   primary key (fleetName, shipSize)
 );
 
 create table GameRules (
-                           id serial primary key,
-                           boardSide int,
-                           shotsPerTurn int,
-                           layoutDefinitionTimeout int,
-                           playTimeout int,
-                           fleetComposition varchar(20),
-                           foreign key(fleetComposition) references FleetComposition(fleetName)
+   id serial primary key,
+   boardSide int,
+   shotsPerTurn int,
+   layoutDefinitionTimeout int,
+   playTimeout int,
 );
 
 create table Game (
-                      id serial primary key,
-                      rules int, foreign key(rules) references GameRules(id),
-                      "state" varchar(20) check ( "state" like 'Placing' or "state" like 'Running' or "state" like 'Ended' or "state" like 'Waiting'),
-                      turn int check (turn >= 1 and turn <= 2),
-                      player1 int, foreign key(player1) references "User"(id),
-                      player2 int, foreign key(player2) references "User"(id),
-                      winner int, foreign key(winner) references "User"(id)
+   id serial primary key,
+   rules int, foreign key(rules) references GameRules(id),
+   "state" varchar(20) check ( "state" like 'Placing' or "state" like 'Running' or "state" like 'Ended' or "state" like 'Waiting'),
+   turn int check (turn >= 1 and turn <= 2),
+   player1 int, foreign key(player1) references "User"(id),
+   player2 int, foreign key(player2) references "User"(id),
+   winner int, foreign key(winner) references "User"(id)
 );
 
 
@@ -57,8 +57,8 @@ create table Authors(
 );
 
 create table SystemInfo(
-       name varchar(20) primary key,
-       version varchar(20)
+   name varchar(20) primary key,
+   version varchar(20)
 );
 
 commit ;

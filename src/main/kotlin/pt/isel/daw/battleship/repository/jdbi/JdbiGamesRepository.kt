@@ -6,9 +6,11 @@ import org.jdbi.v3.core.kotlin.mapTo
 import pt.isel.daw.battleship.model.Id
 import pt.isel.daw.battleship.model.Game
 import pt.isel.daw.battleship.model.Game.*
+import pt.isel.daw.battleship.model.GameRules
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.services.dto.GameDBTO
+import pt.isel.daw.battleship.utils.UserID
 
 
 class JdbiGamesRepository(
@@ -19,7 +21,7 @@ class JdbiGamesRepository(
         TODO("Not yet implemented")
     }
 
-    override fun getGame(gameId: Id): Game? {
+    override fun getGame(gameId: Id): GameDBTO? {
         return handle.createQuery("""SELECT * FROM game WHERE id = :gameId""")
             .bind("gameId", gameId)
             .mapTo<GameDBTO>()

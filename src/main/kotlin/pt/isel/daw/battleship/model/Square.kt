@@ -3,11 +3,7 @@ package pt.isel.daw.battleship.model
 typealias Id = Int
 
 data class Square(val row: Row, val column: Column)
-
-fun SquareOrNull(rowVal: Int, columnVal: Int): Square? {
-    return if (rowVal >= 0 && columnVal >= 0) Square(rowVal.row, columnVal.column) else null
-}
-
+fun Square(row: Int, column: Int) = Square(Row(row), Column(column))
 data class Row(val ordinal: Int){
     operator fun minus(other: Row): Int = ordinal - other.ordinal
     init {

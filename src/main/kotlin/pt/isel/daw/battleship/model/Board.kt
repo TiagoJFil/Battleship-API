@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.sqrt
 
-data class ShipInfo(val initialSquare: Square, val ship : Game.Ship, val orientation : Orientation)
+data class ShipInfo(val initialSquare: Square, val size : Int, val orientation : Orientation)
 
 
 data class Board(val matrix: List<SquareType>) {
@@ -95,10 +95,10 @@ data class Board(val matrix: List<SquareType>) {
      * Gets the diagonal neighbours of a square
      */
     private fun Square.getDiagonals(): List<Square> {
-        val topLDiagonal = SquareOrNull((row.ordinal - 1), (column.ordinal - 1))
-        val topRDiagonal = SquareOrNull((row.ordinal - 1), (column.ordinal + 1))
-        val bottomLDiagonal = SquareOrNull((row.ordinal + 1), (column.ordinal - 1))
-        val bottomRDiagonal = SquareOrNull((row.ordinal + 1), (column.ordinal + 1))
+        val topLDiagonal = Square((row.ordinal - 1), (column.ordinal - 1))
+        val topRDiagonal = Square((row.ordinal - 1), (column.ordinal + 1))
+        val bottomLDiagonal = Square((row.ordinal + 1), (column.ordinal - 1))
+        val bottomRDiagonal = Square((row.ordinal + 1), (column.ordinal + 1))
 
         return listOfNotNull(
                 topLDiagonal, topRDiagonal, bottomLDiagonal, bottomRDiagonal
@@ -141,16 +141,14 @@ data class Board(val matrix: List<SquareType>) {
 
     }
 
-
-
     /**
      * Gets the neighbours of a square on the y axis and x axis
      */
     private fun Square.getAxisNeighbours(): List<Square> {
-        val top = SquareOrNull((row.ordinal - 1), column.ordinal)
-        val bottom = SquareOrNull((row.ordinal + 1), column.ordinal)
-        val left = SquareOrNull(row.ordinal, (column.ordinal - 1))
-        val right = SquareOrNull(row.ordinal, (column.ordinal + 1))
+        val top = Square((row.ordinal - 1), column.ordinal)
+        val bottom = Square((row.ordinal + 1), column.ordinal)
+        val left = Square(row.ordinal, (column.ordinal - 1))
+        val right = Square(row.ordinal, (column.ordinal + 1))
 
         return listOfNotNull(
             top, bottom, left, right
@@ -237,10 +235,9 @@ data class Board(val matrix: List<SquareType>) {
         }
     }
 
-    fun placeShip(initialSquare: Square, ship: Game.Ship, orientation: Orientation): Board {
+    fun placeShip(initialSquare: Square, shipSize: Int, orientation: Orientation): Board {
         requireValidIndex(initialSquare)
 
-        val shipSize = ship.size
         //get the endSquare
         val endSquare = if(orientation == Orientation.Horizontal){
             Square(initialSquare.row, (initialSquare.column.ordinal + shipSize - 1).column)
@@ -287,7 +284,6 @@ data class Board(val matrix: List<SquareType>) {
     }
 }
 
-
 fun Board.placeShipList(shipInfoList: List<Pair<Square, Square>>): Board =
         shipInfoList.fold(this){ acc, pair ->
             acc.placeShip(pair.first,pair.second)
@@ -295,14 +291,13 @@ fun Board.placeShipList(shipInfoList: List<Pair<Square, Square>>): Board =
 
 fun Board.placeShips(shipInfoList : List<ShipInfo>) : Board =
         shipInfoList.fold(this){ acc, shipInfo ->
-            acc.placeShip(shipInfo.initialSquare, shipInfo.ship, shipInfo.orientation)
+            acc.placeShip(shipInfo.initialSquare, shipInfo.size, shipInfo.orientation)
         }
 
 fun Board.makeShots(tiles: List<Square>): Board =
     tiles.fold(this) { acc, square ->
         acc.shotTo(square)
     }
-
 
 
 private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Square> {
@@ -324,7 +319,6 @@ private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Squ
                 )
         )
     }
-
     return squareList
 }
 

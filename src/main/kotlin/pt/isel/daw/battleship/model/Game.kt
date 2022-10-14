@@ -1,29 +1,20 @@
 package pt.isel.daw.battleship.model
 
-data class Player (val id : Id, val name : String )
+import pt.isel.daw.battleship.utils.ShipSize
+import pt.isel.daw.battleship.utils.UserID
 
 data class Game(
         val Id: Id,
         val state: State,
         val rules: GameRules = GameRules.DEFAULT,
-        val boards: List<Board> = List(2){ Board.empty(rules.boardSide) },
-        val players : List<Player> = listOf( Player(1,"p1") , Player(2,"p2") ),
-        val turnIdx: Int
+        val boards: Map<UserID, Board>,
+        val turn: UserID
 ){
-    val turnBoard = boards[turnIdx]
-    val oppositeTurnIdx = 1 - turnIdx
+    val turnBoard = boards[turn]
+    val oppositeTurnIdx = 1 - turn
     val oppositeTurnBoard = boards[oppositeTurnIdx]
-    val turnPlayer  = players[turnIdx]
-    val oppositeTurnPlayer = players[oppositeTurnIdx]
-
-
-    sealed class Ship(val size: Int)
-    class Carrier(size : Int) : Ship(size)//rules.shipRules.carrierSize)
-    class Battleship(size: Int) : Ship(size)
-    class Cruiser(size: Int) : Ship(size)
-    class Submarine(size: Int) : Ship(size)
-    class Destroyer(size: Int) : Ship(size)
-
+    val turnPlayer  = turn
+    val oppositeTurnPlayer = oppositeTurnIdx
 
     enum class State {
         WAITING_PLAYER,
@@ -31,8 +22,6 @@ data class Game(
         PLAYING,
         FINISHED
     }
-
-    fun toGame(): Game = Game(Id, state, rules, boards, players, turnIdx)
 }
 
 /**
@@ -43,8 +32,8 @@ data class Game(
  */
 fun Game.makeShot(squares: List<Square>): Game {
     if(squares.size != rules.shotsPerTurn) throw IllegalArgumentException("Invalid number of shots")
-
-    val newBoard = turnBoard.makeShots(squares)
+    val currentBoard = this.turnBoard ?: throw IllegalStateException("Board not initialized")
+    val newBoard = currentBoard.makeShots(squares)
     return this.replaceBoard(oppositeTurnIdx, newBoard)
 }
 
@@ -54,28 +43,29 @@ fun Game.makeShot(squares: List<Square>): Game {
  * @throws IllegalArgumentException if the ship is invalid according to the [Game.rules]
  */
 fun Game.placeShips(shipList: List<ShipInfo>) : Game {
-
-    rules.verifyShips(shipList)
-
-    val newBoard = this.turnBoard.placeShips(shipList)
-
-    return this.replaceBoard(turnIdx,newBoard)
+    val currentBoard = this.turnBoard ?: throw IllegalStateException("Board not initialized")
+    val newBoard =  currentBoard.placeShips(shipList)
+    return this.replaceBoard(turn,newBoard)
 }
 
-fun Game.replaceBoard(turnIdx: Int, newBoard: Board) = this.copy(
-    boards = boards.mapIndexed { idx, b ->
-        if (idx != turnIdx) return@mapIndexed b
-
-        newBoard
+/**
+ * Returns a new Game after the board is changed
+ */
+fun Game.replaceBoard(turn: UserID, newBoard: Board): Game{
+    val newBoards = boards.values.map {
+        if(boards[turn] == it) newBoard
+        else it
     }
-)
+
+    return this.copy(
+        boards = boards.keys.associateWith { newBoards[it] }
+    )
+}
 
 /**
  * Returns the next turn index
  */
-fun Game.nextTurn(): Int = if(turnIdx > 0) 0 else 1
-
-
+fun Game.nextTurn(currentUser: UserID): Int = if(currentUser == turn) 1 else 0
 
 private fun Int.verifyShipSize(size: Int?) {
     size ?: throw IllegalArgumentException("Ship is not accepted with the current game rules")
@@ -83,11 +73,7 @@ private fun Int.verifyShipSize(size: Int?) {
 }
 
 data class ShipRules(
-val carrierSize: Int?,
-val battleshipSize: Int?,
-val cruiserSize: Int?,
-val submarineSize: Int?,
-val destroyerSize: Int?
+    val fleetComposition: Map<ShipSize, Int>
 )
 
 data class GameRules(
@@ -99,26 +85,20 @@ data class GameRules(
     //fleet composition
 
 ) {
-
-    fun verifyShips(shipList: List<ShipInfo>) {
-        shipList.forEach { shipInfo ->
-            when (val ship = shipInfo.ship) {
-                is Game.Carrier -> ship.size.verifyShipSize(shipRules.carrierSize)
-                is Game.Battleship -> ship.size.verifyShipSize(shipRules.battleshipSize)
-                is Game.Cruiser -> ship.size.verifyShipSize(shipRules.cruiserSize)
-                is Game.Submarine -> ship.size.verifyShipSize(shipRules.submarineSize)
-                is Game.Destroyer -> ship.size.verifyShipSize(shipRules.destroyerSize)
-
-            }
-        }
-    }
-
-
     companion object {
         val DEFAULT = GameRules(
-                1, 10,60,
-                60, ShipRules(5,4,
-                3,3,2)
+            1,
+            10,
+            60,
+            60,
+            ShipRules(
+                mapOf<ShipSize, Int>(
+                    5 to 1,
+                    4 to 1,
+                    3 to 1,
+                    2 to 1
+                )
+            )
         )
     }
 }

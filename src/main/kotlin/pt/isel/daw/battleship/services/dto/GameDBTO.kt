@@ -10,14 +10,5 @@ data class GameDBTO(
     val winner: Id?,
     val player1: Id,
     val player2: Id,
-){
-    constructor(gameEntity: GameMapper): this(
-        gameEntity.Id,
-        gameEntity.state.toString(),
-        gameEntity.winnerID,
-        gameEntity.player1ID,
-        gameEntity.player2ID,
-    )
+)
 
-    fun toGame() = Game(id, Game.State.valueOf(state),)
-}
