@@ -2,10 +2,10 @@ package pt.isel.daw.battleship.board
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import pt.isel.daw.battleship.data.model.Column
-import pt.isel.daw.battleship.data.model.Row
-import pt.isel.daw.battleship.data.model.Square
-import pt.isel.daw.battleship.data.model.Board
+import pt.isel.daw.battleship.model.Column
+import pt.isel.daw.battleship.model.Row
+import pt.isel.daw.battleship.model.Square
+import pt.isel.daw.battleship.model.Board
 
 class BoardSearchTests {
     @Test

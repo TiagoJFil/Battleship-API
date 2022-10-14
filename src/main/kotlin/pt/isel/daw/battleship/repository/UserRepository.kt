@@ -1,8 +1,8 @@
 package pt.isel.daw.battleship.repository
 
 
-import pt.isel.daw.battleship.repository.jdbi.UserName
 import pt.isel.daw.battleship.utils.ID
+import pt.isel.daw.battleship.utils.UserName
 import pt.isel.daw.battleship.utils.UserToken
 
 interface UserRepository {

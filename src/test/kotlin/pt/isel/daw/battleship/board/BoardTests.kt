@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.data.model.Column
-import pt.isel.daw.battleship.data.model.Row
-import pt.isel.daw.battleship.data.model.Square
-import pt.isel.daw.battleship.data.model.column
-import pt.isel.daw.battleship.data.model.*
-import pt.isel.daw.battleship.data.model.row
+import pt.isel.daw.battleship.model.Column
+import pt.isel.daw.battleship.model.Row
+import pt.isel.daw.battleship.model.Square
+import pt.isel.daw.battleship.model.column
+import pt.isel.daw.battleship.model.row
+import pt.isel.daw.battleship.model.*
 
 class BoardTests {
 
@@ -188,8 +188,8 @@ class BoardTests {
 
         val finalBoard = board.placeShips(
                 listOf(
-                        ShipInfo(Square(0.row, 0.column), Game.Carrier(4),Orientation.Horizontal ),
-                        ShipInfo(Square(2.row, 1.column), Game.Battleship(3),Orientation.Vertical ),
+                        ShipInfo(Square(0.row, 0.column), Game.Carrier(4), Orientation.Horizontal ),
+                        ShipInfo(Square(2.row, 1.column), Game.Battleship(3), Orientation.Vertical ),
                 )
         )
 

@@ -2,23 +2,24 @@ package pt.isel.daw.battleship.services
 
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
-import pt.isel.daw.battleship.data.model.*
+import pt.isel.daw.battleship.model.*
 import pt.isel.daw.battleship.services.transactions.Transaction
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransaction
 import pt.isel.daw.battleship.repository.jdbi.configure
 import pt.isel.daw.battleship.utils.UserName
 
+
 class GameService(
     private val transactionFactory: TransactionFactory
 ) {
 
     /**
-     * Allow a user to define a set of shots on each round.
+     * Allows a user to define a set of shots on each round.
      */
     fun makeShots(tiles: List<Square>, userId: Id, gameId: Id) {
         return transactionFactory.execute {
-            val gameRepo = it.gamesRepository
+            val gameRepo = gamesRepository
             //list because it depends on the number of shots of the game
             val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
             val uid = game.turnPlayer.id
@@ -36,7 +37,7 @@ class GameService(
      */
     fun setBoardLayout(shipList: List<ShipInfo>, userId: Id, gameId: Id) {
         return transactionFactory.execute {
-            val gameRepo = it.gamesRepository
+            val gameRepo = gamesRepository
 
             val game = gameRepo.getGame(gameId) ?: throw Exception("Game not found")
             val uid = game.turnPlayer.id
@@ -52,8 +53,8 @@ class GameService(
      */
     fun getStatistics(): GameStatistics {
         return transactionFactory.execute {
-            val nGames = it.gamesRepository.getNumOfGames()
-            val ranking = it.usersRepository.getUsersRanking()
+            val nGames = gamesRepository.getNumOfGames()
+            val ranking = usersRepository.getUsersRanking()
             return@execute GameStatistics(nGames, ranking)
         }
     }
@@ -89,7 +90,7 @@ class GameService(
         //verificaçoes
 
         return transactionFactory.execute {
-            val gamesRepository = it.gamesRepository
+            val gamesRepository = gamesRepository
             if (gamesRepository.hasGame(gameId)) throw Exception("Game not found")
             if (!gamesRepository.verifyTurn(userId, gameId)) throw Exception("Not your turn")
 
@@ -103,49 +104,3 @@ class GameService(
 }
 
 data class GameStatistics(val nGames: Int, val ranking: List<Pair<UserName, Int>>)
-data class User(val id: Id, val name: String)
-data class UserCreateInput(val name: String, val password: String)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-private val jdbi = Jdbi.create(
-    PGSimpleDataSource().apply {
-        setURL("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=craquesdabola123")
-    }
-).configure()
-
-fun testWithTransactionManagerAndRollback(block: (TransactionFactory) -> Unit) = jdbi.useTransaction<Exception>
-{ handle ->
-
-    val transaction = JdbiTransaction(handle)
-
-    // a test TransactionManager that never commits
-    val transactionManager = object : TransactionFactory {
-        override fun <R> execute(block: (Transaction) -> R): R {
-             return block(transaction)
-        }
-
-    }
-    block(transactionManager)
-
-    // finally, we rollback everything
-    handle.rollback()
-}
-
-fun main(){
-    testWithTransactionManagerAndRollback {
-        val gameServices = GameService(it)
-        println(gameServices.getGameState(1))
-    }
-}

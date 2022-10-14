@@ -11,6 +11,7 @@ class BattleshipApplication{
 	@Bean
 	fun jdbi() = Jdbi.create("jdbc:postgresql://localhost/postgres?user=postgres&password=craquesdabola123")
 		.installPlugin(KotlinPlugin())
+
 }
 
 fun main(args: Array<String>) {

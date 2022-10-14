@@ -1,6 +1,7 @@
 package pt.isel.daw.battleship.services
 
 import pt.isel.daw.battleship.repository.UserRepository
+import pt.isel.daw.battleship.services.input.UserCreateInput
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.utils.UserID
 import pt.isel.daw.battleship.utils.UserToken
@@ -23,9 +24,10 @@ class UserService(
         val userAuthToken = generateUUId()
 
         return transactionFactory.execute {
-            val userID = it.usersRepository.addUser(name, userAuthToken, passwordHash)
+            val userID = usersRepository.addUser(name, userAuthToken, passwordHash)
 
             return@execute Pair(userAuthToken, userID)
         }
     }
+
 }

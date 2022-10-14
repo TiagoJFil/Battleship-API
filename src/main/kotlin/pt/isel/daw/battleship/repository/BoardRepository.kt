@@ -1,6 +1,6 @@
 package pt.isel.daw.battleship.repository
 
-import pt.isel.daw.battleship.data.model.Board
+import pt.isel.daw.battleship.model.Board
 
 
 interface BoardRepository {

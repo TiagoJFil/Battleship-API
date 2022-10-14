@@ -1,7 +1,7 @@
 package pt.isel.daw.battleship.repository
 
-import pt.isel.daw.battleship.data.model.Id
-import pt.isel.daw.battleship.data.model.Game
+import pt.isel.daw.battleship.model.Id
+import pt.isel.daw.battleship.model.Game
 
 interface GameRepository {
 
@@ -14,6 +14,9 @@ interface GameRepository {
     fun getGameState(gameId: Id): Pair<Game.State, Id?>
 
 
+    /**
+     * Gets all the games
+     */
     fun getGames(): List<Game>
 
     /**
@@ -21,7 +24,9 @@ interface GameRepository {
      */
     fun getGame(gameId: Id): Game?
 
-
+    /**
+     * Updates a [Game]
+     */
     fun updateGame(gameId: Id, game: Game)
 
     /**

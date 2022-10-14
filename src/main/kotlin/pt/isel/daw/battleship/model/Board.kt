@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.data.model
+package pt.isel.daw.battleship.model
 
 import java.util.*
 import kotlin.math.abs
@@ -184,8 +184,6 @@ data class Board(val matrix: List<SquareType>) {
         return ClearShipNeighbours(seen.toList())
     }
 
-
-
     /**
      * Gets the index from a given square in the Board
      */
@@ -235,11 +233,11 @@ data class Board(val matrix: List<SquareType>) {
 
     private fun checkShipSquares(shipSquares: List<Square>) {
         shipSquares.forEach {
-            if (get(it) == SquareType.ShipPart ) throw IllegalArgumentException("There is already a ship in this square.")
+            if (get(it) == SquareType.ShipPart) throw IllegalArgumentException("There is already a ship in this square.")
         }
     }
 
-    fun placeShip(initialSquare: Square, ship: Game.Ship, orientation: Orientation): Board{
+    fun placeShip(initialSquare: Square, ship: Game.Ship, orientation: Orientation): Board {
         requireValidIndex(initialSquare)
 
         val shipSize = ship.size
