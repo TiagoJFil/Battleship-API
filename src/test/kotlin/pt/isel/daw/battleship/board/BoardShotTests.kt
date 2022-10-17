@@ -15,6 +15,7 @@ class BoardShotTests {
     companion object {
         private val logger = LoggerFactory.getLogger(this::class.java)
     }
+
     @Test
     fun `Shooting on water gives back a board with a hit`() {
 
@@ -75,14 +76,14 @@ class BoardShotTests {
                 "##B#" +
                 "####"
 
-        val board = Board.fromLayout(layout)
 
+        val board = Board.fromLayout(layout)
         val targetSquare = Square(1.row, 2.column)
+
 
         val newBoard = board.shotTo(targetSquare)
 
-        val expectedLayout =
-                "#OBO" +
+        val expectedLayout =  "#OBO" +
                 "##X#" +
                 "#OBO" +
                 "####"
@@ -94,8 +95,7 @@ class BoardShotTests {
 
     @Test
     fun `Shot on a ship part gives back a board with a hit and shots around the ship`(){
-        val layout =
-                "#OXO" +
+        val layout = "#OXO" +
                 "#OXO" +
                 "#OBO" +
                 "####"
@@ -107,8 +107,7 @@ class BoardShotTests {
 
         val newBoard = board.shotTo(targetSquare)
 
-        val expectedLayout =
-                "#OXO" +
+        val expectedLayout =  "#OXO" +
                 "#OXO" +
                 "#OXO" +
                 "#OOO"
@@ -120,12 +119,10 @@ class BoardShotTests {
 
     @Test
     fun `Shot on a ship with only 1 part gives back a board with a hit and shots around the ship`(){
-        val layout =
-                "####" +
+        val layout = "####" +
                 "##B#" +
                 "####" +
                 "####"
-
 
 
         val board = Board.fromLayout(layout)
@@ -133,9 +130,8 @@ class BoardShotTests {
 
 
         val newBoard = board.shotTo(targetSquare)
-        newBoard.pretty().let{ println(it)}
-        val expectedLayout =
-                "#OOO" +
+
+        val expectedLayout =  "#OOO" +
                 "#OXO" +
                 "#OOO" +
                 "####"
@@ -187,7 +183,7 @@ class BoardShotTests {
 
 
         Assertions.assertThrows(IllegalArgumentException::class.java){
-            val newBoard = board.shotTo(Square(1.row,1.column))
+            board.shotTo(Square(1.row,1.column))
 
         }
     }
@@ -203,7 +199,7 @@ class BoardShotTests {
 
 
         Assertions.assertThrows(IllegalArgumentException::class.java){
-            val newBoard = board.shotTo(Square(5.row,1.column))
+            board.shotTo(Square(5.row,1.column))
 
         }
     }
@@ -219,7 +215,7 @@ class BoardShotTests {
 
 
         Assertions.assertThrows(IllegalArgumentException::class.java){
-            val newBoard = board.shotTo(Square(1.row,1.column))
+            board.shotTo(Square(1.row,1.column))
 
         }
     }

@@ -1,12 +1,15 @@
 package pt.isel.daw.battleship.model
 
+import pt.isel.daw.battleship.utils.ShipCount
+import pt.isel.daw.battleship.utils.ShipSize
 import java.util.*
-import kotlin.math.abs
 import kotlin.math.sqrt
 
 data class ShipInfo(val initialSquare: Square, val size : Int, val orientation : Orientation)
 
-
+/**
+ * Represents a battleship board.
+ */
 data class Board(val matrix: List<SquareType>) {
 
     companion object {
@@ -24,8 +27,34 @@ data class Board(val matrix: List<SquareType>) {
                 }
             )
         }
-
     }
+
+    /**
+    * Gets the fleet composition of the Board
+    */
+    val fleetComposition by lazy<Map<ShipSize, ShipCount>> {
+        val ships = mutableListOf<List<Square>>()
+        val seen = mutableSetOf<Square>()
+        matrix.forEachIndexed { idx, squareType ->
+            val row = Row(idx / side)
+            if(squareType == SquareType.ShipPart || squareType == SquareType.Hit){
+                val square = Square(row, Column(idx - row.ordinal * side))
+                if(square !in seen){
+                    val shipParts = getShipParts(square)
+                    ships.add(shipParts)
+                    seen.addAll(shipParts)
+                }
+            }
+        }
+
+        ships.associate {
+            val shipSize = it.size
+            val shipCount = ships.count{ it.size == shipSize }
+            shipSize to shipCount
+        }
+    }
+
+
 
     sealed class SearchResult
 
@@ -42,7 +71,7 @@ data class Board(val matrix: List<SquareType>) {
         override fun toString(): String = representation.toString()
     }
 
-    val boardSide = sqrt(matrix.size.toDouble()).toInt()
+    val side = sqrt(matrix.size.toDouble()).toInt()
 
 
     /**
@@ -93,6 +122,7 @@ data class Board(val matrix: List<SquareType>) {
 
     /**
      * Gets the diagonal neighbours of a square
+     * @return List<Square> containing the diagonal neighbours of the ship
      */
     private fun Square.getDiagonals(): List<Square> {
         val topLDiagonal = Square((row.ordinal - 1), (column.ordinal - 1))
@@ -109,6 +139,7 @@ data class Board(val matrix: List<SquareType>) {
 
     /**
      * Gets the neighbours of a square
+     * @return List<Square> diagonal, vertical and horizontal neighbours of the ship
      */
     private fun Square.getNeighbours() : List<Square> {
         val axis = this.getAxisNeighbours()
@@ -117,7 +148,9 @@ data class Board(val matrix: List<SquareType>) {
     }
 
     /**
-     * Check around the given squares
+     * Check around the given squares to prevent adjacent ships
+     * @param shipSquares the ship parts
+     * @throws IllegalArgumentException if there are adjacent ships
      */
     private fun checkForAdjacentShips(shipSquares: List<Square>) {
         val seen = mutableListOf<Square>()
@@ -143,6 +176,7 @@ data class Board(val matrix: List<SquareType>) {
 
     /**
      * Gets the neighbours of a square on the y axis and x axis
+     * @return List<Square> containing the vertical and horizontal neighbours of the ship
      */
     private fun Square.getAxisNeighbours(): List<Square> {
         val top = Square((row.ordinal - 1), column.ordinal)
@@ -161,6 +195,8 @@ data class Board(val matrix: List<SquareType>) {
      * Searches for the known water squares after a hit and returns a result [SearchResult] that shows its format:
      * - All around
      * - Diagonal
+     * @param initialSquare of the ship
+     * @return [SearchResult]
      */
     fun searchKnownWaterSquares(initialSquare: Square): SearchResult {
         val seen = mutableSetOf<Square>()
@@ -183,15 +219,44 @@ data class Board(val matrix: List<SquareType>) {
     }
 
     /**
-     * Gets the index from a given square in the Board
+     * Gets all the squares of a Ship
+     * @param initialSquare of the ship
+     * @return List<Square> containing all the ship parts
      */
-    private fun getIndexFrom(square: Square): Int = square.row.ordinal * boardSide + square.column.ordinal
+    private fun getShipParts(initialSquare: Square): List<Square> {
+        val seen = mutableSetOf<Square>(initialSquare)
+        val frontier = LinkedList<Square>()
+        frontier.add(initialSquare)
+
+        while(frontier.isNotEmpty()) {
+            val square = frontier.removeFirst()
+            val neighbours = square.getAxisNeighbours()
+            neighbours.filter{ sqr ->
+                val squareType = matrix[getIndexFrom(sqr)]
+                (squareType == SquareType.ShipPart || squareType == SquareType.Hit) && sqr !in seen
+            }.forEach { sqr ->
+                seen.add(sqr)
+                frontier.add(sqr)
+            }
+        }
+        return seen.toList()
+    }
+
+    /**
+     * Gets the index from a given square in the Board
+     * @param square square to check
+     * @return [Int] the index of the given square
+     */
+    private fun getIndexFrom(square: Square): Int = square.row.ordinal * side + square.column.ordinal
 
     /**
      * Checks if the index from the given square is valid
+     * @param square square to check
+     * @return [Int] the index of the given square
+     * @throws IllegalArgumentException if the square is not in the bounds of the board
      */
     private fun requireValidIndex(square: Square): Int {
-        if( square.row.ordinal  > boardSide || square.column.ordinal > boardSide) {
+        if( square.row.ordinal  > side || square.column.ordinal > side) {
             throw IllegalArgumentException("Square is out of bounds of the board.")
         }
         val index = getIndexFrom(square)
@@ -201,12 +266,18 @@ data class Board(val matrix: List<SquareType>) {
 
     /**
      * Returns true if the square trying to be shot has a [SquareType.ShipPart] in it
+     * @param square square to check
+     * @return [Boolean]
      */
     private fun isHit(square: Square) = get(square) == SquareType.ShipPart
 
 
     /**
-     * Places a ship on the board given an initial square and final square
+     * Places a ship on the board given an initial square and final square.
+     * @param initialSquare
+     * @param finalSquare
+     * @returns [Board] 
+     * @throws IllegalArgumentException if the square is not in the bounds of the board
      */
     fun placeShip(initialSquare: Square, finalSquare: Square): Board {
         requireValidIndex(initialSquare)
@@ -229,12 +300,25 @@ data class Board(val matrix: List<SquareType>) {
 
     }
 
+    /**
+     * Checks if the given squares already have a ship part on it.a 
+     * @param shipSquares
+     * @throws IllegalArgumentException if the a ship part is already in a square
+     */
     private fun checkShipSquares(shipSquares: List<Square>) {
         shipSquares.forEach {
             if (get(it) == SquareType.ShipPart) throw IllegalArgumentException("There is already a ship in this square.")
         }
     }
 
+    /**
+     * Places a ship on the board
+     * @param initialSquare of the ship
+     * @param shipSize
+     * @param orientation Horizontal or Vertical
+     * @returns [Board] the new board with the ship placed
+     * @throws IllegalArgumentException if the square is not in the bounds of the board
+     */
     fun placeShip(initialSquare: Square, shipSize: Int, orientation: Orientation): Board {
         requireValidIndex(initialSquare)
 
@@ -259,9 +343,10 @@ data class Board(val matrix: List<SquareType>) {
         )
     }
 
-
     /**
      * String representation of the board that can have the ships hidden
+     * @param hiddenShips 
+     * @return [String] representation of the board
      */
     fun toString(hiddenShips : Boolean = false): String {
         val method: (SquareType) -> String =
@@ -276,30 +361,51 @@ data class Board(val matrix: List<SquareType>) {
 
         return matrix.joinToString("") { method(it) }
     }
+
     /**
-     * String representation of the Board
+     * @return [String] representation of the Board
      */
     override fun toString(): String {
         return toString(false)
     }
 }
 
+/**
+ * Place a fleet on the Board
+ * @param shipInfoList fleet info
+ * @return [Board] board with the fleet on it
+ */
 fun Board.placeShipList(shipInfoList: List<Pair<Square, Square>>): Board =
-        shipInfoList.fold(this){ acc, pair ->
-            acc.placeShip(pair.first,pair.second)
+        shipInfoList.fold(this){ acc, squares ->
+            acc.placeShip(squares.first, squares.second)
         }
 
+/**
+ * Place a fleet on the Board
+ * @param shipInfoList fleet info
+ * @return [Board] board with the fleet on it
+ */
 fun Board.placeShips(shipInfoList : List<ShipInfo>) : Board =
         shipInfoList.fold(this){ acc, shipInfo ->
             acc.placeShip(shipInfo.initialSquare, shipInfo.size, shipInfo.orientation)
         }
 
+/**
+ * Make shots to the given squares
+ * @param tiles to shot
+ * @return [Board]
+ */
 fun Board.makeShots(tiles: List<Square>): Board =
     tiles.fold(this) { acc, square ->
         acc.shotTo(square)
     }
 
-
+/**
+ * Gets the squares that represent a ship
+ * @param initialSquare of the ship
+ * @param finalSquare of the ship
+ * @return List<Square> the parts that represent the ship
+ */
 private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Square> {
     val squareList = mutableListOf<Square>()
 
@@ -322,50 +428,16 @@ private fun getShipSquares(initialSquare: Square, finalSquare: Square): List<Squ
     return squareList
 }
 
-
-class Vector(initialSquare: Square, finalSquare: Square) {
-
-
-    val orientation = Orientation.get(initialSquare, finalSquare)
-        ?: throw IllegalArgumentException("The squares are not in the same row or column")
-
-    val direction = if (orientation == Orientation.Horizontal)
-        finalSquare.column - initialSquare.column
-    else
-        finalSquare.row - initialSquare.row
-
-    val absDirection = abs(direction)
-
-    val factor = if (direction > 0) 1 else -1
-}
-
-enum class Orientation {
-    Horizontal,
-    Vertical;
-
-    companion object {
-        fun get(initialSquare: Square, finalSquare: Square): Orientation? {
-            val verticalSize = abs(initialSquare.row - finalSquare.row)
-            val horizontalSize = abs(initialSquare.column - finalSquare.column)
-
-            return if (verticalSize == 0) {
-                Horizontal
-            } else if (horizontalSize == 0) {
-                Vertical
-            } else {
-                null
-            }
-        }
-    }
-}
-
 /**
  * Returns true if the board is in an end game state
+ * @return [Boolean]
  */
 fun Board.isInEndGameState() = matrix.none { it == Board.SquareType.ShipPart }
 
 /**
  * Returns a board filled with water
+ * @param boardSide 
+ * @return Board
  */
 fun Board.Companion.empty(boardSide: Int) = Board(
     List(boardSide * boardSide) { Board.SquareType.Water }
@@ -373,7 +445,8 @@ fun Board.Companion.empty(boardSide: Int) = Board(
 
 /**
  * Returns a String with a human-readable representation of the board
+ * @return [String]
  */
-fun Board.pretty() = toString().chunked(this.boardSide).joinToString("\n")
+fun Board.pretty() = toString().chunked(this.side).joinToString("\n")
 
 

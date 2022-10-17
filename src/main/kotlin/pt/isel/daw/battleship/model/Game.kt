@@ -1,20 +1,33 @@
 package pt.isel.daw.battleship.model
 
-import pt.isel.daw.battleship.utils.ShipSize
 import pt.isel.daw.battleship.utils.UserID
 
+/**
+ * Represents a state of a battleship game.
+ */
 data class Game(
-        val Id: Id,
-        val state: State,
-        val rules: GameRules = GameRules.DEFAULT,
-        val boards: Map<UserID, Board>,
-        val turn: UserID
-){
-    val turnBoard = boards[turn]
-    val oppositeTurnIdx = 1 - turn
-    val oppositeTurnBoard = boards[oppositeTurnIdx]
-    val turnPlayer  = turn
-    val oppositeTurnPlayer = oppositeTurnIdx
+    val id: Id,
+    val state: State = State.WAITING_PLAYER,
+    val rules: GameRules = GameRules.DEFAULT,
+    val boards: Map<UserID, Board>,
+    val turnID: UserID
+) {
+
+    init {
+        val playerBoards = boards.values
+
+        require(boards.size == 2)
+        require(playerBoards.all { it.side == rules.boardSide }){ "Board's side length is different from the rules" }
+
+        // Check fleet composition
+        if(state == State.PLAYING)
+            check(playerBoards.all { it.fleetComposition == rules.shipRules.fleetComposition })
+
+    }
+
+    val turnBoard = boards[turnID] ?: throw IllegalStateException("Board not initialized")
+    val oppositeTurnID = boards.keys.first { it != turnID }
+    val oppositeTurnBoard = boards[oppositeTurnID] ?: throw IllegalStateException("Board not initialized")
 
     enum class State {
         WAITING_PLAYER,
@@ -27,80 +40,71 @@ data class Game(
 /**
  * Returns a new game after a shot is made on the specified [Square]
  *
- * @param squares the squares to shot on
- * @throws IllegalArgumentException if the square is invalid according to the [Game.rules]
+ * @param squares the squares to shoot on
+ * @throws IllegalArgumentException if a different number of shots is made than the rules allow
+ * or if the game is not in the [Game.State.PLAYING] state
  */
-fun Game.makeShot(squares: List<Square>): Game {
-    if(squares.size != rules.shotsPerTurn) throw IllegalArgumentException("Invalid number of shots")
-    val currentBoard = this.turnBoard ?: throw IllegalStateException("Board not initialized")
-    val newBoard = currentBoard.makeShots(squares)
-    return this.replaceBoard(oppositeTurnIdx, newBoard)
+fun Game.makePlay(squares: List<Square>): Game {
+
+    require(state == Game.State.PLAYING) { "Game is not in a playable state." }
+    require(squares.size == rules.shotsPerTurn) {
+        "Invalid number of shots. Only ${rules.shotsPerTurn} shots allowed per play."
+    }
+
+    val newBoard = oppositeTurnBoard.makeShots(squares)
+    val gameWithNewBoards = this.replaceBoard(oppositeTurnID, newBoard)
+
+
+    return gameWithNewBoards
+        .copy(
+            turnID = oppositeTurnID,
+            state =
+                if (gameWithNewBoards.boards.values.any { it.isInEndGameState() })
+                    Game.State.FINISHED
+                else
+                    state
+        )
 }
+
+
+/**
+ * Returns true if the game is over
+ */
+fun Game.isOver() = state == Game.State.FINISHED
+
 
 /**
  * Returns a new game after placing the ships on the board
  *
  * @throws IllegalArgumentException if the ship is invalid according to the [Game.rules]
  */
-fun Game.placeShips(shipList: List<ShipInfo>) : Game {
-    val currentBoard = this.turnBoard ?: throw IllegalStateException("Board not initialized")
-    val newBoard =  currentBoard.placeShips(shipList)
-    return this.replaceBoard(turn,newBoard)
-}
+fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
+    require(state == Game.State.PLACING_SHIPS) { "It is not the ship placing phase" }
 
-/**
- * Returns a new Game after the board is changed
- */
-fun Game.replaceBoard(turn: UserID, newBoard: Board): Game{
-    val newBoards = boards.values.map {
-        if(boards[turn] == it) newBoard
-        else it
+    val newBoard = Board.empty(this.rules.boardSide).placeShips(shipList)
+
+    check(newBoard.fleetComposition == rules.shipRules.fleetComposition) {
+        "Invalid ship composition. Expected ${rules.shipRules.fleetComposition}, got ${newBoard.fleetComposition}"
     }
 
-    return this.copy(
-        boards = boards.keys.associateWith { newBoards[it] }
-    )
+    return this.replaceBoard(playerID, newBoard)
+
 }
 
 /**
- * Returns the next turn index
+ * Returns a new Game after the board from [turn] is replaced by [newBoard]
  */
-fun Game.nextTurn(currentUser: UserID): Int = if(currentUser == turn) 1 else 0
-
-private fun Int.verifyShipSize(size: Int?) {
-    size ?: throw IllegalArgumentException("Ship is not accepted with the current game rules")
-    if(this != size) throw IllegalArgumentException("Invalid ship size")
-}
-
-data class ShipRules(
-    val fleetComposition: Map<ShipSize, Int>
+private fun Game.replaceBoard(turn: UserID, newBoard: Board) = copy(
+    boards = this.boards.mapValues { entry ->
+        if (entry.key == turn)
+            newBoard
+        else
+            entry.value
+    }
 )
 
-data class GameRules(
-    val shotsPerTurn: Int,
-    val boardSide: Int,
-    val maxTimeToPlay : Int,
-    val maxTimeToDefineLayout : Int,
-    val shipRules : ShipRules
-    //fleet composition
 
-) {
-    companion object {
-        val DEFAULT = GameRules(
-            1,
-            10,
-            60,
-            60,
-            ShipRules(
-                mapOf<ShipSize, Int>(
-                    5 to 1,
-                    4 to 1,
-                    3 to 1,
-                    2 to 1
-                )
-            )
-        )
-    }
-}
+
+
 
 

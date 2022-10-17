@@ -118,7 +118,7 @@ class BoardTests {
 
         val board = Board.fromLayout(layout)
 
-        Assertions.assertEquals("#BX#O####BBX#O#O", board.toString())
+        assertEquals("#BX#O####BBX#O#O", board.toString())
     }
 
     @Test
@@ -156,7 +156,6 @@ class BoardTests {
         val board = Board.fromLayout(layout)
 
         val finalBoard = board.placeShip(
-
             Square(Row(0), Column(0)),
             Square(Row(0), Column(2))
         )
@@ -188,8 +187,8 @@ class BoardTests {
 
         val finalBoard = board.placeShips(
                 listOf(
-                        ShipInfo(Square(0.row, 0.column), Game.Carrier(4), Orientation.Horizontal ),
-                        ShipInfo(Square(2.row, 1.column), Game.Battleship(3), Orientation.Vertical ),
+                        ShipInfo(Square(0.row, 0.column), 4, Orientation.Horizontal ),
+                        ShipInfo(Square(2.row, 1.column), 3, Orientation.Vertical ),
                 )
         )
 
