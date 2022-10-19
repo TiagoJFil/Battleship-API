@@ -6,28 +6,46 @@ import pt.isel.daw.battleship.utils.UserID
  * Represents a state of a battleship game.
  */
 data class Game(
-    val id: Id,
+    val id: Id?,
     val state: State = State.WAITING_PLAYER,
     val rules: GameRules = GameRules.DEFAULT,
-    val boards: Map<UserID, Board>,
+    val boards: Map<UserID, Board?>,
     val turnID: UserID
 ) {
+
+    companion object{
+        fun new(userID: UserID, rules: GameRules) =  Game(
+            id= null,
+            state= State.WAITING_PLAYER,
+            rules= rules,
+            boards= emptyMap(),
+            turnID = userID
+        )
+    }
 
     init {
         val playerBoards = boards.values
 
-        require(boards.size == 2)
-        require(playerBoards.all { it.side == rules.boardSide }){ "Board's side length is different from the rules" }
-
+        if(state != State.WAITING_PLAYER) {
+            require(playerBoards.all { it?.side == rules.boardSide }) { "Board's side length is different from the rules" }
+            require(boards.size == 2)
+        }
         // Check fleet composition
         if(state == State.PLAYING)
-            check(playerBoards.all { it.fleetComposition == rules.shipRules.fleetComposition })
-
+            check(playerBoards.all { it?.fleetComposition == rules.shipRules.fleetComposition })
     }
 
     val turnBoard = boards[turnID] ?: throw IllegalStateException("Board not initialized")
     val oppositeTurnID = boards.keys.first { it != turnID }
     val oppositeTurnBoard = boards[oppositeTurnID] ?: throw IllegalStateException("Board not initialized")
+
+
+    private fun <T> assertBoardsExist(block : () -> T) : T{
+        if (boards.size == 2 || state == State.WAITING_PLAYER)
+            return block()
+        else
+            throw IllegalStateException("Board not initialized")
+    }
 
     enum class State {
         WAITING_PLAYER,
@@ -59,7 +77,7 @@ fun Game.makePlay(squares: List<Square>): Game {
         .copy(
             turnID = oppositeTurnID,
             state =
-                if (gameWithNewBoards.boards.values.any { it.isInEndGameState() })
+                if (gameWithNewBoards.boards.values.any { it?.isInEndGameState() == true })
                     Game.State.FINISHED
                 else
                     state
@@ -103,7 +121,11 @@ private fun Game.replaceBoard(turn: UserID, newBoard: Board) = copy(
     }
 )
 
+fun Game.beginPlaceShipsStage(player2ID: UserID) : Game = copy(
+    state = Game.State.PLACING_SHIPS,
+    boards = listOf(turnID,player2ID).associateWith { Board.empty(rules.boardSide) }
 
+)
 
 
 

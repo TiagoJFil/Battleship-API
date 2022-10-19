@@ -1,5 +1,6 @@
 package pt.isel.daw.battleship.model
 
+import pt.isel.daw.battleship.utils.ShipCount
 import pt.isel.daw.battleship.utils.ShipSize
 
 data class GameRules(
@@ -11,7 +12,7 @@ data class GameRules(
 ) {
 
     data class ShipRules(
-        val name: String, val fleetComposition: Map<ShipSize, Int>
+        val name: String, val fleetComposition: Map<ShipSize, ShipCount>
     )
 
     companion object {
@@ -23,7 +24,7 @@ data class GameRules(
             60,
             ShipRules(
                 "Classic",
-                mapOf<ShipSize, Int>(
+                mapOf<ShipSize, ShipCount>(
                     5 to 1,
                     4 to 1,
                     3 to 1,
@@ -31,6 +32,8 @@ data class GameRules(
                 )
             )
         )
-
     }
 }
+
+
+
