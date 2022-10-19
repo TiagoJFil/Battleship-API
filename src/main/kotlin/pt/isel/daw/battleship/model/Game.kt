@@ -13,38 +13,42 @@ data class Game(
     val turnID: UserID
 ) {
 
-    companion object{
-        fun new(userID: UserID, rules: GameRules) =  Game(
-            id= null,
-            state= State.WAITING_PLAYER,
-            rules= rules,
-            boards= emptyMap(),
+    companion object {
+        fun new(userID: UserID, rules: GameRules) = Game(
+            id = null,
+            state = State.WAITING_PLAYER,
+            rules = rules,
+            boards = emptyMap(),
             turnID = userID
         )
     }
 
+
     init {
         val playerBoards = boards.values
 
-        if(state != State.WAITING_PLAYER) {
+        if (state != State.WAITING_PLAYER) {
             require(playerBoards.all { it?.side == rules.boardSide }) { "Board's side length is different from the rules" }
             require(boards.size == 2)
         }
         // Check fleet composition
-        if(state == State.PLAYING)
+        if (state == State.PLAYING)
             check(playerBoards.all { it?.fleetComposition == rules.shipRules.fleetComposition })
     }
 
-    val turnBoard = boards[turnID] ?: throw IllegalStateException("Board not initialized")
-    val oppositeTurnID = boards.keys.first { it != turnID }
-    val oppositeTurnBoard = boards[oppositeTurnID] ?: throw IllegalStateException("Board not initialized")
+    val turnBoard by afterGameBegins { boards.keys.first { it != turnID } }
 
+    val oppositeTurnID by afterGameBegins { boards.keys.first { it != turnID } }
 
-    private fun <T> assertBoardsExist(block : () -> T) : T{
-        if (boards.size == 2 || state == State.WAITING_PLAYER)
-            return block()
-        else
-            throw IllegalStateException("Board not initialized")
+    val oppositeTurnBoard by afterGameBegins { boards[oppositeTurnID] }
+
+    /**
+     * Returns a lazy property delegate that is only available after the game has begun.
+     * @throws IllegalStateException if the game has not yet begun.
+     */
+    private fun <T> afterGameBegins(initializer: () -> T): Lazy<T> {
+        check(boards.size == 2 && (state == State.PLAYING || state == State.FINISHED)) { "Can't access this property before the game begins." }
+        return lazy(initializer)
     }
 
     enum class State {
@@ -69,7 +73,7 @@ fun Game.makePlay(squares: List<Square>): Game {
         "Invalid number of shots. Only ${rules.shotsPerTurn} shots allowed per play."
     }
 
-    val newBoard = oppositeTurnBoard.makeShots(squares)
+    val newBoard = oppositeTurnBoard?.makeShots(squares)
     val gameWithNewBoards = this.replaceBoard(oppositeTurnID, newBoard)
 
 
@@ -77,10 +81,10 @@ fun Game.makePlay(squares: List<Square>): Game {
         .copy(
             turnID = oppositeTurnID,
             state =
-                if (gameWithNewBoards.boards.values.any { it?.isInEndGameState() == true })
-                    Game.State.FINISHED
-                else
-                    state
+            if (gameWithNewBoards.boards.values.any { it?.isInEndGameState() == true })
+                Game.State.FINISHED
+            else
+                state
         )
 }
 
@@ -112,7 +116,7 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
 /**
  * Returns a new Game after the board from [turn] is replaced by [newBoard]
  */
-private fun Game.replaceBoard(turn: UserID, newBoard: Board) = copy(
+private fun Game.replaceBoard(turn: UserID, newBoard: Board?) = copy(
     boards = this.boards.mapValues { entry ->
         if (entry.key == turn)
             newBoard
@@ -121,9 +125,9 @@ private fun Game.replaceBoard(turn: UserID, newBoard: Board) = copy(
     }
 )
 
-fun Game.beginPlaceShipsStage(player2ID: UserID) : Game = copy(
+fun Game.beginPlaceShipsStage(player2ID: UserID): Game = copy(
     state = Game.State.PLACING_SHIPS,
-    boards = listOf(turnID,player2ID).associateWith { Board.empty(rules.boardSide) }
+    boards = listOf(turnID, player2ID).associateWith { Board.empty(rules.boardSide) }
 
 )
 

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.jdbi.v3.core.Handle
 
 import org.jdbi.v3.core.kotlin.mapTo
-import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.statement.Update
 import org.postgresql.util.PGobject
 import pt.isel.daw.battleship.model.*
@@ -17,10 +16,12 @@ class JdbiGamesRepository(
     private val handle: Handle
 ) : GameRepository {
     override fun getGame(gameID: Id): Game? {
-        return handle.createQuery("""
-                select * from gamesview g where g.id = :id
-             """)
-            .bind("id", GameView.ID)
+        return handle.createQuery(
+            """
+                select * from gameview g where g.id = :id
+             """
+        )
+            .bind(GameView.ID.columnName, gameID)
             .mapTo<GameDTO>()
             .firstOrNull()
             ?.toGame()
@@ -58,9 +59,10 @@ class JdbiGamesRepository(
             .first()
     }
 
-      private fun update(game: GameDTO): Id?{
+    private fun update(game: GameDTO): Id? {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
-        return handle.createUpdate("""
+        return handle.createUpdate(
+            """
             update gameview set ${gameViewColumnNames.joinToString(", ") { "${it.columnName} = :${it.columnName}" }},
             shipRules = cast(:shiprules as jsonb)
             where id = :id
@@ -73,8 +75,8 @@ class JdbiGamesRepository(
     }
 
     private fun Update.bindMultiple(values: List<Pair<String, Any?>>): Update =
-         values.fold(this){acc, pair ->
-              acc.bind(pair.first, pair.second)
+        values.fold(this) { acc, pair ->
+            acc.bind(pair.first, pair.second)
 
         }
 
@@ -94,7 +96,7 @@ class JdbiGamesRepository(
 
     private fun Update.bindGameRules(rules: GameRules): Update {
         return bindMultiple(
-            listOf<Pair<String,Any?>>(
+            listOf<Pair<String, Any?>>(
                 GameView.SHOTS_PER_TURN.columnName to rules.shotsPerTurn,
                 GameView.BOARD_SIDE.columnName to rules.boardSide,
                 GameView.PLAY_TIMEOUT.columnName to rules.playTimeout,
@@ -102,27 +104,20 @@ class JdbiGamesRepository(
                 GameView.SHIP_RULES.columnName to serializeShipRulesToJson(rules.shipRules)
             )
         )
-
-
-
-        bind("shotsperturn", rules.shotsPerTurn)
-            .bind("boardside", rules.boardSide)
-            .bind("playtimeout", rules.playTimeout)
-            .bind("layoutdefinitiontimeout", rules.layoutDefinitionTimeout)
-            .bind("shiprules", serializeShipRulesToJson(rules.shipRules))
     }
 
-    override fun persist(game: GameDTO): Id?{
-        if(!hasGame(game.id)){
+    override fun persist(game: GameDTO): Id? {
+        if (!hasGame(game.id)) {
             return insert(game)
         }
         return update(game)
 
     }
 
-    private fun hasGame(gameID: Id?): Boolean{
-        if(gameID == null) return false
-        return handle.createQuery("""
+    private fun hasGame(gameID: Id?): Boolean {
+        if (gameID == null) return false
+        return handle.createQuery(
+            """
             select exists(select 1 from game where id = :id)
         """).bind("id", gameID)
             .mapTo<Boolean>()

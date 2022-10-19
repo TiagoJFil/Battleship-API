@@ -28,7 +28,8 @@ data class GameRules(
                     5 to 1,
                     4 to 1,
                     3 to 1,
-                    2 to 1
+                    2 to 1,
+                    1 to 1
                 )
             )
         )

@@ -27,11 +27,19 @@ data class Board(val matrix: List<SquareType>) {
                 }
             )
         }
+
+    }
+
+    fun indexToSquare(index: Int): Square {
+        val rowOrdinal = index / side
+        return Square(
+            rowOrdinal = rowOrdinal, columnOrdinal = index - rowOrdinal * side
+        )
     }
 
     /**
-    * Gets the fleet composition of the Board
-    */
+     * Gets the fleet composition of the Board
+     */
     val fleetComposition by lazy<Map<ShipSize, ShipCount>> {
         val ships = mutableListOf<List<Square>>()
         val seen = mutableSetOf<Square>()
@@ -223,15 +231,15 @@ data class Board(val matrix: List<SquareType>) {
      * @param initialSquare of the ship
      * @return List<Square> containing all the ship parts
      */
-    private fun getShipParts(initialSquare: Square): List<Square> {
+    fun getShipParts(initialSquare: Square): List<Square> {
         val seen = mutableSetOf<Square>(initialSquare)
         val frontier = LinkedList<Square>()
         frontier.add(initialSquare)
 
-        while(frontier.isNotEmpty()) {
+        while (frontier.isNotEmpty()) {
             val square = frontier.removeFirst()
             val neighbours = square.getAxisNeighbours()
-            neighbours.filter{ sqr ->
+            neighbours.filter { sqr ->
                 val squareType = matrix[getIndexFrom(sqr)]
                 (squareType == SquareType.ShipPart || squareType == SquareType.Hit) && sqr !in seen
             }.forEach { sqr ->

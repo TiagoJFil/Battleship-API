@@ -10,9 +10,7 @@ class JdbiTransactionFactory(
     override fun <R> execute(block: Transaction.() -> R): R =
         jdbi.inTransaction<R, Exception> { handle ->
             val transaction = JdbiTransaction(handle)
-
             block(transaction)
         }
-
 
 }

@@ -6,12 +6,14 @@ typealias Id = Int
 
 data class Square(val row: Row, val column: Column)
 
-fun Square(row: Int, column: Int) = Square(Row(row), Column(column))
+fun Square(rowOrdinal: Int, columnOrdinal: Int) = Square(Row(rowOrdinal), Column(columnOrdinal))
 
-data class Row(val ordinal: Int){
+
+data class Row(val ordinal: Int) {
     operator fun minus(other: Row): Int = ordinal - other.ordinal
 }
-data class Column(val ordinal: Int){
+
+data class Column(val ordinal: Int) {
     operator fun minus(other: Column): Int = ordinal - other.ordinal
 }
 
@@ -21,7 +23,7 @@ val Int.column get() = Column(this)
 class Vector(initialSquare: Square, finalSquare: Square) {
 
     val orientation = Orientation.get(initialSquare, finalSquare)
-            ?: throw IllegalArgumentException("The squares are not in the same row or column")
+        ?: throw IllegalArgumentException("The squares are not in the same row or column")
 
     val direction = if (orientation == Orientation.Horizontal)
         finalSquare.column - initialSquare.column

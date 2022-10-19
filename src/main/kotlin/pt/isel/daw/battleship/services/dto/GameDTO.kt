@@ -2,7 +2,10 @@ package pt.isel.daw.battleship.services.dto
 
 
 import org.jdbi.v3.core.mapper.Nested
-import pt.isel.daw.battleship.model.*
+import pt.isel.daw.battleship.model.Board
+import pt.isel.daw.battleship.model.Game
+import pt.isel.daw.battleship.model.GameRules
+import pt.isel.daw.battleship.model.Id
 import pt.isel.daw.battleship.utils.UserID
 
 data class GameDTO(
@@ -29,6 +32,7 @@ data class GameDTO(
     )
 }
 
+
 fun Game.toDTO() = GameDTO(
     id = id,
     state = state.toString().lowercase(),
@@ -39,3 +43,12 @@ fun Game.toDTO() = GameDTO(
     boardP1 = boards.values.firstOrNull()?.toString(),
     boardP2 = boards.values.lastOrNull()?.toString()
 )
+
+
+
+
+
+
+
+
+
