@@ -10,7 +10,7 @@ import pt.isel.daw.battleship.repository.jdbi.configure
 import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.utils.UserName
 
-
+@Component
 class GameService(
     private val transactionFactory: TransactionFactory
 ) {
