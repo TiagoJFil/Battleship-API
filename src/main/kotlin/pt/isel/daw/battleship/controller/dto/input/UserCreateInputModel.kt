@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.api.input
+package pt.isel.daw.battleship.controller.dto.input
 
 data class UserCreateInputModel (
     val username: String,

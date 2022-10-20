@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.services.dto
+package pt.isel.daw.battleship.repository.dto
 
 
 import org.jdbi.v3.core.mapper.Nested

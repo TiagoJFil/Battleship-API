@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.api.interceptors.authentication
+package pt.isel.daw.battleship.controller.interceptors.authentication
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.services.UserService
@@ -13,12 +13,12 @@ class AuthorizationHeaderProcessor(
         val parsedToken = token
             ?.substringAfter("Bearer ", missingDelimiterValue = "") ?: return null
 
-        return userServices.getUserIDFromToken(parsedToken)
+        return userServices.getUserIDFromToken(parsedToken).getOrNull()
     }
 
 
     companion object {
-        val SCHEME: String = "Bearer"
+        const val SCHEME: String = "Bearer"
     }
 
 }

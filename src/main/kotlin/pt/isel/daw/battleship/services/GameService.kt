@@ -2,7 +2,7 @@ package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.model.*
-import pt.isel.daw.battleship.services.dto.toDTO
+import pt.isel.daw.battleship.repository.dto.toDTO
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.utils.UserID
 
@@ -14,12 +14,22 @@ class GameService(
     /**
      * Creates a new game or joins an existing one
      */
-    fun createOrJoinGame(userID: UserID): Id {
-        return transactionFactory.execute {
+    fun createOrJoinGame(userID: UserID): Result<Id> = result {
+
+
+        return@result transactionFactory.execute {
             val waitingStateGame = gamesRepository.getWaitingStateGame()
-            val game = waitingStateGame?.beginPlaceShipsStage(userID) ?: Game.new(userID, GameRules.DEFAULT)
-            gamesRepository.persist(game.toDTO()) ?: throw InternalError()
+            val newGameState = waitingStateGame?.let { safeGame ->
+                safeGame.copy(
+                    state = Game.State.PLACING_SHIPS,
+                    boards = listOf(safeGame.turnID, userID).associateWith { Board.empty(safeGame.rules.boardSide) }
+                )
+            } ?: Game.new(userID, GameRules.DEFAULT)
+
+            gamesRepository.persist(newGameState.toDTO()) ?: throw InternalError()
         }
+
+
     }
 
     /**
@@ -35,6 +45,7 @@ class GameService(
         }
     }
 
+
     fun defineFleetLayout(userID: UserID, gameId: Id, ships: List<ShipInfo>) {
         transactionFactory.execute {
             val currentState =
@@ -42,7 +53,12 @@ class GameService(
             val newState = currentState.placeShips(ships, userID)
             gamesRepository.persist(newState.toDTO())
 
-            gamesRepository.getGame(gameId)?.boards?.values?.forEach { println(it?.pretty()); println("------------------------------------------------------") }
+            gamesRepository.getGame(gameId)
+                ?.boards?.values
+                ?.forEach {
+                    println(it?.pretty())
+                    println("------------------------------------------------------")
+                }
         }
     }
 

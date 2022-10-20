@@ -1,8 +1,8 @@
 package pt.isel.daw.battleship.repository
 
-import pt.isel.daw.battleship.model.Id
 import pt.isel.daw.battleship.model.Game
-import pt.isel.daw.battleship.services.dto.GameDTO
+import pt.isel.daw.battleship.model.Id
+import pt.isel.daw.battleship.repository.dto.GameDTO
 
 interface GameRepository {
     /**

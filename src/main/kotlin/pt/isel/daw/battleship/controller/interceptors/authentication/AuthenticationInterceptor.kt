@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.api.interceptors.authentication
+package pt.isel.daw.battleship.controller.interceptors.authentication
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -14,8 +14,7 @@ class AuthenticationInterceptor(
 ) : HandlerInterceptor {
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-        if (handler is HandlerMethod && handler.hasMethodAnnotation(Authentication::class.java)
-        ) {
+        if (handler is HandlerMethod && handler.hasMethodAnnotation(Authentication::class.java)) {
             // handler.getMethodAnnotation(Authentication::class.java)?
             // enforce authentication
             val userID = authorizationHeaderProcessor.process(request.getHeader(AUTHORIZATION_HEADER))

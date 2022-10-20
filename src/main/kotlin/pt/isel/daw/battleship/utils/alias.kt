@@ -6,3 +6,4 @@ typealias ID = Int
 typealias UserName = String
 typealias ShipSize = Int
 typealias ShipCount = Int
+typealias Parameter = String?

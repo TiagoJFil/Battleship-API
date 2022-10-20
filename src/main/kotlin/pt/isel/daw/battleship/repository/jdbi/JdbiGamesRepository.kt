@@ -3,14 +3,14 @@ package pt.isel.daw.battleship.repository.jdbi
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.jdbi.v3.core.Handle
-
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.statement.Update
 import org.postgresql.util.PGobject
 import pt.isel.daw.battleship.model.*
 import pt.isel.daw.battleship.model.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
-import pt.isel.daw.battleship.services.dto.GameDTO
+import pt.isel.daw.battleship.repository.dto.GameDTO
+
 
 class JdbiGamesRepository(
     private val handle: Handle

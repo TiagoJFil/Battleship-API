@@ -13,16 +13,7 @@ data class Game(
     val turnID: UserID
 ) {
 
-    companion object {
-        fun new(userID: UserID, rules: GameRules) = Game(
-            id = null,
-            state = State.WAITING_PLAYER,
-            rules = rules,
-            boards = emptyMap(),
-            turnID = userID
-        )
-    }
-
+    companion object;
 
     init {
         val playerBoards = boards.values
@@ -88,6 +79,17 @@ fun Game.makePlay(squares: List<Square>): Game {
         )
 }
 
+/**
+ * Returns a new fresh game
+ */
+fun Game.Companion.new(userID: UserID, rules: GameRules) = Game(
+    id = null,
+    state = Game.State.WAITING_PLAYER,
+    rules = rules,
+    boards = emptyMap(),
+    turnID = userID
+)
+
 
 /**
  * Returns true if the game is over
@@ -123,12 +125,6 @@ private fun Game.replaceBoard(turn: UserID, newBoard: Board?) = copy(
         else
             entry.value
     }
-)
-
-fun Game.beginPlaceShipsStage(player2ID: UserID): Game = copy(
-    state = Game.State.PLACING_SHIPS,
-    boards = listOf(turnID, player2ID).associateWith { Board.empty(rules.boardSide) }
-
 )
 
 
