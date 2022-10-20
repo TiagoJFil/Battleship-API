@@ -23,7 +23,6 @@ data class Game(
         )
     }
 
-
     init {
         val playerBoards = boards.values
 
@@ -47,8 +46,10 @@ data class Game(
      * @throws IllegalStateException if the game has not yet begun.
      */
     private fun <T> afterGameBegins(initializer: () -> T): Lazy<T> {
-        check(boards.size == 2 && (state == State.PLAYING || state == State.FINISHED)) { "Can't access this property before the game begins." }
-        return lazy(initializer)
+        return lazy{
+            check(boards.size == 2 && (state == State.PLAYING || state == State.FINISHED)) { "Can't access this property before the game begins." }
+            initializer()
+        }
     }
 
     enum class State {
@@ -97,7 +98,8 @@ fun Game.isOver() = state == Game.State.FINISHED
 
 /**
  * Returns a new game after placing the ships on the board
- *
+ * @param shipList the list of ships to place
+ * @param playerID the player that is placing the ships
  * @throws IllegalArgumentException if the ship is invalid according to the [Game.rules]
  */
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
@@ -115,6 +117,9 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
 
 /**
  * Returns a new Game after the board from [turn] is replaced by [newBoard]
+ * @param turn the player whose board is to be replaced
+ * @param newBoard the new board
+ * @return [Game] a new Game with the new board
  */
 private fun Game.replaceBoard(turn: UserID, newBoard: Board?) = copy(
     boards = this.boards.mapValues { entry ->
@@ -125,10 +130,14 @@ private fun Game.replaceBoard(turn: UserID, newBoard: Board?) = copy(
     }
 )
 
+/**
+ * Returns a new game, initializing the boards and changing the game to the placing ships phase
+ * @param player2ID the id of the second player that joined the game
+ * @return [Game]
+ */
 fun Game.beginPlaceShipsStage(player2ID: UserID): Game = copy(
     state = Game.State.PLACING_SHIPS,
     boards = listOf(turnID, player2ID).associateWith { Board.empty(rules.boardSide) }
-
 )
 
 

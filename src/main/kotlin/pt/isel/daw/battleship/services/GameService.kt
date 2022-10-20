@@ -13,6 +13,8 @@ class GameService(
 
     /**
      * Creates a new game or joins an existing one
+     * @param userID the user that is creating/joining the game
+     * @return Id of the game created/joined
      */
     fun createOrJoinGame(userID: UserID): Id {
         return transactionFactory.execute {
@@ -23,7 +25,10 @@ class GameService(
     }
 
     /**
-     *
+     * Makes a set of shots to the board of the game with the given id
+     * @param userID the user that is making the shots
+     * @param gameId the id of the game
+     * @param shots the shots to be made
      */
     fun makeShots(userID: UserID, gameId: Id, shots: List<Square>) {
         transactionFactory.execute {
@@ -35,6 +40,12 @@ class GameService(
         }
     }
 
+    /**
+     * Places a fleet in the board of the game with the given id
+     * @param userID the user that is placing the fleet
+     * @param gameId the id of the game
+     * @param fleet the fleet to be placed
+     */
     fun defineFleetLayout(userID: UserID, gameId: Id, ships: List<ShipInfo>) {
         transactionFactory.execute {
             val currentState =
@@ -42,10 +53,9 @@ class GameService(
             val newState = currentState.placeShips(ships, userID)
             gamesRepository.persist(newState.toDTO())
 
+            //testing purposes
             gamesRepository.getGame(gameId)?.boards?.values?.forEach { println(it?.pretty()); println("------------------------------------------------------") }
         }
     }
-
-
 }
 
