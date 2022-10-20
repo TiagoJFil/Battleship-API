@@ -15,6 +15,12 @@ import pt.isel.daw.battleship.repository.dto.GameDTO
 class JdbiGamesRepository(
     private val handle: Handle
 ) : GameRepository {
+
+    /**
+     * Gets the game with the given id
+     * @param gameID the id of the game
+     * @return [Game] the game
+     */
     override fun getGame(gameID: Id): Game? {
         return handle.createQuery(
             """
@@ -38,9 +44,9 @@ class JdbiGamesRepository(
     }
 
     /**
-     * Creates a new game for the given user.
-     * @param userID
-     * @return [Game]
+     * Inserts a new game in the database
+     * @param game the game data transfer object to be persisted
+     * @return [Id] of the game created
      */
     private fun insert(game: GameDTO): Id {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
@@ -59,6 +65,11 @@ class JdbiGamesRepository(
             .first()
     }
 
+    /**
+     * Updates the given game in the database
+     * @param game the game data transfer object to be persisted
+     * @return [Id] of the game updated
+     */
     private fun update(game: GameDTO): Id? {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
         return handle.createUpdate(
@@ -74,12 +85,22 @@ class JdbiGamesRepository(
             .firstOrNull()
     }
 
+    /**
+     * Binds multiple parameters to the given [Update] object
+     * @param values the name and value of the parameters to be bound
+     * @return the [Update] object with the parameters bound
+     */
     private fun Update.bindMultiple(values: List<Pair<String, Any?>>): Update =
         values.fold(this) { acc, pair ->
             acc.bind(pair.first, pair.second)
 
         }
 
+    /**
+     * Binds the game data transfer object to the given [Update] object
+     * @param game the game data transfer object to be bound
+     * @return the [Update] object with the parameters bound
+     */
     private fun Update.bindGameDTO(game: GameDTO): Update {
         return bindMultiple(
             listOf<Pair<String, Any?>>(
@@ -94,6 +115,11 @@ class JdbiGamesRepository(
         ).bindGameRules(game.rules)
     }
 
+    /**
+     * Binds the game rules to the given [Update] object
+     * @param rules the game rules to be bound
+     * @return the [Update] object with the parameters bound
+     */
     private fun Update.bindGameRules(rules: GameRules): Update {
         return bindMultiple(
             listOf<Pair<String, Any?>>(
@@ -106,6 +132,11 @@ class JdbiGamesRepository(
         )
     }
 
+    /**
+     * Persists the given game in the database
+     * @param game the game to be persisted
+     * @return [Id] of the game persisted
+     */
     override fun persist(game: GameDTO): Id? {
         if (!hasGame(game.id)) {
             return insert(game)
@@ -114,6 +145,11 @@ class JdbiGamesRepository(
 
     }
 
+    /**
+     * Checks if the game with the given id exists in the database
+     * @param gameID the id of the game
+     * @return [Boolean] true if the game exists, false otherwise
+     */
     private fun hasGame(gameID: Id?): Boolean {
         if (gameID == null) return false
         return handle.createQuery(
@@ -125,20 +161,20 @@ class JdbiGamesRepository(
     }
 
     companion object {
-        private fun Update.bindShipRules(name: String, shipRules: ShipRules) = run {
-            bind(
-                name,
-                PGobject().apply {
-                    type = "jsonb"
-                    value = serializeShipRulesToJson(shipRules)
-                }
-            )
-        }
-
         private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
 
-        private fun serializeShipRulesToJson(shipRules: ShipRules): String = objectMapper.writeValueAsString(shipRules)
+        /**
+         * Serializes the given ship rules to a json string
+         * @param shipRules the ship rules to be serialized
+         * @return [String] the json string
+         */
+        fun serializeShipRulesToJson(shipRules: ShipRules): String = objectMapper.writeValueAsString(shipRules)
 
+        /**
+         * Deserializes the given json string to a ship rules object
+         * @param json the json string to be deserialized
+         * @return [ShipRules] the ship rules object
+         */
         fun deserializeShipRulesFromJson(json: String): ShipRules {
             return objectMapper.readValue(json, ShipRules::class.java)
         }
