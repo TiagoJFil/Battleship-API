@@ -330,13 +330,11 @@ data class Board(val matrix: List<SquareType>) {
     fun placeShip(initialSquare: Square, shipSize: Int, orientation: Orientation): Board {
         requireValidIndex(initialSquare)
 
-        //get the endSquare
         val endSquare = if(orientation == Orientation.Horizontal){
             Square(initialSquare.row, (initialSquare.column.ordinal + shipSize - 1).column)
         } else {
             Square((initialSquare.row.ordinal + shipSize - 1).row, initialSquare.column)
         }
-        //remover o -1 sque
 
         requireValidIndex(endSquare)
 
@@ -344,10 +342,10 @@ data class Board(val matrix: List<SquareType>) {
                 .map { square -> getIndexFrom(square) }
 
         return Board(
-                matrix.mapIndexed { idx, squareType ->
-                    if (shipSquaresIndexs.contains(idx)) SquareType.ShipPart
-                    else squareType
-                }
+            matrix.mapIndexed { idx, squareType ->
+                if (shipSquaresIndexs.contains(idx)) SquareType.ShipPart
+                else squareType
+            }
         )
     }
 

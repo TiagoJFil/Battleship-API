@@ -16,18 +16,14 @@ class AuthenticationInterceptor(
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.hasMethodAnnotation(Authentication::class.java)) {
             // handler.getMethodAnnotation(Authentication::class.java)?
-            // enforce authentication
-            val userID = authorizationHeaderProcessor.process(request.getHeader(AUTHORIZATION_HEADER))
-            return if (userID == null) {
-                response.status = 401
-                response.addHeader(NAME_WWW_AUTHENTICATE_HEADER, AuthorizationHeaderProcessor.SCHEME)
-                false
-            } else {
-                UserIDArgumentResolver.addUserIDTo(userID, request)
-                true
-            }
-        }
 
+            val authHeader = request.getHeader("Authorization")
+
+            val userID = authorizationHeaderProcessor.process(authHeader)
+
+            UserIDArgumentResolver.addUserIDTo(userID, request)
+            return true
+        }
         return true
     }
 

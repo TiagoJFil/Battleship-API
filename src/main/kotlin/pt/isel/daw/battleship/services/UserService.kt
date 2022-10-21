@@ -2,7 +2,9 @@ package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Service
 import pt.isel.daw.battleship.services.entities.UserInfo
+import pt.isel.daw.battleship.services.exception.InternalErrorAppException
 import pt.isel.daw.battleship.services.exception.NotFoundAppException
+import pt.isel.daw.battleship.services.exception.UnauthenticatedAppException
 import pt.isel.daw.battleship.services.exception.UserAlreadyExistsException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserCreation
@@ -19,6 +21,7 @@ class UserService(
      * @param userCreation The user creation information.
      * @return [Result] with the user's ID.
      * @throws UserAlreadyExistsException if the user already exists.
+     * @throws InternalErrorAppException if an internal error occurs.
      */
     fun createUser(userCreation: UserCreation): Result<UserInfo> = result {
 
@@ -32,7 +35,7 @@ class UserService(
                 userCreation.username,
                 generatedToken,
                 userCreation.password_hash
-            ) ?: error("Error creating the user!")
+            ) ?: throw InternalErrorAppException()
 
             UserInfo(userID, generatedToken)
         }
@@ -43,12 +46,15 @@ class UserService(
      * Gets the [UserID] of the user with the given token.
      * @param userToken The user token.
      * @return [Result] with the [UserID] of the user.
-     * @throws NotFoundAppException if the user is not found.
+     * @throws UnauthenticatedAppException if the user is not found.
      */
-    fun getUserIDFromToken(userToken: String): Result<UserID> = result {
-        transactionFactory.execute {
+    fun getUserIDFromToken(userToken: String?): UserID {
+        if(userToken.isNullOrEmpty()) {
+            throw UnauthenticatedAppException()
+        }
+        return transactionFactory.execute {
             userRepository.getUserIDByToken(userToken)
-                ?: throw NotFoundAppException("user")
+                ?: throw UnauthenticatedAppException()
         }
     }
 

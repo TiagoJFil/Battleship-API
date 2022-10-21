@@ -11,16 +11,18 @@ create table if not exists SystemInfo(
     version varchar(20)
 );
 
+create table if not exists "User" (
+  id serial primary key,
+  "name" varchar(20) unique not null
+);
+
 create table if not exists WaitingLobby(
     id serial primary key,
     userID int,
     foreign key (userID) references "User"(id)
 );
 
-create table if not exists "User" (
-    id serial primary key,
-    "name" varchar(20) unique not null,
-);
+
 
 create table if not exists token(
     token varchar(255) primary key,
