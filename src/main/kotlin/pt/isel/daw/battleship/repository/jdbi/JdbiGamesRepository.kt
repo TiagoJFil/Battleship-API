@@ -34,16 +34,6 @@ class JdbiGamesRepository(
     }
 
     /**
-     * Gets a game in waiting state.
-     */
-    override fun getWaitingStateGame(): Game? {
-        return handle.createQuery("""Select * from gameview where state = 'waiting_player' order by id asc""")
-            .mapTo<GameDTO>()
-            .firstOrNull()
-            ?.toGame()
-    }
-
-    /**
      * Inserts a new game in the database
      * @param game the game data transfer object to be persisted
      * @return [Id] of the game created

@@ -7,9 +7,9 @@ import pt.isel.daw.battleship.utils.UserID
  */
 data class Game(
     val id: Id?,
-    val state: State = State.WAITING_PLAYER,
+    val state: State,
     val rules: GameRules = GameRules.DEFAULT,
-    val boards: Map<UserID, Board?>,
+    val boards: Map<UserID, Board>,
     val turnID: UserID
 ) {
 
@@ -18,20 +18,20 @@ data class Game(
     init {
         val playerBoards = boards.values
 
-        if (state != State.WAITING_PLAYER) {
-            require(playerBoards.all { it?.side == rules.boardSide }) { "Board's side length is different from the rules" }
-            require(boards.size == 2)
-        }
+
+        require(playerBoards.all { it.side == rules.boardSide }) { "Board's side length is different from the rules" }
+        require(boards.size == 2)
+
         // Check fleet composition
         if (state == State.PLAYING)
-            check(playerBoards.all { it?.fleetComposition == rules.shipRules.fleetComposition })
+            check(playerBoards.all { it.fleetComposition == rules.shipRules.fleetComposition })
     }
 
     val turnBoard by afterGameBegins { boards.keys.first { it != turnID } }
 
     val oppositeTurnID by afterGameBegins { boards.keys.first { it != turnID } }
 
-    val oppositeTurnBoard by afterGameBegins { boards[oppositeTurnID] }
+    val oppositeTurnBoard: Board by afterGameBegins { boards[oppositeTurnID] ?: error("No board for the opposite turn ID") }
 
     /**
      * Returns a lazy property delegate that is only available after the game has begun.
@@ -45,7 +45,6 @@ data class Game(
     }
 
     enum class State {
-        WAITING_PLAYER,
         PLACING_SHIPS,
         PLAYING,
         FINISHED
@@ -66,7 +65,7 @@ fun Game.makePlay(squares: List<Square>): Game {
         "Invalid number of shots. Only ${rules.shotsPerTurn} shots allowed per play."
     }
 
-    val newBoard = oppositeTurnBoard?.makeShots(squares)
+    val newBoard = oppositeTurnBoard.makeShots(squares)
     val gameWithNewBoards = this.replaceBoard(oppositeTurnID, newBoard)
 
 
@@ -74,7 +73,7 @@ fun Game.makePlay(squares: List<Square>): Game {
         .copy(
             turnID = oppositeTurnID,
             state =
-            if (gameWithNewBoards.boards.values.any { it?.isInEndGameState() == true })
+            if (gameWithNewBoards.boards.values.any { it.isInEndGameState() })
                 Game.State.FINISHED
             else
                 state
@@ -84,12 +83,12 @@ fun Game.makePlay(squares: List<Square>): Game {
 /**
  * Returns a new fresh game
  */
-fun Game.Companion.new(userID: UserID, rules: GameRules) = Game(
+fun Game.Companion.new(players: Pair<UserID, UserID>,  rules: GameRules) = Game(
     id = null,
-    state = Game.State.WAITING_PLAYER,
+    state = Game.State.PLACING_SHIPS,
     rules = rules,
-    boards = emptyMap(),
-    turnID = userID
+    boards = mapOf(players.first to Board.empty(rules.boardSide), players.second to Board.empty(rules.boardSide)),
+    turnID = players.first
 )
 
 
@@ -124,7 +123,7 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
  * @param newBoard the new board
  * @return [Game] a new Game with the new board
  */
-private fun Game.replaceBoard(turn: UserID, newBoard: Board?) = copy(
+private fun Game.replaceBoard(turn: UserID, newBoard: Board) = copy(
     boards = this.boards.mapValues { entry ->
         if (entry.key == turn)
             newBoard
@@ -133,11 +132,6 @@ private fun Game.replaceBoard(turn: UserID, newBoard: Board?) = copy(
     }
 )
 
-fun Game.beginPlaceShipsStage(player2ID: UserID): Game = copy(
-    state = Game.State.PLACING_SHIPS,
-    boards = listOf(turnID, player2ID).associateWith { Board.empty(rules.boardSide) }
-
-)
 
 
 

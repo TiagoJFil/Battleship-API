@@ -6,15 +6,19 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import pt.isel.daw.battleship.controller.Uris
+
 import pt.isel.daw.battleship.model.*
 import pt.isel.daw.battleship.model.Game.State.*
+import pt.isel.daw.battleship.repository.dto.GameDTO
+import pt.isel.daw.battleship.repository.dto.UserDTO
+import pt.isel.daw.battleship.repository.dto.toDTO
 import pt.isel.daw.battleship.repository.jdbi.GameView
 import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
 import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository.Companion.serializeShipRulesToJson
-import pt.isel.daw.battleship.services.dto.GameDTO
-import pt.isel.daw.battleship.services.dto.toDTO
-import pt.isel.daw.battleship.services.entities.User
+import pt.isel.daw.battleship.utils.UserID
 
+/*
 class GameRepositoryTests {
     private val users = getNUsers(3)
 
@@ -22,7 +26,7 @@ class GameRepositoryTests {
     private val testGameID = 1
     private val gameDTO = GameDTO(
         id = null,
-        state = WAITING_PLAYER.toString().lowercase(),
+        state = PLACING_SHIPS.toString().lowercase(),
         rules = GameRules.DEFAULT,
         turn = player1ID,
         player1 = player1ID,
@@ -77,53 +81,7 @@ class GameRepositoryTests {
         }
     }
 
-    @Test
-    fun `get a game in waiting state`() {
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.getWaitingStateGame()
-            assert(game != null)
-            if(game != null) assertEquals(game.state, WAITING_PLAYER)
-        }
-    }
-
-    @Test
-    fun `join a game`() {
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val waitingGame = gameRepo.getWaitingStateGame()
-
-            if(waitingGame == null){
-                assert(false)
-                return@executeWithHandle
-            }
-
-            val fullGame = waitingGame.beginPlaceShipsStage(users[1].id)
-            val gameID = gameRepo.persist(fullGame.toDTO())
-            assertEquals(testGameID, gameID)
-            val game = gameRepo.getGame(testGameID)
-            if(game != null){
-                val emptyBoard = Board.empty(game.rules.boardSide)
-                assertEquals(game.state, PLACING_SHIPS)
-                assertEquals(game.turnID, player1ID)
-                assertEquals(game.boards, mapOf(users[0].id to emptyBoard, users[1].id to emptyBoard))
-            }
-        }
-    }
-
-    @Test
-    fun `join a game and the next player creates one`(){
-        `join a game`()
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val game = Game.new(users[2].id, GameRules.DEFAULT)
-            val gameID = gameRepo.persist(game.toDTO())
-            assertEquals(game.state, WAITING_PLAYER)
-            assertEquals(testGameID + 1, gameID)
-        }
-    }
-
-    private fun Handle.insertUsers(users: List<User>) {
+    private fun Handle.insertUsers(users: List<UserDTO>) {
        createUpdate("""
              insert into "User"(id, "name") values${users.joinToString(", ") { "(${it.id}, '${it.name}')" }}
         """).execute()
@@ -144,8 +102,8 @@ class GameRepositoryTests {
         ).execute()
     }
 
-    private fun getNUsers(n: Int): List<User> {
-        return (1..n).map { User(it, "user$it") }
+    private fun getNUsers(n: Int): List<UserDTO> {
+        return (1..n).map { UserDTO(it, "user$it") }
     }
 
     private fun clear(){
@@ -230,3 +188,4 @@ class GameRepositoryTests {
 
 }
 
+*/

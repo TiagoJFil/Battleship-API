@@ -13,11 +13,6 @@ interface GameRepository {
     fun getGame(gameID: Id): Game?
 
     /**
-     * Gets a game in waiting state.
-     */
-    fun getWaitingStateGame(): Game?
-
-    /**
      * Persists the given game in the database
      * @param game the game to be persisted
      * @return [Id] of the game persisted

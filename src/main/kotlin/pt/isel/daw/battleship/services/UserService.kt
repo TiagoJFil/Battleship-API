@@ -17,6 +17,7 @@ class UserService(
     /**
      * Creates a new user.
      * @param userCreation The user creation information.
+     * @return [Result] with the user's ID.
      * @throws UserAlreadyExistsException if the user already exists.
      */
     fun createUser(userCreation: UserCreation): Result<UserInfo> = result {
@@ -40,6 +41,9 @@ class UserService(
 
     /**
      * Gets the [UserID] of the user with the given token.
+     * @param userToken The user token.
+     * @return [Result] with the [UserID] of the user.
+     * @throws NotFoundAppException if the user is not found.
      */
     fun getUserIDFromToken(userToken: String): Result<UserID> = result {
         transactionFactory.execute {

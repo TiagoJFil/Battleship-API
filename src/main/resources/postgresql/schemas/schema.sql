@@ -11,6 +11,11 @@ create table if not exists SystemInfo(
     version varchar(20)
 );
 
+create table if not exists WaitingLobby(
+    id serial primary key,
+    userID int,
+    foreign key (userID) references "User"(id)
+);
 
 create table if not exists "User" (
     id serial primary key,
@@ -41,7 +46,7 @@ create table if not exists GameRules (
 create table if not exists Game (
     id serial primary key,
     rules int, foreign key(rules) references GameRules(id),
-    "state" varchar(20) check ( "state" like 'placing_ships' or "state" like 'playing' or "state" like 'finished' or "state" like 'waiting_player'),
+    "state" varchar(20) check ("state" like 'placing_ships' or "state" like 'playing' or "state" like 'finished'),
     turn int,
     player1 int, foreign key(player1) references "User"(id),
     player2 int, foreign key(player2) references "User"(id),

@@ -14,24 +14,31 @@ class GameService(
     /**
      * Creates a new game or joins an existing one
      * @param userID the user that is creating/joining the game
-     * @return Id of the game created/joined
+     * @return [Result] id of the game created/joined
      */
-    fun createOrJoinGame(userID: UserID): Result<Id> = result {
-
+    fun createOrJoinGame(userID: UserID): Result<Id?> = result {
 
         return@result transactionFactory.execute {
-            val waitingStateGame = gamesRepository.getWaitingStateGame()
-            val newGameState = waitingStateGame?.let { safeGame ->
-                safeGame.copy(
-                    state = Game.State.PLACING_SHIPS,
-                    boards = listOf(safeGame.turnID, userID).associateWith { Board.empty(safeGame.rules.boardSide) }
-                )
-            } ?: Game.new(userID, GameRules.DEFAULT)
+            val pairedPlayerID = lobbyRepository.getWaitingPlayer()
 
-            gamesRepository.persist(newGameState.toDTO()) ?: throw InternalError()
+            if(pairedPlayerID == null || pairedPlayerID == userID) {
+                lobbyRepository.addPlayerToLobby(userID)
+                return@execute null
+            }
+
+            lobbyRepository.removePlayerFromLobby(pairedPlayerID)
+            val newGame = Game.new(userID to pairedPlayerID, GameRules.DEFAULT)
+            gamesRepository.persist(newGame.toDTO()) ?: throw InternalError()
         }
+    }
 
-
+    /**
+     * Leaves the lobby
+     */
+    fun leaveLobby(userID: UserID): Result<Boolean> = result {
+        transactionFactory.execute {
+            lobbyRepository.removePlayerFromLobby(userID)
+        }
     }
 
     /**
@@ -66,7 +73,7 @@ class GameService(
             gamesRepository.getGame(gameId)
                 ?.boards?.values
                 ?.forEach {
-                    println(it?.pretty())
+                    println(it.pretty())
                     println("------------------------------------------------------")
                 }
         }
