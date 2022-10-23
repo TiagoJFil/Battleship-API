@@ -83,6 +83,8 @@ class GameService(
      * @param userID the user that is placing the fleet
      * @param gameId the id of the game
      * @param ships the fleet to be placed
+     * @throws GameNotFoundException if the game with the given id does not exist
+     * @throws ForbiddenAccessAppException if the user is not in the game
      */
     fun defineFleetLayout(userID: UserID, gameId: Id, ships: List<ShipInfo>) {
         transactionFactory.execute {
@@ -91,13 +93,6 @@ class GameService(
             if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to define the layout in this game")
             val newState = currentState.placeShips(ships, userID)
             gamesRepository.persist(newState.toDTO())
-
-            gamesRepository.get(gameId)
-                ?.boards?.values
-                ?.forEach {
-                    println(it.pretty())
-                    println("------------------------------------------------------")
-                }
         }
     }
 
@@ -116,7 +111,7 @@ class GameService(
 
             val user = if (opponentFleet) game.boards.keys.first { it != userID } else userID
             val board = game.boards[user] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
-            return@execute board.toDTO(userID)
+            return@execute board.toDTO(user)
         }
     }
 

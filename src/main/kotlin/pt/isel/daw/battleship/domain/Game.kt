@@ -106,14 +106,20 @@ fun Game.isOver() = state == Game.State.FINISHED
  */
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
     require(state == Game.State.PLACING_SHIPS) { "It is not the ship placing phase" }
-
-    val newBoard = Board.empty(this.rules.boardSide).placeShips(shipList)
+    val emptyBoard = Board.empty(this.rules.boardSide)
+    val newBoard = emptyBoard.placeShips(shipList)
 
     check(newBoard.fleetComposition == rules.shipRules.fleetComposition) {
         "Invalid ship composition. Expected ${rules.shipRules.fleetComposition}, got ${newBoard.fleetComposition}"
     }
 
-    return this.replaceBoard(playerID, newBoard)
+    val newGameState = this.replaceBoard(playerID, newBoard)
+    val hasBothBoardsNotEmpty = newGameState.boards.values.all { it != emptyBoard }
+
+    return if(hasBothBoardsNotEmpty)
+        newGameState.copy(state = Game.State.PLAYING)
+    else
+        newGameState
 
 }
 
