@@ -2,6 +2,7 @@ package pt.isel.daw.battleship.repository.jdbi
 
 import org.jdbi.v3.core.Handle
 import pt.isel.daw.battleship.repository.UserRepository
+import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 import pt.isel.daw.battleship.utils.UserToken
@@ -53,12 +54,12 @@ class JdbiUsersRepository(val handle: Handle) : UserRepository {
      * @param hashedPassword the hashed password of the user
      * @return the [ID] of the user if the credentials are valid, null otherwise
      */
-    override fun loginUser(userName: String, hashedPassword: String): UserToken? {
+    override fun loginUser(userName: String, hashedPassword: String): AuthInformation? {
         return handle.createQuery("""
-             select t.token from "User" u join token t on u.id = t.userid where u.name = :name and u.password = :password
+             select u.id as uid, t.token from "User" u join token t on u.id = t.userid where u.name = :name and u.password = :password
         """).bind("name", userName)
             .bind("password", hashedPassword)
-            .mapTo(String::class.java)
+            .mapTo(AuthInformation::class.java)
             .firstOrNull()
     }
 
@@ -69,7 +70,7 @@ class JdbiUsersRepository(val handle: Handle) : UserRepository {
      */
     override fun getUserIDByToken(token: UserToken): ID? {
         return handle.createQuery("""
-            select id from token where token = :token    
+            select userid from token where token = :token    
         """).bind("token", token)
             .mapTo(Int::class.java)
             .firstOrNull()

@@ -22,7 +22,7 @@ class JdbiLobbyRepository(
      * @param userID The player's ID.
      */
     override fun addPlayerToLobby(userID: UserID): Boolean {
-        return handle.createUpdate("INSERT INTO waitinglobby VALUES (:userID)")
+        return handle.createUpdate("INSERT INTO waitinglobby(userid) VALUES (:userID)")
             .bind("userID", userID)
             .execute() == 1
     }

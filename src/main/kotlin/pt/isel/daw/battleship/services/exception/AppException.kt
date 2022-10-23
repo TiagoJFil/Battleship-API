@@ -5,7 +5,6 @@ package pt.isel.daw.battleship.services.exception
  */
 sealed class AppException(val type: String?, message: String?) : Exception(message)
 
-
 /**
  * Stores all the error codes.
  */
@@ -33,6 +32,5 @@ object ErrorTypes {
     }
 
 }
-
 
 

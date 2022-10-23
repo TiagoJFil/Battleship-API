@@ -3,8 +3,6 @@ package pt.isel.daw.battleship.controller.exceptions
 import org.springframework.http.HttpStatus
 import pt.isel.daw.battleship.services.exception.*
 
-
-
 val errorToStatusMap = mapOf(
     UserAlreadyExistsException::class to HttpStatus.CONFLICT,
     InvalidParameterException::class to HttpStatus.BAD_REQUEST,

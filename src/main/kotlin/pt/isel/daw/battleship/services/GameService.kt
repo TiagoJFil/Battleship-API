@@ -1,13 +1,16 @@
 package pt.isel.daw.battleship.services
 
+
 import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.model.*
-import pt.isel.daw.battleship.repository.dto.toDTO
+import pt.isel.daw.battleship.repository.dto.*
+import pt.isel.daw.battleship.services.entities.GameStatistics
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.utils.UserID
+
 
 @Component
 class GameService(
@@ -15,17 +18,48 @@ class GameService(
 ) {
 
     /**
+     * Gets information about the system
+     */
+    fun getSystemInfo(): SystemInfo {
+        return transactionFactory.execute {
+            gamesRepository.getSystemInfo()
+        }
+    }
+
+    /**
+     * Gets the game statistics
+     */
+    fun getStatistics(): GameStatistics {
+        return transactionFactory.execute {
+            gamesRepository.getStatistics()
+        }
+    }
+
+    /**
+     * Gets the game state of the game with the given id
+     * @param gameId the id of the game
+     * @return [Game.State] the game state
+     */
+    fun getGameState(gameId: Id, userID: UserID): Game.State {
+        return transactionFactory.execute {
+            val game = gamesRepository.get(gameId)
+            game ?: throw GameNotFoundException(gameId)
+            if(userID !in game.boards.keys) throw ForbiddenAccessAppException("User $userID is not part of the game $gameId")
+            game.state
+        }
+    }
+
+    /**
      * Creates a new game or joins an existing one
      * @param userID the user that is creating/joining the game
      * @return [Result] id of the game created/joined
      * @throws InternalErrorAppException if an error occurs while creating/joining the game
      */
-    fun createOrJoinGame(userID: UserID): Result<Id?> = result {
-
-        return@result transactionFactory.execute {
+    fun createOrJoinLobby(userID: UserID): Id? =
+        transactionFactory.execute {
             val pairedPlayerID = lobbyRepository.getWaitingPlayer()
 
-            if(pairedPlayerID == null || pairedPlayerID == userID) {
+            if (pairedPlayerID == null || pairedPlayerID == userID) {
                 lobbyRepository.addPlayerToLobby(userID)
                 return@execute null
             }
@@ -34,17 +68,17 @@ class GameService(
             val newGame = Game.new(userID to pairedPlayerID, GameRules.DEFAULT)
             gamesRepository.persist(newGame.toDTO()) ?: throw InternalErrorAppException()
         }
-    }
+
 
     /**
      * Leaves the lobby
      * @param userID the user that is leaving the lobby
      */
-    fun leaveLobby(userID: UserID): Result<Boolean> = result {
+    fun leaveLobby(userID: UserID): Boolean =
         transactionFactory.execute {
             lobbyRepository.removePlayerFromLobby(userID)
         }
-    }
+
 
     /**
      * Makes a set of shots to the board of the game with the given id
@@ -55,8 +89,8 @@ class GameService(
     fun makeShots(userID: UserID, gameId: Id, shots: List<Square>) {
         transactionFactory.execute {
             val currentState =
-                gamesRepository.getGame(gameId) ?: throw GameNotFoundException(gameId)
-            if(  userID !in currentState.boards.keys ) throw ForbiddenAccessAppException("You are not allowed to make shots in this game")
+                gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to make shots in this game")
             check(userID == currentState.turnID) { "Not your turn!" }
             val newGameState = currentState.makePlay(shots)
             gamesRepository.persist(newGameState.toDTO())
@@ -72,12 +106,12 @@ class GameService(
     fun defineFleetLayout(userID: UserID, gameId: Id, ships: List<ShipInfo>) {
         transactionFactory.execute {
             val currentState =
-                gamesRepository.getGame(gameId) ?: throw GameNotFoundException(gameId)
-            if(  userID !in currentState.boards.keys ) throw ForbiddenAccessAppException("You are not allowed to make shots in this game")
+                gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to define the layout in this game")
             val newState = currentState.placeShips(ships, userID)
             gamesRepository.persist(newState.toDTO())
 
-            gamesRepository.getGame(gameId)
+            gamesRepository.get(gameId)
                 ?.boards?.values
                 ?.forEach {
                     println(it.pretty())
@@ -85,5 +119,26 @@ class GameService(
                 }
         }
     }
+
+    /**
+     * Gets the fleet state of a user in a game
+     * @param userID the user that is getting the fleet state
+     * @param gameId the id of the game
+     * @param opponentFleet if true, returns the fleet state of the opponent, otherwise returns the fleet state of the user
+     * @return [BoardDTO]
+     */
+    fun getFleet(userID: UserID, gameId: Id, opponentFleet: Boolean): BoardDTO? {
+        return transactionFactory.execute {
+            val game =  gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            if (userID !in game.boards.keys) throw ForbiddenAccessAppException("You are not allowed to access this game")
+            game.boards[userID] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
+
+            val user = if (opponentFleet) game.boards.keys.first { it != userID } else userID
+            val board = game.boards[user] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
+            return@execute board.toDTO(userID)
+        }
+    }
+
+
 }
 

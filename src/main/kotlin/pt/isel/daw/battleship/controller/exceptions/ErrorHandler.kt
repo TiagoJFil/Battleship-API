@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import pt.isel.daw.battleship.controller.hypermedia.Problem
@@ -19,11 +21,12 @@ import java.net.URI
 class ErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(AppException::class)
-    fun handleAppException(ex: AppException, request: WebRequest): ResponseEntity<Problem?>? {
+    fun handleAppException(ex: AppException, servletRequest: ServletWebRequest): ResponseEntity<Problem?>? {
+
         val problem = Problem(
             ex.type?.let { URI(it) },
             ex.message,
-            instance = request.contextPath
+            instance = servletRequest.request.requestURI.toString()
         )
 
         return ResponseEntity.status(errorToStatusMap[ex::class] ?: HttpStatus.INTERNAL_SERVER_ERROR)

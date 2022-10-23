@@ -1,5 +1,7 @@
 package pt.isel.daw.battleship.controller.hypermedia
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import java.net.URI
@@ -16,6 +18,7 @@ const val ProblemMediaType = "$APPLICATION_TYPE/$PROBLEM_SUBTYPE"
 
 fun ResponseEntity.BodyBuilder.setProblemHeader() = contentType(MediaType.valueOf(ProblemMediaType))
 
+@JsonInclude(NON_NULL)
 data class Problem(
     val type : URI? = null,
     val title : String? = null,

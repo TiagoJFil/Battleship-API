@@ -2,7 +2,10 @@
 
 package pt.isel.daw.battleship.controller.hypermedia
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.annotation.JsonProperty
+import jdk.jfr.ContentType
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import java.net.URI
@@ -13,7 +16,7 @@ private const val SIREN_SUBTYPE = "vnd.siren+json"
 /**
  * For details regarding the Siren media type, see <a href="https://github.com/kevinswiber/siren">Siren</a>
  */
-val SirenMediaType = MediaType("$APPLICATION_TYPE/$SIREN_SUBTYPE")
+const val SirenMediaType = "$APPLICATION_TYPE/$SIREN_SUBTYPE"
 
 /**
  * Gets a Siren self link for the given URI
@@ -21,11 +24,13 @@ val SirenMediaType = MediaType("$APPLICATION_TYPE/$SIREN_SUBTYPE")
  * @param uri   the string with the self URI
  * @return the resulting siren link
  */
+@JsonInclude(NON_NULL)
 fun selfLink(uri: String) = SirenLink(rel = listOf("self"), href = URI(uri))
 
 /**
  * Class whose instances represent links as they are represented in Siren.
  */
+@JsonInclude(NON_NULL)
 data class SirenLink(
     val rel: List<String>,
     val href: URI,
@@ -36,19 +41,21 @@ data class SirenLink(
 /**
  * Class whose instances represent actions that are included in a siren entity.
  */
+@JsonInclude(NON_NULL)
 data class SirenAction(
     val name: String,
-    val href: URI,
+    val href: String,
     val title: String? = null,
     @JsonProperty("class")
     val clazz: List<String>? = null,
-    val method: HttpMethod? = null,
-    val type: MediaType? = null,
+    val method: String? = null,
+    val type: String? = null,
     val fields: List<Field>? = null
 ) {
     /**
      * Represents action's fields
      */
+    @JsonInclude(NON_NULL)
     data class Field(
         val name: String,
         val type: String? = null,
@@ -57,6 +64,7 @@ data class SirenAction(
     )
 }
 
+@JsonInclude(NON_NULL)
 data class SirenEntity<T>(
     @JsonProperty("class") val clazz: List<String>? = null,
     val properties: T? = null,
@@ -72,6 +80,7 @@ data class SirenEntity<T>(
  */
 sealed class SubEntity
 
+@JsonInclude(NON_NULL)
 data class EmbeddedLink(
     @JsonProperty("class")
     val clazz: List<String>? = null,
@@ -81,6 +90,7 @@ data class EmbeddedLink(
     val title: String? = null
 ) : SubEntity()
 
+@JsonInclude(NON_NULL)
 data class EmbeddedEntity<T>(
     val rel: List<String>,
     @JsonProperty("class") val clazz: List<String>? = null,

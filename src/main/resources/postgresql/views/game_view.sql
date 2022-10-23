@@ -31,11 +31,6 @@ begin
 select getGameId()
 into gameId;
 
-    if new.player1 is not null and new.player2 is not null then
-            insert into Board(layout,gameId,userId) values (new.boardP1,gameId,new.player1);
-            insert into Board(layout, gameId, userId) values (new.boardP2, gameId, new.player2);
-    end if;
-
     if(select not shipRulesExists(new.shiprules)) then
         insert into ShipRules(fleetInfo) values (new.shiprules);
     end if;
@@ -50,6 +45,13 @@ into gameId;
     select id from GameRules where boardSide = new.boardSide into gameRulesId;
     insert into Game(id, rules, state, turn, player1, player2)
     values (gameId, gameRulesId, new.state, new.turn, new.player1, new.player2);
+
+    if new.player1 is not null and new.player2 is not null then
+            insert into Board(layout,gameId,userId) values (new.boardP1,gameId,new.player1);
+            insert into Board(layout, gameId, userId) values (new.boardP2, gameId, new.player2);
+    end if;
+
+
     return new;
 end;
 $$;

@@ -16,13 +16,18 @@ import pt.isel.daw.battleship.repository.dto.toDTO
 import pt.isel.daw.battleship.repository.jdbi.GameView
 import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
 import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository.Companion.serializeShipRulesToJson
+import pt.isel.daw.battleship.repository.jdbi.JdbiLobbyRepository
 import pt.isel.daw.battleship.utils.UserID
 
-/*
+
 class GameRepositoryTests {
     private val users = getNUsers(3)
 
     private val player1ID = users[0].id
+    private val player2ID = users[1].id
+
+    private val emptyBoard = Board.empty(GameRules.DEFAULT.boardSide)
+
     private val testGameID = 1
     private val gameDTO = GameDTO(
         id = null,
@@ -30,9 +35,9 @@ class GameRepositoryTests {
         rules = GameRules.DEFAULT,
         turn = player1ID,
         player1 = player1ID,
-        player2 = null,
-        boardP1 = null,
-        boardP2 = null,
+        player2 = player2ID,
+        boardP1 = emptyBoard.toString(),
+        boardP2 = emptyBoard.toString(),
     )
 
     @BeforeEach
@@ -40,7 +45,8 @@ class GameRepositoryTests {
         executeWithHandle { handle ->
             clear()
             handle.insertUsers(users)
-            handle.insertGame(gameDTO)
+            val gameRepo = JdbiGamesRepository(handle)
+            gameRepo.persist(gameDTO)
         }
     }
 
@@ -49,7 +55,7 @@ class GameRepositoryTests {
     fun `test getGame with valid id`() {
         executeWithHandle { handle ->
             val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.getGame(testGameID)
+            val game = gameRepo.get(testGameID)
             assert(game != null)
             if(game != null) assertEquals(game.id, testGameID)
         }
@@ -59,7 +65,7 @@ class GameRepositoryTests {
     fun `test getGame with invalid id`() {
         executeWithHandle { handle ->
             val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.getGame(0)
+            val game = gameRepo.get(0)
             assert(game == null)
         }
     }
@@ -68,7 +74,7 @@ class GameRepositoryTests {
     fun `check if the rules are correctly inserted after a new game insertion`() {
         executeWithHandle { handle ->
             val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.getGame(testGameID)
+            val game = gameRepo.get(testGameID)
             assert(game != null)
             if(game != null){
                 assertEquals(testGameID, game.id)
@@ -81,25 +87,35 @@ class GameRepositoryTests {
         }
     }
 
+    @Test
+    fun `join a game`() {
+        executeWithHandle { handle ->
+            val gameRepo = JdbiGamesRepository(handle)
+            val lobbyRepository = JdbiLobbyRepository(handle)
+
+            lobbyRepository.addPlayerToLobby(player1ID)
+            val waitingUser = lobbyRepository.getWaitingPlayer()
+
+            if(waitingUser == null){
+                assert(false)
+                return@executeWithHandle
+            }
+
+            val newGame = Game.new(Pair(waitingUser,player2ID), GameRules.DEFAULT)
+
+            val game = gameRepo.get(testGameID)
+            if(game != null){
+                assertEquals(game.state, PLACING_SHIPS)
+                assertEquals(game.turnID, player1ID)
+                assert(game.boards.equals(mapOf(waitingUser to emptyBoard, player2ID to emptyBoard)))
+            }
+        }
+    }
+
     private fun Handle.insertUsers(users: List<UserDTO>) {
        createUpdate("""
              insert into "User"(id, "name") values${users.joinToString(", ") { "(${it.id}, '${it.name}')" }}
         """).execute()
-    }
-
-    private fun Handle.insertGame(game: GameDTO) {
-        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.ID }
-        val rules = game.rules
-        createUpdate("""          
-                insert into gameview(
-                    ${gameViewColumnNames.joinToString(", ") { it.columnName }}, shiprules
-                ) values (
-                ${rules.boardSide}, ${rules.shotsPerTurn}, ${rules.layoutDefinitionTimeout}, ${rules.playTimeout}, 
-                 '${game.state}', ${game.turn}, ${game.player1}, ${game.player2}, ${game.boardP1}, ${game.boardP2}, 
-                 cast('${serializeShipRulesToJson(rules.shipRules)}' as jsonb)
-                 )
-            """
-        ).execute()
     }
 
     private fun getNUsers(n: Int): List<UserDTO> {
@@ -110,8 +126,10 @@ class GameRepositoryTests {
         executeWithHandle { handle ->
             handle.execute("delete from board")
             handle.execute("delete from game")
+
             handle.execute("delete from gamerules")
             handle.execute("delete from shiprules")
+            handle.execute("delete from waitinglobby")
             handle.execute("delete from \"User\"")
         }
     }
@@ -138,6 +156,13 @@ class GameRepositoryTests {
                     id serial primary key,
                     "name" varchar(20) unique not null,
                 );
+                
+                create table if not exists WaitingLobby(
+                    id serial primary key,
+                    userID int,
+                    foreign key (userID) references "User"(id)
+                );
+
 
                 create table if not exists token(
                     token varchar(255) primary key,
@@ -188,4 +213,3 @@ class GameRepositoryTests {
 
 }
 
-*/

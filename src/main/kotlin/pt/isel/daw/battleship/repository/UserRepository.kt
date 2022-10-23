@@ -1,6 +1,7 @@
 package pt.isel.daw.battleship.repository
 
 
+import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 import pt.isel.daw.battleship.utils.UserToken
@@ -29,7 +30,7 @@ interface UserRepository {
      * @param hashedPassword the hashed password of the user
      * @return the [ID] of the user if the credentials are valid, null otherwise
      */
-    fun loginUser(userName: String, hashedPassword: String): UserToken?
+    fun loginUser(userName: String, hashedPassword: String): AuthInformation?
 
     /**
      * Gets the [ID] of the user with the given token.
