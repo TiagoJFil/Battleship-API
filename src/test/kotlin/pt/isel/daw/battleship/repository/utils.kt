@@ -10,7 +10,8 @@ import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransaction
 
 private val jdbi = Jdbi.create(
     PGSimpleDataSource().apply {
-        setURL("jdbc:postgresql://localhost:5432/world?user=postgres&password=docker")
+        setURL("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=craquesdabola123")
+        //setURL("jdbc:postgresql://localhost:5432/world?user=postgres&password=docker")
         //setURL("jdbc:postgresql://localhost:49153/postgres?user=postgres&password=postgresw")
     }
 ).configure()
