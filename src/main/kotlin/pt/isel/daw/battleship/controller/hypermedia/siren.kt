@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import jdk.jfr.ContentType
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import java.net.URI
 
 private const val APPLICATION_TYPE = "application"
@@ -16,7 +17,9 @@ private const val SIREN_SUBTYPE = "vnd.siren+json"
 /**
  * For details regarding the Siren media type, see <a href="https://github.com/kevinswiber/siren">Siren</a>
  */
-const val SirenMediaType = "$APPLICATION_TYPE/$SIREN_SUBTYPE"
+val SirenMediaType = MediaType.valueOf("$APPLICATION_TYPE/$SIREN_SUBTYPE")
+
+fun ResponseEntity.BodyBuilder.setSirenHeader() = contentType(SirenMediaType)
 
 /**
  * Gets a Siren self link for the given URI

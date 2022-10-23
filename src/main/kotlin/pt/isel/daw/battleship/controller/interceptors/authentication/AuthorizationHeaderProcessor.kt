@@ -12,7 +12,7 @@ class AuthorizationHeaderProcessor(
 
     fun process(token : String?) : UserID {
         val parsedToken = token
-            ?.substringAfter("Bearer ", missingDelimiterValue = "") ?: throw UnauthenticatedAppException()
+            ?.substringAfter("$SCHEME ", missingDelimiterValue = "") ?: throw UnauthenticatedAppException()
 
         return userServices.getUserIDFromToken(parsedToken)
     }

@@ -1,9 +1,9 @@
-package pt.isel.daw.battleship.game
+package pt.isel.daw.battleship.domain.game
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.model.*
+import pt.isel.daw.battleship.domain.*
 
 
 class GameTests {

@@ -13,10 +13,10 @@ private const val PROBLEM_SUBTYPE = "problem+json"
 /**
  * For more information about the problem details specification, see https://datatracker.ietf.org/doc/html/rfc7807#section-3
  */
-const val ProblemMediaType = "$APPLICATION_TYPE/$PROBLEM_SUBTYPE"
+val ProblemMediaType = MediaType.valueOf("$APPLICATION_TYPE/$PROBLEM_SUBTYPE")
 
 
-fun ResponseEntity.BodyBuilder.setProblemHeader() = contentType(MediaType.valueOf(ProblemMediaType))
+fun ResponseEntity.BodyBuilder.setProblemHeader() = contentType(ProblemMediaType)
 
 @JsonInclude(NON_NULL)
 data class Problem(

@@ -2,10 +2,10 @@ package pt.isel.daw.battleship.repository.dto
 
 
 import org.jdbi.v3.core.mapper.Nested
-import pt.isel.daw.battleship.model.Board
-import pt.isel.daw.battleship.model.Game
-import pt.isel.daw.battleship.model.GameRules
-import pt.isel.daw.battleship.model.Id
+import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.Game
+import pt.isel.daw.battleship.domain.GameRules
+import pt.isel.daw.battleship.domain.Id
 import pt.isel.daw.battleship.utils.UserID
 
 data class GameDTO(

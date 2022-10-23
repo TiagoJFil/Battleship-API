@@ -6,18 +6,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import pt.isel.daw.battleship.controller.Uris
 
-import pt.isel.daw.battleship.model.*
-import pt.isel.daw.battleship.model.Game.State.*
+import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.Game.State.*
 import pt.isel.daw.battleship.repository.dto.GameDTO
 import pt.isel.daw.battleship.repository.dto.UserDTO
-import pt.isel.daw.battleship.repository.dto.toDTO
-import pt.isel.daw.battleship.repository.jdbi.GameView
 import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
-import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository.Companion.serializeShipRulesToJson
 import pt.isel.daw.battleship.repository.jdbi.JdbiLobbyRepository
-import pt.isel.daw.battleship.utils.UserID
 
 
 class GameRepositoryTests {

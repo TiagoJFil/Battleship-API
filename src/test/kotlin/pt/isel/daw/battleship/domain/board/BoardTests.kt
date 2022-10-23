@@ -1,15 +1,14 @@
 package pt.isel.daw.battleship.board
 
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.model.Column
-import pt.isel.daw.battleship.model.Row
-import pt.isel.daw.battleship.model.Square
-import pt.isel.daw.battleship.model.column
-import pt.isel.daw.battleship.model.row
-import pt.isel.daw.battleship.model.*
+import pt.isel.daw.battleship.domain.Column
+import pt.isel.daw.battleship.domain.Row
+import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.domain.column
+import pt.isel.daw.battleship.domain.row
+import pt.isel.daw.battleship.domain.*
 
 class BoardTests {
 

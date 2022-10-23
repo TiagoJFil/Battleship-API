@@ -7,7 +7,6 @@ import pt.isel.daw.battleship.controller.hypermedia.SirenAction
 import pt.isel.daw.battleship.controller.hypermedia.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.selfLink
 import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
-import pt.isel.daw.battleship.model.Id
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.GameInformation
 import pt.isel.daw.battleship.utils.UserID
@@ -19,9 +18,9 @@ class LobbyController(
 ) {
 
     @Authentication
-    @PostMapping
+    @PostMapping(Uris.Lobby.QUEUE)
     fun playIntent(userID: UserID): SirenEntity<GameInformation> {
-        val gameId = gameService.createOrJoinLobby(userID)
+        val gameId = gameService.createOrJoinGame(userID)
 
         val placeShips = SirenAction(
             name = "place-ships",
@@ -36,7 +35,6 @@ class LobbyController(
             name = "home",
             href = "http://localhost:8080/api",
             method = "GET",
-            type = "application/json",
             fields = listOf(
             )
         )
@@ -50,6 +48,40 @@ class LobbyController(
             actions = actions,
             links = listOf(selfLink("http://localhost:8080/api/lobby"))
         )
+    }
+
+    @Authentication
+    @PostMapping(Uris.Lobby.CANCEL_QUEUE)
+    fun cancelQueue(userID: UserID) : SirenEntity<Nothing> {
+        gameService.leaveLobby(userID)
+
+        val playIntent = SirenAction(
+            name = "play-intent",
+            href = "http://localhost:8080/api/lobby/",
+            method = "POST",
+            type = "application/json",
+            fields = listOf()
+        )
+        val home = SirenAction(
+            name = "home",
+            href = "http://localhost:8080/api",
+            method = "GET",
+            fields = listOf(
+            )
+        )
+
+        return SirenEntity<Nothing>(
+            title = "Home",
+            entities = listOf(),
+            actions = listOf(
+                playIntent,
+                home
+            ),
+            links = listOf(
+                selfLink("http://localhost:8080/api/lobby")
+            )
+        )
+
     }
 
 }

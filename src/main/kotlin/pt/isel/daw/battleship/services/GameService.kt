@@ -2,9 +2,8 @@ package pt.isel.daw.battleship.services
 
 
 import org.springframework.stereotype.Component
-import pt.isel.daw.battleship.model.*
+import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.repository.dto.*
-import pt.isel.daw.battleship.services.entities.GameStatistics
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
@@ -16,24 +15,6 @@ import pt.isel.daw.battleship.utils.UserID
 class GameService(
     private val transactionFactory: TransactionFactory
 ) {
-
-    /**
-     * Gets information about the system
-     */
-    fun getSystemInfo(): SystemInfo {
-        return transactionFactory.execute {
-            gamesRepository.getSystemInfo()
-        }
-    }
-
-    /**
-     * Gets the game statistics
-     */
-    fun getStatistics(): GameStatistics {
-        return transactionFactory.execute {
-            gamesRepository.getStatistics()
-        }
-    }
 
     /**
      * Gets the game state of the game with the given id
@@ -55,7 +36,7 @@ class GameService(
      * @return [Result] id of the game created/joined
      * @throws InternalErrorAppException if an error occurs while creating/joining the game
      */
-    fun createOrJoinLobby(userID: UserID): Id? =
+    fun createOrJoinGame(userID: UserID): Id? =
         transactionFactory.execute {
             val pairedPlayerID = lobbyRepository.getWaitingPlayer()
 

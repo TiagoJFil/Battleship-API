@@ -3,12 +3,12 @@ package pt.isel.daw.battleship.board
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.logging.LoggerFactory
-import pt.isel.daw.battleship.model.Square
-import pt.isel.daw.battleship.model.column
-import pt.isel.daw.battleship.model.Board
-import pt.isel.daw.battleship.model.makeShots
-import pt.isel.daw.battleship.model.pretty
-import pt.isel.daw.battleship.model.row
+import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.domain.column
+import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.makeShots
+import pt.isel.daw.battleship.domain.pretty
+import pt.isel.daw.battleship.domain.row
 
 class BoardShotTests {
 

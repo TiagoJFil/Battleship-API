@@ -9,15 +9,13 @@ import pt.isel.daw.battleship.controller.hypermedia.SirenLink
 import pt.isel.daw.battleship.controller.hypermedia.selfLink
 import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
 import pt.isel.daw.battleship.repository.dto.BoardDTO
-import pt.isel.daw.battleship.repository.dto.SystemInfoDTO
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.utils.UserID
 import java.net.URI
 
-
-@RequestMapping(Uris.Game.ROOT)
 @RestController
+@RequestMapping(Uris.Game.ROOT)
 class GameController(
     val gameService: GameService
 ) {

@@ -7,7 +7,6 @@ create table if not exists Authors(
 );
 
 create table if not exists SystemInfo(
-    name varchar(20) primary key,
     version varchar(20)
 );
 
@@ -21,8 +20,6 @@ create table if not exists WaitingLobby(
     userID int,
     foreign key (userID) references "User"(id)
 );
-
-
 
 create table if not exists token(
     token varchar(255) primary key,

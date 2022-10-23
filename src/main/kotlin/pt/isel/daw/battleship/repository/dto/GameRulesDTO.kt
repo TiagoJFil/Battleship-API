@@ -1,6 +1,6 @@
 package pt.isel.daw.battleship.repository.dto
 
-import pt.isel.daw.battleship.model.GameRules
+import pt.isel.daw.battleship.domain.GameRules
 
 data class GameRulesDTO(
     val id: Int,

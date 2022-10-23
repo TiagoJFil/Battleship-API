@@ -20,6 +20,7 @@ class AuthenticationInterceptor(
             val authHeader = request.getHeader("Authorization")
 
             val userID = authorizationHeaderProcessor.process(authHeader)
+            logger.info("${request.method} on ${request.contextPath} authorized by user $userID")
 
             UserIDArgumentResolver.addUserIDTo(userID, request)
             return true

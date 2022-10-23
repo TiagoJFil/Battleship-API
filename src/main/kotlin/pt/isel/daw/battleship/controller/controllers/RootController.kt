@@ -5,19 +5,19 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.hypermedia.SirenEntity
-import pt.isel.daw.battleship.repository.dto.SystemInfo
-import pt.isel.daw.battleship.services.GameService
+import pt.isel.daw.battleship.services.GeneralService
 import pt.isel.daw.battleship.services.entities.GameStatistics
+import pt.isel.daw.battleship.services.entities.SystemInfo
 
 @RestController
 @RequestMapping(Uris.HOME)
 class RootController(
-    val gameService: GameService
+    val generalService: GeneralService
 ) {
 
     @GetMapping(Uris.SYSTEM_INFO)
     fun getSystemInfo(): SirenEntity<SystemInfo>{
-        val sysInfo = gameService.getSystemInfo()
+        val sysInfo = generalService.getSystemInfo()
 
         return SirenEntity(
             properties = sysInfo,
@@ -30,7 +30,7 @@ class RootController(
 
     @GetMapping(Uris.STATISTICS)
     fun getStatistics(): SirenEntity<GameStatistics>{
-        val statistics = gameService.getStatistics()
+        val statistics = generalService.getStatistics()
 
         return SirenEntity(
             properties = statistics,

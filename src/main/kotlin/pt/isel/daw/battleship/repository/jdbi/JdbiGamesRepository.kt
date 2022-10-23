@@ -5,57 +5,15 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.statement.Update
-import org.postgresql.util.PGobject
-import pt.isel.daw.battleship.controller.Uris
-import pt.isel.daw.battleship.model.*
-import pt.isel.daw.battleship.model.GameRules.*
+import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.dto.*
-import pt.isel.daw.battleship.services.entities.GameStatistics
 
 
 class JdbiGamesRepository(
     private val handle: Handle
 ) : GameRepository {
-
-    /**
-     * Gets information about the system
-     */
-    override fun getSystemInfo(): SystemInfo {
-       val sysInfoDTO = handle.createQuery(
-            """
-                Select name, version from systeminfo 
-            """
-        ).mapTo<SystemInfoDTO>().first()
-
-        val authors = handle.createQuery(
-            """
-                Select name, number, email from authorsinfo 
-            """
-        ).mapTo<AuthorsDTO>().toList()
-
-        return sysInfoDTO.toSystemInfo(authors)
-    }
-
-    /**
-     * Gets the game statistics
-     */
-    override fun getStatistics(): GameStatistics {
-
-        val numGames = handle.createQuery("SELECT COUNT(*) FROM game")
-            .mapTo<Int>()
-            .one()
-
-        val ranking = handle.createQuery("""SELECT "User".name, COUNT(*) as gamesWon FROM "User" JOIN game ON "User".id = game.winner""" +
-                """ GROUP BY "User".name ORDER BY gamesWon DESC""")
-            .map { rs, _, _ ->
-                val userName = rs.getString("name")
-                val gamesWon = rs.getInt("gamesWon")
-                return@map Pair(userName, gamesWon)
-            }.toList()
-
-        return GameStatistics(numGames, ranking)
-    }
 
     /**
      * Gets the game with the given id

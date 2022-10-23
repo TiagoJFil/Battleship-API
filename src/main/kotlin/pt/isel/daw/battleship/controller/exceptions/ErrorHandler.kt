@@ -1,14 +1,14 @@
 package pt.isel.daw.battleship.controller.exceptions
 
-import org.springframework.beans.TypeMismatchException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.context.request.WebRequest
+import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import pt.isel.daw.battleship.controller.hypermedia.Problem
 import pt.isel.daw.battleship.controller.hypermedia.setProblemHeader
@@ -29,17 +29,21 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
             instance = servletRequest.request.requestURI.toString()
         )
 
+        logger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
         return ResponseEntity.status(errorToStatusMap[ex::class] ?: HttpStatus.INTERNAL_SERVER_ERROR)
             .setProblemHeader()
             .body(problem)
     }
 
-    override fun handleTypeMismatch(
-        ex: TypeMismatchException,
+    /**
+     * Handle the exception thrown when a handler is not found for a specific request.
+     */
+    override fun handleNoHandlerFoundException(
+        ex: NoHandlerFoundException,
         headers: HttpHeaders,
         status: HttpStatus,
-        request: WebRequest,
-    ) : ResponseEntity<Any> {
+        request: WebRequest
+    ): ResponseEntity<Any> {
 
         return ResponseEntity
             .status(404)
@@ -47,8 +51,12 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
             .body(Problem(
                 URI(ErrorTypes.General.NOT_FOUND),
                 ex.message,
-                instance = request.contextPath
+                instance = (request as ServletWebRequest).request.requestURI.toString()
             ))
+    }
+
+    companion object{
+        private val logger =  LoggerFactory.getLogger(ErrorHandler::class.java)
     }
 
 }

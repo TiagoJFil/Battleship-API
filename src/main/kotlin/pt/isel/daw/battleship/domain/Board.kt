@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.model
+package pt.isel.daw.battleship.domain
 
 import pt.isel.daw.battleship.utils.ShipCount
 import pt.isel.daw.battleship.utils.ShipSize
