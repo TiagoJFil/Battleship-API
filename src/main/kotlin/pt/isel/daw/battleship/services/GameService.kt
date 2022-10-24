@@ -33,7 +33,7 @@ class GameService(
     /**
      * Creates a new game or joins an existing one
      * @param userID the user that is creating/joining the game
-     * @return [Result] id of the game created/joined
+     * @return [Id] of the game created/joined or [Null] if the user joined the queue and is waiting for a game
      * @throws InternalErrorAppException if an error occurs while creating/joining the game
      */
     fun createOrJoinGame(userID: UserID): Id? =
@@ -55,9 +55,10 @@ class GameService(
      * Leaves the lobby
      * @param userID the user that is leaving the lobby
      */
-    fun leaveLobby(userID: UserID): Boolean =
+    fun leaveLobby(userID: UserID) =
         transactionFactory.execute {
-            lobbyRepository.removePlayerFromLobby(userID)
+            if(!lobbyRepository.removePlayerFromLobby(userID))
+                throw ForbiddenAccessAppException("User $userID is not in the lobby")
         }
 
 

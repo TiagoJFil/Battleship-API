@@ -153,11 +153,7 @@ class BoardTests {
                 "######"
 
         val board = Board.fromLayout(layout)
-
-        val finalBoard = board.placeShip(
-            Square(Row(0), Column(0)),
-            Square(Row(0), Column(2))
-        )
+        val finalBoard = board.placeShip(Square(0.row, 0.column),3, Orientation.Horizontal)
 
         println(finalBoard)
 
@@ -213,12 +209,9 @@ class BoardTests {
                 "#B####"
 
         val board = Board.fromLayout(layout)
-
         assertThrows<IllegalArgumentException> {
             board.placeShip(
-                    Square(Row(0), Column(1)),
-                    Square(Row(1), Column(1))
-            )
+                Square(Row(0), Column(1)), 2, Orientation.Vertical)
         }
 
     }
@@ -227,7 +220,8 @@ class BoardTests {
     fun `cant place a ship outside the board`(){
         assertThrows<IllegalArgumentException> {
             val board = Board.fromLayout(FOUR_BY_FOUR_EMPTY_LAYOUT)
-            board.placeShip(Square(0.row, 3.column), Square(0.row, 7.column))
+            board.placeShip(
+                Square(Row(0), Column(3)), 2, Orientation.Horizontal)
         }
     }
 
@@ -245,10 +239,8 @@ class BoardTests {
         val board = Board.fromLayout(layout)
 
         assertThrows<IllegalArgumentException> {
-            board.placeShip(
-                    Square(0.row, 0.column),
-                    Square(0.row, 2.column)
-            )
+            board.placeShip(Square(0.row, 0.column), 3, Orientation.Horizontal)
+
         }
     }
 

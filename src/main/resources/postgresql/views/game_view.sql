@@ -24,12 +24,11 @@ create or replace function insertGameView()
     language plpgsql
 AS $$
 declare
-    gameId int;
+    newGameId int;
     shipRulesId int;
     gameRulesId int;
 begin
-select getGameId()
-into gameId;
+    select getGameId()into newGameId;
 
     if(select not shipRulesExists(new.shiprules)) then
         insert into ShipRules(fleetInfo) values (new.shiprules);
@@ -44,11 +43,11 @@ into gameId;
 
     select id from GameRules where boardSide = new.boardSide into gameRulesId;
     insert into Game(id, rules, state, turn, player1, player2)
-    values (gameId, gameRulesId, new.state, new.turn, new.player1, new.player2);
+    values (newGameId, gameRulesId, new.state, new.turn, new.player1, new.player2);
 
     if new.player1 is not null and new.player2 is not null then
-            insert into Board(layout,gameId,userId) values (new.boardP1,gameId,new.player1);
-            insert into Board(layout, gameId, userId) values (new.boardP2, gameId, new.player2);
+            insert into Board(layout,gameId,userId) values (new.boardP1,newGameId,new.player1);
+            insert into Board(layout, gameId, userId) values (new.boardP2, newGameId, new.player2);
     end if;
 
 

@@ -12,7 +12,8 @@ create table if not exists SystemInfo(
 
 create table if not exists "User" (
   id serial primary key,
-  "name" varchar(20) unique not null
+  "name" varchar(20) unique not null,
+  password varchar(200) not null
 );
 
 create table if not exists WaitingLobby(

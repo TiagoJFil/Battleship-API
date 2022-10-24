@@ -7,12 +7,12 @@ sealed class InputValidationException(type: String, message: String) : AppExcept
 /**
  * Thrown when a required parameter is missing.
  */
-class MissingParameterException(val parameter: String) :
+class MissingParameterException(parameter: String) :
     InputValidationException(ErrorTypes.InputValidation.MISSING_PARAMETER, "Missing parameter $parameter")
 
 
 /**
  * Thrown when a parameter is invalid.
  */
-class InvalidParameterException(val parameter: String) :
+class InvalidParameterException(parameter: String) :
     InputValidationException(ErrorTypes.InputValidation.INVALID_PARAMETER, "Invalid parameter $parameter")

@@ -3,11 +3,12 @@ package pt.isel.daw.battleship.services
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.model.Game
-import pt.isel.daw.battleship.model.Orientation
-import pt.isel.daw.battleship.model.ShipInfo
-import pt.isel.daw.battleship.model.Square
+import pt.isel.daw.battleship.domain.Game
+import pt.isel.daw.battleship.domain.Orientation
+import pt.isel.daw.battleship.domain.ShipInfo
+import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
+import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
@@ -23,14 +24,19 @@ class GameServicesTests {
         val player2: UserID
     )
 
+    private fun createUser(transaction: TransactionFactory, name: String): AuthInformation {
+        val userService = UserService(transaction)
+        return userService.createUser(UserValidation(name, "12346"))
+    }
+
     private fun createGame(transaction: TransactionFactory): TestGameInfo? {
 
         val userService = UserService(transaction)
         val gameService = GameService(transaction)
-        val (uid1, token1) = userService.createUser(UserValidation("user_test", "password"))
-        val (uid2, token2) = userService.createUser(UserValidation("user_test2", "password"))
-        gameService.createOrJoinLobby(uid1)
-        val gameID = gameService.createOrJoinLobby(uid2) ?: return null
+        val (uid1, token1) = userService.createUser(UserValidation("user_test", "password1"))
+        val (uid2, token2) = userService.createUser(UserValidation("user_test2", "password1"))
+        gameService.createOrJoinGame(uid1)
+        val gameID = gameService.createOrJoinGame(uid2) ?: return null
 
         return TestGameInfo(gameID, uid1, uid2)
     }
@@ -87,7 +93,7 @@ class GameServicesTests {
                 assert(square in board1.shipParts)
             }
             assertEquals(game.player2, board2.userID)
-            assertEquals(board2.shipParts, emptyList<Square>())
+            assertEquals(emptyList<Square>(),board2.shipParts)
         }
     }
 
@@ -140,8 +146,8 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(stateForPlayer1, Game.State.PLACING_SHIPS)
-            assertEquals(stateForPlayer2, Game.State.PLACING_SHIPS)
+            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer1)
+            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer2)
         }
     }
 
@@ -171,8 +177,8 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(stateForPlayer1, Game.State.PLAYING)
-            assertEquals(stateForPlayer2, Game.State.PLAYING)
+            assertEquals(Game.State.PLAYING,stateForPlayer1)
+            assertEquals(Game.State.PLAYING,stateForPlayer2 )
         }
     }
 
@@ -209,4 +215,33 @@ class GameServicesTests {
             }
         }
     }
+
+
+    @Test
+    fun ` Leave the queue sucessfully`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(it)
+            val user = createUser(it,"test")
+
+            val joinedGame = gameService.createOrJoinGame(user.uid)
+            assertEquals(null,joinedGame)
+            gameService.leaveLobby(user.uid)
+        }
+    }
+
+    @Test
+    fun `Cant leave the queue if user did not join`(){
+        assertThrows<ForbiddenAccessAppException> {
+            testWithTransactionManagerAndRollback {
+                val gameService = GameService(it)
+                val user = createUser(it,"test")
+
+
+                gameService.leaveLobby(user.uid)
+            }
+        }
+    }
+
+
+
 }

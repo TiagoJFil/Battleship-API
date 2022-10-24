@@ -34,3 +34,7 @@ fun requireParameter(parameter: String?, parameterName: String): String {
     requireNotBlankParameter(parameter, parameterName)
     return parameter
 }
+
+fun requireParameter( value : Boolean , message: () -> Any){
+    if(!value) throw InvalidParameterException(message().toString())
+}

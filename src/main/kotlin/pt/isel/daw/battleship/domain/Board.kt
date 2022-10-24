@@ -279,35 +279,6 @@ data class Board(val matrix: List<SquareType>) {
      */
     private fun isHit(square: Square) = get(square) == SquareType.ShipPart
 
-
-    /**
-     * Places a ship on the board given an initial square and final square.
-     * @param initialSquare
-     * @param finalSquare
-     * @returns [Board] 
-     * @throws IllegalArgumentException if the square is not in the bounds of the board
-     */
-    fun placeShip(initialSquare: Square, finalSquare: Square): Board {
-        requireValidIndex(initialSquare)
-        requireValidIndex(finalSquare)
-
-        val shipSquares = getShipSquares(initialSquare, finalSquare)
-        //need to verify if there is a ship there
-        checkShipSquares(shipSquares)
-        checkForAdjacentShips(shipSquares)
-
-
-        val shipSquaresIndexs = shipSquares.map { square -> getIndexFrom(square) }
-
-        return Board(
-            matrix.mapIndexed { idx, squareType ->
-                if (shipSquaresIndexs.contains(idx)) SquareType.ShipPart
-                else squareType
-            }
-        )
-
-    }
-
     /**
      * Checks if the given squares already have a ship part on it.a 
      * @param shipSquares
@@ -335,11 +306,14 @@ data class Board(val matrix: List<SquareType>) {
         } else {
             Square((initialSquare.row.ordinal + shipSize - 1).row, initialSquare.column)
         }
-
         requireValidIndex(endSquare)
 
-        val shipSquaresIndexs = getShipSquares(initialSquare, endSquare)
-                .map { square -> getIndexFrom(square) }
+        val shipSquares = getShipSquares(initialSquare, endSquare)
+
+        checkShipSquares(shipSquares)
+        checkForAdjacentShips(shipSquares)
+
+        val shipSquaresIndexs = shipSquares.map { square -> getIndexFrom(square) }
 
         return Board(
             matrix.mapIndexed { idx, squareType ->
@@ -376,15 +350,7 @@ data class Board(val matrix: List<SquareType>) {
     }
 }
 
-/**
- * Place a fleet on the Board
- * @param shipInfoList fleet info
- * @return [Board] board with the fleet on it
- */
-fun Board.placeShipList(shipInfoList: List<Pair<Square, Square>>): Board =
-        shipInfoList.fold(this){ acc, squares ->
-            acc.placeShip(squares.first, squares.second)
-        }
+
 
 /**
  * Place a fleet on the Board

@@ -29,6 +29,7 @@ object ErrorTypes {
         const val NOT_FOUND = "https://battleship.com/problems/not-found"
         const val INTERNAL_ERROR = "https://battleship.com/problems/internal-error"
         const val FORBIDDEN = "https://battleship.com/problems/unauthorized"
+        const val METHOD_NOT_ALLOWED = "https://battleship.com/problems/method-not-allowed"
     }
 
 }

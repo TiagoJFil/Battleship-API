@@ -1,9 +1,11 @@
 package pt.isel.daw.battleship.controller.exceptions
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.TypeMismatchException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.ServletWebRequest
@@ -21,7 +23,7 @@ import java.net.URI
 class ErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(AppException::class)
-    fun handleAppException(ex: AppException, servletRequest: ServletWebRequest): ResponseEntity<Problem?>? {
+    fun handleAppException(ex: AppException, servletRequest: ServletWebRequest): ResponseEntity<Problem> {
 
         val problem = Problem(
             ex.type?.let { URI(it) },
@@ -54,6 +56,23 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
                 instance = (request as ServletWebRequest).request.requestURI.toString()
             ))
     }
+
+    override fun handleHttpRequestMethodNotSupported(
+        ex: HttpRequestMethodNotSupportedException,
+        headers: HttpHeaders,
+        status: HttpStatus,
+        request: WebRequest
+    ): ResponseEntity<Any> {
+        return ResponseEntity
+            .status(405)
+            .setProblemHeader()
+            .body(Problem(
+                URI(ErrorTypes.General.METHOD_NOT_ALLOWED),
+                ex.message,
+                instance = (request as ServletWebRequest).request.requestURI.toString()
+            ))
+    }
+
 
     companion object{
         private val logger =  LoggerFactory.getLogger(ErrorHandler::class.java)

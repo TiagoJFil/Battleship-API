@@ -107,14 +107,16 @@ class GameRepositoryTests {
         }
     }
 
-    private fun Handle.insertUsers(users: List<UserDTO>) {
+    private fun Handle.insertUsers(users: List<DbUser>) {
        createUpdate("""
-             insert into "User"(id, "name") values${users.joinToString(", ") { "(${it.id}, '${it.name}')" }}
+             insert into "User"(id, "name","password") values${users.joinToString(", ") { "(${it.id}, '${it.name}', '${it.password}')" }}
         """).execute()
     }
 
-    private fun getNUsers(n: Int): List<UserDTO> {
-        return (1..n).map { UserDTO(it, "user$it") }
+    data class DbUser(val id: Int, val name: String, val password: String)
+
+    private fun getNUsers(n: Int): List<DbUser> {
+        return (1..n).map { DbUser(it, "user$it","asdqwdqwdqw1") }
     }
 
     private fun clear(){
