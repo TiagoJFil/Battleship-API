@@ -3,6 +3,7 @@ package pt.isel.daw.battleship.services
 import org.springframework.stereotype.Service
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
+import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.services.exception.UnauthenticatedAppException
 import pt.isel.daw.battleship.services.exception.UserAlreadyExistsException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
@@ -46,9 +47,9 @@ class UserService(
      * @param password The user's password.
      * @return [UserToken] if the credentials are valid, null otherwise.
      */
-    fun authenticate(userValidation: UserValidation): AuthInformation? =
+    fun authenticate(userValidation: UserValidation): AuthInformation =
         transactionFactory.execute {
-            userRepository.loginUser(userValidation.username, userValidation.passwordHash)
+            userRepository.loginUser(userValidation.username, userValidation.passwordHash) ?: throw InvalidParameterException("Invalid username or password")
         }
 
 

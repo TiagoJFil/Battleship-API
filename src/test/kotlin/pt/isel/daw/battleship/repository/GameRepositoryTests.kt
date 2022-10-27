@@ -46,66 +46,66 @@ class GameRepositoryTests {
     }
 
 
-    @Test
-    fun `test getGame with valid id`() {
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.get(testGameID)
-            assert(game != null)
-            if(game != null) assertEquals(game.id, testGameID)
-        }
-    }
-
-    @Test
-    fun `test getGame with invalid id`() {
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.get(0)
-            assert(game == null)
-        }
-    }
-
-    @Test
-    fun `check if the rules are correctly inserted after a new game insertion`() {
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val game = gameRepo.get(testGameID)
-            assert(game != null)
-            if(game != null){
-                assertEquals(testGameID, game.id)
-                assertEquals(GameRules.DEFAULT.boardSide,game.rules.boardSide)
-                assertEquals(GameRules.DEFAULT.shipRules, game.rules.shipRules)
-                assertEquals(GameRules.DEFAULT.shotsPerTurn, game.rules.shotsPerTurn)
-                assertEquals(GameRules.DEFAULT.playTimeout, game.rules.playTimeout)
-                assertEquals(GameRules.DEFAULT.layoutDefinitionTimeout, game.rules.layoutDefinitionTimeout)
-            }
-        }
-    }
-
-    @Test
-    fun `join a game`() {
-        executeWithHandle { handle ->
-            val gameRepo = JdbiGamesRepository(handle)
-            val lobbyRepository = JdbiLobbyRepository(handle)
-
-            lobbyRepository.addPlayerToLobby(player1ID)
-            val waitingUser = lobbyRepository.getWaitingPlayer()
-
-            if(waitingUser == null){
-                assert(false)
-                return@executeWithHandle
-            }
-
-            val newGame = Game.new(Pair(waitingUser,player2ID), GameRules.DEFAULT)
-
-            val game = gameRepo.get(testGameID)
-            if(game != null){
-                assertEquals(game.state, PLACING_SHIPS)
-                assertEquals(game.turnID, player1ID)
-                assert(game.boards.equals(mapOf(waitingUser to emptyBoard, player2ID to emptyBoard)))
-            }
-        }
-    }
+//    @Test
+//    fun `test getGame with valid id`() {
+//        executeWithHandle { handle ->
+//            val gameRepo = JdbiGamesRepository(handle)
+//            val game = gameRepo.get(testGameID)
+//            assert(game != null)
+//            if(game != null) assertEquals(game.id, testGameID)
+//        }
+//    }
+//
+//    @Test
+//    fun `test getGame with invalid id`() {
+//        executeWithHandle { handle ->
+//            val gameRepo = JdbiGamesRepository(handle)
+//            val game = gameRepo.get(0)
+//            assert(game == null)
+//        }
+//    }
+//
+//    @Test
+//    fun `check if the rules are correctly inserted after a new game insertion`() {
+//        executeWithHandle { handle ->
+//            val gameRepo = JdbiGamesRepository(handle)
+//            val game = gameRepo.get(testGameID)
+//            assert(game != null)
+//            if(game != null){
+//                assertEquals(testGameID, game.id)
+//                assertEquals(GameRules.DEFAULT.boardSide,game.rules.boardSide)
+//                assertEquals(GameRules.DEFAULT.shipRules, game.rules.shipRules)
+//                assertEquals(GameRules.DEFAULT.shotsPerTurn, game.rules.shotsPerTurn)
+//                assertEquals(GameRules.DEFAULT.playTimeout, game.rules.playTimeout)
+//                assertEquals(GameRules.DEFAULT.layoutDefinitionTimeout, game.rules.layoutDefinitionTimeout)
+//            }
+//        }
+//    }
+//
+//    @Test
+//    fun `join a game`() {
+//        executeWithHandle { handle ->
+//            val gameRepo = JdbiGamesRepository(handle)
+//            val lobbyRepository = JdbiLobbyRepository(handle)
+//
+//            lobbyRepository.addPlayerToLobby(player1ID)
+//            val waitingUser = lobbyRepository.getWaitingPlayer()
+//
+//            if(waitingUser == null){
+//                assert(false)
+//                return@executeWithHandle
+//            }
+//
+//            val newGame = Game.new(Pair(waitingUser,player2ID), GameRules.DEFAULT)
+//
+//            val game = gameRepo.get(testGameID)
+//            if(game != null){
+//                assertEquals(game.state, PLACING_SHIPS)
+//                assertEquals(game.turnID, player1ID)
+//                assert(game.boards.equals(mapOf(waitingUser to emptyBoard, player2ID to emptyBoard)))
+//            }
+//        }
+//    }
 
     private fun Handle.insertUsers(users: List<DbUser>) {
        createUpdate("""

@@ -1,6 +1,7 @@
 package pt.isel.daw.battleship.controller.controllers
 
 import org.springframework.web.bind.annotation.*
+import pt.isel.daw.battleship.controller.toSiren
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
@@ -24,6 +25,7 @@ class GameController(
     @GetMapping(Uris.Game.MY_FLEET)
     fun getUserFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
         val board = gameService.getFleet(userID, gameID, opponentFleet = false)
+
 
         return SirenEntity(
             properties = board,

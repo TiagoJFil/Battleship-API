@@ -24,7 +24,7 @@ class JdbiTransactionFactory(
                 throw InternalErrorAppException()
             }
 
-            }
+        }
 
     }
 }

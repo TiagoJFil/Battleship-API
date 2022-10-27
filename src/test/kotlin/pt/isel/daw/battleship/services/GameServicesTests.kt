@@ -3,10 +3,15 @@ package pt.isel.daw.battleship.services
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.Orientation
 import pt.isel.daw.battleship.domain.ShipInfo
 import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.repository.GameRepository
+import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
@@ -207,7 +212,7 @@ class GameServicesTests {
                 val game = createGame(it)
 
                 if (game == null) {
-                    assert(false)
+                    assert(true)
                     return@testWithTransactionManagerAndRollback
                 }
 
