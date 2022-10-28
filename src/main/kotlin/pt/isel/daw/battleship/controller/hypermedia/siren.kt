@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import pt.isel.daw.battleship.domain.Square
 import java.net.URI
 
 private const val APPLICATION_TYPE = "application"
@@ -29,7 +30,7 @@ fun ResponseEntity.BodyBuilder.setSirenHeader() = contentType(SirenMediaType)
  * @return the resulting siren link
  */
 @JsonInclude(NON_NULL)
-fun selfLink(uri: String) = SirenLink(rel = listOf("self"), href = URI(uri))
+fun selfLink(uri: String) = SirenLink(rel = listOf("self"), href = uri)
 
 /**
  * Class whose instances represent links as they are represented in Siren.
@@ -37,9 +38,9 @@ fun selfLink(uri: String) = SirenLink(rel = listOf("self"), href = URI(uri))
 @JsonInclude(NON_NULL)
 data class SirenLink(
     val rel: List<String>,
-    val href: URI,
+    val href: String,
     val title: String? = null,
-    val type: MediaType? = null
+    val type: String? = null
 )
 
 /**
@@ -63,6 +64,14 @@ data class SirenAction(
     data class Field(
         val name: String,
         val type: String? = null,
+        val value: String? = null,
+        val title: String? = null
+    )
+
+    @JsonInclude(NON_NULL)
+    data class ListField(
+        val name: String,
+        val type: List<Square> = emptyList(),
         val value: String? = null,
         val title: String? = null
     )

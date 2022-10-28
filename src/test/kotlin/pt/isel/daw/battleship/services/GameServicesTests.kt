@@ -70,11 +70,6 @@ class GameServicesTests {
             val board1 = gameService.getFleet(game.player1, game.id, false)
             val board2 = gameService.getFleet(game.player1, game.id, true)
 
-            if (board1 == null || board2 == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
-
             val expectedSquares = listOf<Square>(
                 Square(0, 0),
                 Square(2, 1),

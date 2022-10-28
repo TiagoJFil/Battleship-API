@@ -9,6 +9,7 @@ import pt.isel.daw.battleship.controller.hypermedia.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.SirenLink
 import pt.isel.daw.battleship.controller.hypermedia.selfLink
 import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
+import pt.isel.daw.battleship.controller.noEntitySiren
 import pt.isel.daw.battleship.repository.dto.BoardDTO
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.GameStateInfo
@@ -25,17 +26,9 @@ class GameController(
     @GetMapping(Uris.Game.MY_FLEET)
     fun getUserFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
         val board = gameService.getFleet(userID, gameID, opponentFleet = false)
-
-
-        return SirenEntity(
-            properties = board,
-            title = "UserFleet",
-            entities = listOf(),
-            actions = listOf(),
-            links = listOf(
-                selfLink("http://localhost:8080/api/game/$gameID/myFleet"),
-                SirenLink(listOf("opponentFleet"), URI("http://localhost:8080/api/game/$gameID/opponentFleet"))
-            )
+        return board.toSiren(
+            Uris.Game.MY_FLEET,
+            mapOf("gameId" to gameID.toString())
         )
     }
 
@@ -44,15 +37,9 @@ class GameController(
     fun getOpponentFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
         val board = gameService.getFleet(userID, gameID, opponentFleet = true)
 
-        return SirenEntity(
-            properties = board,
-            title = "UserFleet",
-            entities = listOf(),
-            actions = listOf(),
-            links = listOf(
-                selfLink("http://localhost:8080/api/game/$gameID/opponentFleet"),
-                SirenLink(listOf("opponentFleet"), URI("http://localhost:8080/api/game/$gameID/myFleet"))
-            )
+        return board.toSiren(
+            Uris.Game.OPPONENT_FLEET,
+            mapOf("gameId" to gameID.toString())
         )
     }
 
@@ -61,15 +48,9 @@ class GameController(
     fun defineShots(@PathVariable("gameId") gameID: Int, userID: UserID, @RequestBody input: ShotsInfoInputModel): SirenEntity<Nothing> {
         gameService.makeShots(userID, gameID, input.shots)
 
-        return SirenEntity(
-            properties = null,
-            title = "Shots",
-            entities = listOf(),
-            actions = listOf(),
-            links = listOf(
-                selfLink("http://localhost:8080/api/game/$gameID/opponentFleet"),
-                SirenLink(listOf("opponentFleet"), URI("http://localhost:8080/api/game/$gameID/myFleet"))
-            )
+       return noEntitySiren(
+            Uris.Game.SHOTS_DEFINITION,
+            mapOf("gameId" to gameID.toString())
         )
     }
 
@@ -78,14 +59,9 @@ class GameController(
     fun defineLayout(@PathVariable("gameId") gameID: Int, userID: UserID, @RequestBody input: LayoutInfoInputModel): SirenEntity<Nothing> {
         gameService.defineFleetLayout(userID, gameID, input.shipsInfo)
 
-        return SirenEntity(
-            properties = null,
-            title = "FleetLayout",
-            entities = listOf(),
-            actions = listOf(),
-            links = listOf(
-
-            )
+        return noEntitySiren(
+            Uris.Game.LAYOUT_DEFINITION,
+            mapOf("gameId" to gameID.toString())
         )
     }
 
@@ -93,17 +69,11 @@ class GameController(
     @GetMapping(Uris.Game.GAME_STATE)
     fun getGameState(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<GameStateInfo> {
         val state = gameService.getGameState(gameID, userID)
+        val gameStateInfo = GameStateInfo(state)
 
-        return SirenEntity(
-            properties = GameStateInfo(state),
-            title = "GameState",
-            entities = listOf(),
-            actions = listOf(),
-            links = listOf(
-            )
+        return gameStateInfo.toSiren(
+            Uris.Game.GAME_STATE,
+            mapOf("gameId" to gameID.toString())
         )
     }
-
-
-
 }

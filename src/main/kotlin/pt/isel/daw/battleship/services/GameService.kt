@@ -104,7 +104,7 @@ class GameService(
      * @param opponentFleet if true, returns the fleet state of the opponent, otherwise returns the fleet state of the user
      * @return [BoardDTO]
      */
-    fun getFleet(userID: UserID, gameId: Id, opponentFleet: Boolean): BoardDTO? {
+    fun getFleet(userID: UserID, gameId: Id, opponentFleet: Boolean): BoardDTO {
         return transactionFactory.execute {
             val game =  gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in game.boards.keys) throw ForbiddenAccessAppException("You are not allowed to access this game")
