@@ -19,7 +19,7 @@ class InfoInterceptor: HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
 
         val paramsString = request.parameterMap.map { "${it.key}=${it.value[0]}" }.joinToString("&")
-        val bodyString = request.reader.readText()
+        val bodyString = "test" //TODO: get body somehow, maybe with a wrapper
 
         startTime = System.currentTimeMillis()
         logger.info("Request received: ${request.method} ${request.requestURI} with parameters [$paramsString] and body [$bodyString]")

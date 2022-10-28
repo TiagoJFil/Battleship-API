@@ -33,6 +33,7 @@ class GameRepositoryTests {
         player2 = player2ID,
         boardP1 = emptyBoard.toString(),
         boardP2 = emptyBoard.toString(),
+        lastUpdated = System.currentTimeMillis()
     )
 
     @BeforeEach

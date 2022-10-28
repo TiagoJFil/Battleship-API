@@ -74,6 +74,7 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
     }
 
 
+
     companion object{
         private val logger =  LoggerFactory.getLogger(ErrorHandler::class.java)
     }

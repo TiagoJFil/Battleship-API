@@ -31,32 +31,3 @@ class ContentTypeResponseAdvice : ResponseBodyAdvice<Any> {
     }
 
 }
-
-
-//@Component
-//class ContentTypeInterceptor : HandlerInterceptor {
-//    override fun postHandle(
-//        request: HttpServletRequest,
-//        response: HttpServletResponse,
-//        handler: Any,
-//        modelAndView: ModelAndView?
-//    ) {
-//        val hand = handler is HandlerMethod
-//
-//
-//        val wrapper = object : HttpServletResponseWrapper(response) {
-//            override fun setContentType(type: String?) {
-//                super.setContentType(SirenContentType)
-//            }
-//        }
-//        //put the content type in the response header
-//        if (handler is HandlerMethod) {
-//            val returnType = handler.method.returnType
-//            if (returnType == SirenEntity::class.java) {
-//                wrapper.contentType = SirenContentType
-//            }
-//        }
-//        val d = wrapper.getHeader("Content-Type")
-//        super.postHandle(request, wrapper, handler, modelAndView)
-//    }
-//}

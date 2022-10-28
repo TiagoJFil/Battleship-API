@@ -5,7 +5,7 @@ object Uris {
 
 
     const val HOME = "/"
-    const val SYSTEM_INFO = "systemInfo"
+    const val SYSTEM_INFO = "systeminfo"
     const val STATISTICS = "statistics"
 
     object User {

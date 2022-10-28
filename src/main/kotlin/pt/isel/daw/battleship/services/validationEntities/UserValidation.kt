@@ -3,7 +3,12 @@ package pt.isel.daw.battleship.services.validationEntities
 import pt.isel.daw.battleship.services.hashPassword
 import pt.isel.daw.battleship.services.requireParameter
 
-
+/**
+ * Represents a user Authentication/Registration request.
+ * Verifies the validity of the request.
+ * @param username the username of the user
+ * @param password the password of the user
+ */
 class UserValidation(
     username: String?,
     password: String?,

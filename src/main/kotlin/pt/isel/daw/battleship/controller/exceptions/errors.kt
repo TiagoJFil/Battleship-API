@@ -12,4 +12,5 @@ val errorToStatusMap = mapOf(
     InternalErrorAppException::class to HttpStatus.INTERNAL_SERVER_ERROR,
     ForbiddenAccessAppException::class to HttpStatus.FORBIDDEN,
     UnauthenticatedAppException::class to HttpStatus.UNAUTHORIZED,
+    TimeoutExceededAppException::class to HttpStatus.REQUEST_TIMEOUT,
 )

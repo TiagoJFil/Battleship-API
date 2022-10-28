@@ -7,6 +7,7 @@ import pt.isel.daw.battleship.repository.dto.*
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
+import pt.isel.daw.battleship.services.exception.TimeoutExceededAppException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.utils.UserID
 
@@ -47,7 +48,7 @@ class GameService(
 
             lobbyRepository.removePlayerFromLobby(pairedPlayerID)
             val newGame = Game.new(userID to pairedPlayerID, GameRules.DEFAULT)
-            gamesRepository.persist(newGame.toDTO()) ?: throw InternalErrorAppException()
+            gamesRepository.persist(newGame.toDTO())
         }
 
 
@@ -73,9 +74,14 @@ class GameService(
             val currentState =
                 gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to make shots in this game")
-            check(userID == currentState.turnID) { "Not your turn!" }
+            if(userID == currentState.turnID) throw ForbiddenAccessAppException("Not your turn!")
+
             val newGameState = currentState.makePlay(shots)
             gamesRepository.persist(newGameState.toDTO())
+
+            if(newGameState.state == Game.State.CANCELLED) {
+                throw TimeoutExceededAppException("You took too long to make your shots")
+            }
         }
     }
 
@@ -89,11 +95,15 @@ class GameService(
      */
     fun defineFleetLayout(userID: UserID, gameId: Id, ships: List<ShipInfo>) {
         transactionFactory.execute {
-            val currentState =
-                gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            val currentState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to define the layout in this game")
-            val newState = currentState.placeShips(ships, userID)
-            gamesRepository.persist(newState.toDTO())
+
+            val newGameState = currentState.placeShips(ships, userID)
+            gamesRepository.persist(newGameState.toDTO())
+
+            if(newGameState.state == Game.State.CANCELLED) {
+                throw TimeoutExceededAppException("You took too long to place your ships")
+            }
         }
     }
 

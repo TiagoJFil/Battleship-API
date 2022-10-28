@@ -51,6 +51,7 @@ create table if not exists Game (
     player1 int, foreign key(player1) references "User"(id),
     player2 int, foreign key(player2) references "User"(id),
     winner int, foreign key(winner) references "User"(id),
+    lastUpdated timestamp default now(),
     foreign key(turn) references "User"(id)
 );
 
