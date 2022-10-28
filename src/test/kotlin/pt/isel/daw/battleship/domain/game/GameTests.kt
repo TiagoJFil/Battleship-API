@@ -12,8 +12,8 @@ class GameTests {
     private val testGameRules = GameRules(
         1,
         4,
-        0,
-        0,
+        30,
+        30,
         GameRules.ShipRules(
             "test", mapOf(2 to 1)
         )

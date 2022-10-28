@@ -16,7 +16,6 @@ class JdbiGeneralRepository(
      * Gets information about the system
      */
     override fun getSystemInfo(): SystemInfo {
-        //TODO: make a mapper for this
         val authors = handle.createQuery("SELECT * FROM authors")
             .mapTo<SystemInfo.Author>()
             .list()
@@ -47,7 +46,6 @@ class JdbiGeneralRepository(
 
 }
 
-//TODO: remove
 data class GameStatisticsDTO(
     val numGames: Int,
     @Nested val ranking: List<PlayerStatistics>

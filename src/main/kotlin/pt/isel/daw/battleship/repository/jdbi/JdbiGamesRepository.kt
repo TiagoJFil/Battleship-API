@@ -33,6 +33,20 @@ class JdbiGamesRepository(
     }
 
     /**
+     * Persists the given game in the database
+     * @param game the game to be persisted
+     * @return [Id] of the game persisted
+     */
+    override fun persist(game: GameDTO): Id {
+        if (!hasGame(game.id)) {
+            return insert(game)
+        }
+        require(game.id != null)
+        update(game)
+        return game.id
+    }
+
+    /**
      * Inserts a new game in the database
      * @param game the game data transfer object to be persisted
      * @return [Id] of the game created
@@ -59,9 +73,10 @@ class JdbiGamesRepository(
      * @param game the game data transfer object to be persisted
      * @return [Id] of the game updated
      */
-    private fun update(game: GameDTO): Id? {
+    private fun update(game: GameDTO) {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
-        return handle.createUpdate(
+
+        handle.createUpdate(
             """
             update gameview set ${gameViewColumnNames.joinToString(", ") { "${it.columnName} = :${it.columnName}" }},
             shipRules = cast(:shiprules as jsonb)
@@ -69,9 +84,7 @@ class JdbiGamesRepository(
         """
         ).bindGameDTO(game)
             .bind("id", game.id)
-            .executeAndReturnGeneratedKeys("id")
-            .mapTo<Int>()
-            .firstOrNull()
+            .execute()
     }
 
     /**
@@ -100,6 +113,7 @@ class JdbiGamesRepository(
                 GameView.PLAYER2.columnName to game.player2,
                 GameView.BOARD_P1.columnName to game.boardP1,
                 GameView.BOARD_P2.columnName to game.boardP2,
+
             )
         ).bindGameRules(game.rules)
     }
@@ -121,18 +135,6 @@ class JdbiGamesRepository(
         )
     }
 
-    /**
-     * Persists the given game in the database
-     * @param game the game to be persisted
-     * @return [Id] of the game persisted
-     */
-    override fun persist(game: GameDTO): Id? {
-        if (!hasGame(game.id)) {
-            return insert(game)
-        }
-        return update(game)
-
-    }
 
     /**
      * Checks if the game with the given id exists in the database
@@ -183,6 +185,8 @@ enum class GameView(val columnName: String) {
     PLAYER2("player2"),
     BOARD_P1("boardp1"),
     BOARD_P2("boardp2"),
-    SHIP_RULES("shiprules")
+    SHIP_RULES("shiprules"),
+    LAST_UPDATED("lastUpdated")
+
 }
 

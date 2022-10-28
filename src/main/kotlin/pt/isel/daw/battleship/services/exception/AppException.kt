@@ -28,8 +28,9 @@ object ErrorTypes {
         const val UNAUTHORIZED = "https://battleship.com/problems/unauthorized"
         const val NOT_FOUND = "https://battleship.com/problems/not-found"
         const val INTERNAL_ERROR = "https://battleship.com/problems/internal-error"
-        const val FORBIDDEN = "https://battleship.com/problems/unauthorized"
+        const val FORBIDDEN = "https://battleship.com/problems/forbidden"
         const val METHOD_NOT_ALLOWED = "https://battleship.com/problems/method-not-allowed"
+        const val TIMEOUT = "https://battleship.com/problems/timeout"
     }
 
 }

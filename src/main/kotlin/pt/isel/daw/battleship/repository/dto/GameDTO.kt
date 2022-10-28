@@ -17,6 +17,7 @@ data class GameDTO(
     val player2: UserID?,
     val boardP1: String?,
     val boardP2: String?,
+    val lastUpdated : Long
 ) {
     fun toGame() = Game(
         id= id,
@@ -28,7 +29,8 @@ data class GameDTO(
             player1 to Board.fromLayout(boardP1),
             player2 to Board.fromLayout(boardP2)
         ),
-        turn
+        turn,
+        lastUpdated
     )
 }
 
@@ -41,7 +43,8 @@ fun Game.toDTO() = GameDTO(
     player1 = boards.keys.firstOrNull(),
     player2 = boards.keys.lastOrNull(),
     boardP1 = boards.values.firstOrNull()?.toString(),
-    boardP2 = boards.values.lastOrNull()?.toString()
+    boardP2 = boards.values.lastOrNull()?.toString(),
+    lastUpdated = lastUpdated
 )
 
 

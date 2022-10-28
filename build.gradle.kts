@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "pt.isel.daw"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 val isArm = System.getProperty("os.arch") == "aarch64"

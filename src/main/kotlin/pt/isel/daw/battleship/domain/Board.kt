@@ -350,6 +350,9 @@ data class Board(val matrix: List<SquareType>) {
     }
 }
 
+//TODO : test this
+val Board.isFleetDestroyed : Boolean
+    get() = fleetComposition.isEmpty()
 
 
 /**

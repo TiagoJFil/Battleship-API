@@ -26,6 +26,7 @@ class GameController(
     fun getUserFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
         val board = gameService.getFleet(userID, gameID, opponentFleet = false)
 
+        board.toSiren(Uris.Game.MY_FLEET,mapOf("gameId" to gameID.toString()))
 
         return SirenEntity(
             properties = board,

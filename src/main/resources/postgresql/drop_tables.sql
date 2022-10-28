@@ -6,5 +6,3 @@ drop table "User" cascade;
 drop table token;
 drop table systeminfo;
 drop table authors;
-
-select * from postgres.public.authors order by name asc;

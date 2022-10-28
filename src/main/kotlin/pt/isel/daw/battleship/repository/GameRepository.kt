@@ -17,6 +17,6 @@ interface GameRepository {
      * @param game the game to be persisted
      * @return [Id] of the game persisted
      */
-    fun persist(game: GameDTO): Id?
+    fun persist(game: GameDTO): Id
 
 }
