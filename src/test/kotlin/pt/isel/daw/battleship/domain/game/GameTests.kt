@@ -81,10 +81,12 @@ class GameTests {
                 1 to expectedBoard
         )
 
-        val expectedGame = Game(0, Game.State.PLAYING, rules=testGameRules, expectedBoards, 1)
+
 
         val actualGame = Game(0, Game.State.PLAYING, rules = testGameRules, boards, 0)
                 .makePlay(listOf(Square(0,0)))
+
+        val expectedGame = Game(0, Game.State.PLAYING, rules=testGameRules, expectedBoards, 1, actualGame.lastUpdated)
 
         assertEquals(expectedGame, actualGame)
     }
@@ -115,7 +117,7 @@ class GameTests {
             1 to testBoard,
             2 to expectedBoard
         )
-        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, boards= newBoards, turnID=2)
+        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, boards= newBoards, turnID=2, newGame.lastUpdated)
         assertEquals(expectedGame, newGame)
     }
 

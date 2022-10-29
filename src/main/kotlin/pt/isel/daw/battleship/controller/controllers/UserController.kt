@@ -22,7 +22,7 @@ class UserController(
 ) {
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping()
+    @PostMapping
     fun createUser(@RequestBody input: UserInfoInputModel): SirenEntity<AuthInformation> {
         val authInfo = userService.createUser(
             UserValidation(input.username, input.password)

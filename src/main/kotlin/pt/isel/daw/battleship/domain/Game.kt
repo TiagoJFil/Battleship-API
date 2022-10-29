@@ -1,5 +1,6 @@
 package pt.isel.daw.battleship.domain
 
+import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
 
 /**
@@ -11,7 +12,7 @@ data class Game(
     val rules: GameRules = GameRules.DEFAULT,
     val boards: Map<UserID, Board>,
     val turnID: UserID,
-    val lastUpdated : Long = System.currentTimeMillis()
+    val lastUpdated : TimeoutTime = System.currentTimeMillis()
 ) {
 
     companion object;
@@ -126,7 +127,7 @@ fun Game.Companion.new(players: Pair<UserID, UserID>,  rules: GameRules) = Game(
  */
 fun Game.isOver() = state == Game.State.FINISHED
 
-private fun Game.ranOutOfTimeFor(timeout: Int) = System.currentTimeMillis() - lastUpdated  > timeout
+private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - lastUpdated  > timeout
 
 /**
  * Returns a new game after placing the ships on the board

@@ -13,6 +13,7 @@ import pt.isel.daw.battleship.repository.dto.GameDTO
 import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
 import pt.isel.daw.battleship.repository.jdbi.JdbiLobbyRepository
+import java.sql.Timestamp
 
 
 class GameRepositoryTests {
@@ -33,7 +34,7 @@ class GameRepositoryTests {
         player2 = player2ID,
         boardP1 = emptyBoard.toString(),
         boardP2 = emptyBoard.toString(),
-        lastUpdated = System.currentTimeMillis()
+        lastUpdated = Timestamp(System.currentTimeMillis())
     )
 
     @BeforeEach

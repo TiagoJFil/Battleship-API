@@ -22,4 +22,3 @@ class BattleshipApplication {
 fun main(args: Array<String>) {
     runApplication<BattleshipApplication>(*args)
 }
-//TODO:remove winner form db

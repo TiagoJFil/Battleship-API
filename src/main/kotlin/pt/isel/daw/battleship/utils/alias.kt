@@ -7,3 +7,4 @@ typealias UserName = String
 typealias ShipSize = Int
 typealias ShipCount = Int
 typealias Parameter = String?
+typealias TimeoutTime = Long

@@ -2,12 +2,15 @@ package pt.isel.daw.battleship.domain
 
 import pt.isel.daw.battleship.utils.ShipCount
 import pt.isel.daw.battleship.utils.ShipSize
+import pt.isel.daw.battleship.utils.TimeoutTime
+import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 data class GameRules(
     val shotsPerTurn: Int,
     val boardSide: Int,
-    val playTimeout: Int,
-    val layoutDefinitionTimeout: Int,
+    val playTimeout: TimeoutTime,
+    val layoutDefinitionTimeout: TimeoutTime,
     val shipRules: ShipRules
 ) {
 
@@ -20,8 +23,8 @@ data class GameRules(
         val DEFAULT = GameRules(
             1,
             10,
-            60,
-            60,
+            Duration.ofMinutes(1).toMillis(),
+            Duration.ofMinutes(1).toMillis(),
             ShipRules(
                 "Classic",
                 mapOf<ShipSize, ShipCount>(

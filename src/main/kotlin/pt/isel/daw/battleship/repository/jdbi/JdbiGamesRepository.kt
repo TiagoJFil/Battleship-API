@@ -9,6 +9,7 @@ import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.dto.*
+import java.sql.Timestamp
 
 
 class JdbiGamesRepository(
@@ -52,12 +53,13 @@ class JdbiGamesRepository(
      * @return [Id] of the game created
      */
     private fun insert(game: GameDTO): Id {
-        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
+        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }
         handle.createUpdate("""          
             Insert into gameview(
-                ${gameViewColumnNames.joinToString(", ") { it.columnName }}, shiprules
+                ${gameViewColumnNames.joinToString(", ") { it.columnName }}, shiprules, lastupdated
             ) values (
-             ${gameViewColumnNames.joinToString(", ") { ":${it.columnName}" }}, cast(:shiprules as jsonb)
+             ${gameViewColumnNames.joinToString(", ") { ":${it.columnName}" }}, cast(:shiprules as jsonb),
+             cast(:lastupdated as timestamp)
              )
             """
         ).bindGameDTO(game)
@@ -74,12 +76,12 @@ class JdbiGamesRepository(
      * @return [Id] of the game updated
      */
     private fun update(game: GameDTO) {
-        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
+        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }
 
         handle.createUpdate(
             """
             update gameview set ${gameViewColumnNames.joinToString(", ") { "${it.columnName} = :${it.columnName}" }},
-            shipRules = cast(:shiprules as jsonb)
+            shipRules = cast(:shiprules as jsonb), lastUpdated = cast(:lastupdated as timestamp)
             where id = :id
         """
         ).bindGameDTO(game)
@@ -113,7 +115,7 @@ class JdbiGamesRepository(
                 GameView.PLAYER2.columnName to game.player2,
                 GameView.BOARD_P1.columnName to game.boardP1,
                 GameView.BOARD_P2.columnName to game.boardP2,
-
+                GameView.LAST_UPDATED.columnName to game.lastUpdated
             )
         ).bindGameRules(game.rules)
     }
@@ -186,7 +188,7 @@ enum class GameView(val columnName: String) {
     BOARD_P1("boardp1"),
     BOARD_P2("boardp2"),
     SHIP_RULES("shiprules"),
-    LAST_UPDATED("lastUpdated")
+    LAST_UPDATED("lastupdated")
 
 }
 

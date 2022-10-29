@@ -6,7 +6,7 @@ services:
     image: postgres
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=craquesdabola123
       - POSTGRES_DB=postgres
     ports:
       - 5432:5432

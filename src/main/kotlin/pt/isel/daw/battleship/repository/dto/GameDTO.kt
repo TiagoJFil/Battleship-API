@@ -7,6 +7,7 @@ import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.GameRules
 import pt.isel.daw.battleship.domain.Id
 import pt.isel.daw.battleship.utils.UserID
+import java.sql.Timestamp
 
 data class GameDTO(
     val id: Id?,
@@ -17,7 +18,7 @@ data class GameDTO(
     val player2: UserID?,
     val boardP1: String?,
     val boardP2: String?,
-    val lastUpdated : Long
+    val lastUpdated : Timestamp
 ) {
     fun toGame() = Game(
         id= id,
@@ -30,7 +31,7 @@ data class GameDTO(
             player2 to Board.fromLayout(boardP2)
         ),
         turn,
-        lastUpdated
+        lastUpdated.time
     )
 }
 
@@ -44,7 +45,7 @@ fun Game.toDTO() = GameDTO(
     player2 = boards.keys.lastOrNull(),
     boardP1 = boards.values.firstOrNull()?.toString(),
     boardP2 = boards.values.lastOrNull()?.toString(),
-    lastUpdated = lastUpdated
+    lastUpdated = Timestamp(lastUpdated)
 )
 
 

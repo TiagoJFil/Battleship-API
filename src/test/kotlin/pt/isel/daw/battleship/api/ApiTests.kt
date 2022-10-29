@@ -24,8 +24,6 @@ class ApiTests {
     @LocalServerPort
     var port: Int = 0
 
-
-
     @TestConfiguration
     class Config{
 
@@ -76,8 +74,4 @@ class ApiTests {
             .jsonPath("\$.properties.version").isEqualTo("0.0.2")
 
     }
-
-
-
-
 }

@@ -1,13 +1,14 @@
 package pt.isel.daw.battleship.repository.dto
 
 import pt.isel.daw.battleship.domain.GameRules
+import pt.isel.daw.battleship.utils.TimeoutTime
 
 data class GameRulesDTO(
     val id: Int,
     val boardSide: Int,
     val shotsPerTurn: Int,
-    val layoutDefinitionTimeout: Int,
-    val playTimeout: Int,
+    val layoutDefinitionTimeout: TimeoutTime,
+    val playTimeout: TimeoutTime,
     val shipRules: GameRules.ShipRules
 )
 
