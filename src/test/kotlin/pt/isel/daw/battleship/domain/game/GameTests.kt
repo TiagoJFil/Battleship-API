@@ -1,9 +1,9 @@
-package pt.isel.daw.battleship.game
+package pt.isel.daw.battleship.domain.game
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.model.*
+import pt.isel.daw.battleship.domain.*
 
 
 class GameTests {
@@ -12,8 +12,8 @@ class GameTests {
     private val testGameRules = GameRules(
         1,
         4,
-        0,
-        0,
+        30,
+        30,
         GameRules.ShipRules(
             "test", mapOf(2 to 1)
         )
@@ -81,10 +81,12 @@ class GameTests {
                 1 to expectedBoard
         )
 
-        val expectedGame = Game(0, Game.State.PLAYING, rules=testGameRules, expectedBoards, 1)
+
 
         val actualGame = Game(0, Game.State.PLAYING, rules = testGameRules, boards, 0)
                 .makePlay(listOf(Square(0,0)))
+
+        val expectedGame = Game(0, Game.State.PLAYING, rules=testGameRules, expectedBoards, 1, actualGame.lastUpdated)
 
         assertEquals(expectedGame, actualGame)
     }
@@ -115,7 +117,7 @@ class GameTests {
             1 to testBoard,
             2 to expectedBoard
         )
-        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, boards= newBoards, turnID=2)
+        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, boards= newBoards, turnID=2, newGame.lastUpdated)
         assertEquals(expectedGame, newGame)
     }
 

@@ -7,13 +7,13 @@ create table if not exists Authors(
 );
 
 create table if not exists SystemInfo(
-    name varchar(20) primary key,
     version varchar(20)
 );
 
 create table if not exists "User" (
   id serial primary key,
-  "name" varchar(20) unique not null
+  "name" varchar(20) unique not null,
+  password varchar(200) not null
 );
 
 create table if not exists WaitingLobby(
@@ -21,8 +21,6 @@ create table if not exists WaitingLobby(
     userID int,
     foreign key (userID) references "User"(id)
 );
-
-
 
 create table if not exists token(
     token varchar(255) primary key,
@@ -52,7 +50,7 @@ create table if not exists Game (
     turn int,
     player1 int, foreign key(player1) references "User"(id),
     player2 int, foreign key(player2) references "User"(id),
-    winner int, foreign key(winner) references "User"(id),
+    lastUpdated timestamp default now(),
     foreign key(turn) references "User"(id)
 );
 

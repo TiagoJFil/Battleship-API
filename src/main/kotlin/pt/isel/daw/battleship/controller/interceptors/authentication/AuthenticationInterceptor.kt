@@ -15,11 +15,11 @@ class AuthenticationInterceptor(
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.hasMethodAnnotation(Authentication::class.java)) {
-            // handler.getMethodAnnotation(Authentication::class.java)?
 
-            val authHeader = request.getHeader("Authorization")
+            val authHeader = request.getHeader(AUTHORIZATION_HEADER)
 
             val userID = authorizationHeaderProcessor.process(authHeader)
+            logger.info("${request.method} on ${request.contextPath} authorized by user $userID")
 
             UserIDArgumentResolver.addUserIDTo(userID, request)
             return true
@@ -30,6 +30,5 @@ class AuthenticationInterceptor(
     companion object {
         private val logger = LoggerFactory.getLogger(AuthenticationInterceptor::class.java)
         private const val AUTHORIZATION_HEADER = "Authorization"
-        private const val NAME_WWW_AUTHENTICATE_HEADER = "WWW-Authenticate"
     }
 }

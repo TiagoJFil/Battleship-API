@@ -1,5 +1,6 @@
 package pt.isel.daw.battleship.controller
 
+
 object Uris {
 
 
@@ -8,14 +9,15 @@ object Uris {
     const val STATISTICS = "statistics"
 
     object User {
-        const val ROOT = "user"
+        const val ROOT = "/user"
         const val LOGIN = "/login"
+        const val REGISTER = "/user"
     }
 
     object Lobby {
         const val ROOT = "/lobby"
-        const val LOBBY = "/"
-        const val DELETE_LOBBY = "/cancel"
+        const val QUEUE = "/"
+        const val CANCEL_QUEUE = "/cancel"
     }
 
     object Game {

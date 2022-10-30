@@ -8,8 +8,11 @@ plugins {
 }
 
 group = "pt.isel.daw"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
+
+val isArm = System.getProperty("os.arch") == "aarch64"
+val isMac = System.getProperty("os.name").toLowerCase().contains("mac")
 
 repositories {
 	mavenCentral()
@@ -20,6 +23,13 @@ dependencies {
 	implementation("org.jdbi:jdbi3-kotlin:3.33.0")
 	implementation("org.jdbi:jdbi3-postgres:3.33.0")
 	implementation("org.postgresql:postgresql:42.5.0")
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-webflux")
+
+	if(isMac && isArm) {
+		runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.82.Final:osx-aarch_64")
+	}
 
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

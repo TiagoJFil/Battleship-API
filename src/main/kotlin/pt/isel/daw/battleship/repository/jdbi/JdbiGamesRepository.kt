@@ -5,57 +5,16 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.statement.Update
-import org.postgresql.util.PGobject
-import pt.isel.daw.battleship.controller.Uris
-import pt.isel.daw.battleship.model.*
-import pt.isel.daw.battleship.model.GameRules.*
+import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.dto.*
-import pt.isel.daw.battleship.services.entities.GameStatistics
+import java.sql.Timestamp
 
 
 class JdbiGamesRepository(
     private val handle: Handle
 ) : GameRepository {
-
-    /**
-     * Gets information about the system
-     */
-    override fun getSystemInfo(): SystemInfo {
-       val sysInfoDTO = handle.createQuery(
-            """
-                Select name, version from systeminfo 
-            """
-        ).mapTo<SystemInfoDTO>().first()
-
-        val authors = handle.createQuery(
-            """
-                Select name, number, email from authorsinfo 
-            """
-        ).mapTo<AuthorsDTO>().toList()
-
-        return sysInfoDTO.toSystemInfo(authors)
-    }
-
-    /**
-     * Gets the game statistics
-     */
-    override fun getStatistics(): GameStatistics {
-
-        val numGames = handle.createQuery("SELECT COUNT(*) FROM game")
-            .mapTo<Int>()
-            .one()
-
-        val ranking = handle.createQuery("""SELECT "User".name, COUNT(*) as gamesWon FROM "User" JOIN game ON "User".id = game.winner""" +
-                """ GROUP BY "User".name ORDER BY gamesWon DESC""")
-            .map { rs, _, _ ->
-                val userName = rs.getString("name")
-                val gamesWon = rs.getInt("gamesWon")
-                return@map Pair(userName, gamesWon)
-            }.toList()
-
-        return GameStatistics(numGames, ranking)
-    }
 
     /**
      * Gets the game with the given id
@@ -75,17 +34,32 @@ class JdbiGamesRepository(
     }
 
     /**
+     * Persists the given game in the database
+     * @param game the game to be persisted
+     * @return [Id] of the game persisted
+     */
+    override fun persist(game: GameDTO): Id {
+        if (!hasGame(game.id)) {
+            return insert(game)
+        }
+        require(game.id != null)
+        update(game)
+        return game.id
+    }
+
+    /**
      * Inserts a new game in the database
      * @param game the game data transfer object to be persisted
      * @return [Id] of the game created
      */
     private fun insert(game: GameDTO): Id {
-        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
+        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }
         handle.createUpdate("""          
             Insert into gameview(
-                ${gameViewColumnNames.joinToString(", ") { it.columnName }}, shiprules
+                ${gameViewColumnNames.joinToString(", ") { it.columnName }}, shiprules, lastupdated
             ) values (
-             ${gameViewColumnNames.joinToString(", ") { ":${it.columnName}" }}, cast(:shiprules as jsonb)
+             ${gameViewColumnNames.joinToString(", ") { ":${it.columnName}" }}, cast(:shiprules as jsonb),
+             cast(:lastupdated as timestamp)
              )
             """
         ).bindGameDTO(game)
@@ -101,19 +75,18 @@ class JdbiGamesRepository(
      * @param game the game data transfer object to be persisted
      * @return [Id] of the game updated
      */
-    private fun update(game: GameDTO): Id? {
-        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES }
-        return handle.createUpdate(
+    private fun update(game: GameDTO) {
+        val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }
+
+        handle.createUpdate(
             """
             update gameview set ${gameViewColumnNames.joinToString(", ") { "${it.columnName} = :${it.columnName}" }},
-            shipRules = cast(:shiprules as jsonb)
+            shipRules = cast(:shiprules as jsonb), lastUpdated = cast(:lastupdated as timestamp)
             where id = :id
         """
         ).bindGameDTO(game)
             .bind("id", game.id)
-            .executeAndReturnGeneratedKeys("id")
-            .mapTo<Int>()
-            .firstOrNull()
+            .execute()
     }
 
     /**
@@ -142,6 +115,7 @@ class JdbiGamesRepository(
                 GameView.PLAYER2.columnName to game.player2,
                 GameView.BOARD_P1.columnName to game.boardP1,
                 GameView.BOARD_P2.columnName to game.boardP2,
+                GameView.LAST_UPDATED.columnName to game.lastUpdated
             )
         ).bindGameRules(game.rules)
     }
@@ -163,18 +137,6 @@ class JdbiGamesRepository(
         )
     }
 
-    /**
-     * Persists the given game in the database
-     * @param game the game to be persisted
-     * @return [Id] of the game persisted
-     */
-    override fun persist(game: GameDTO): Id? {
-        if (!hasGame(game.id)) {
-            return insert(game)
-        }
-        return update(game)
-
-    }
 
     /**
      * Checks if the game with the given id exists in the database
@@ -225,6 +187,8 @@ enum class GameView(val columnName: String) {
     PLAYER2("player2"),
     BOARD_P1("boardp1"),
     BOARD_P2("boardp2"),
-    SHIP_RULES("shiprules")
+    SHIP_RULES("shiprules"),
+    LAST_UPDATED("lastupdated")
+
 }
 

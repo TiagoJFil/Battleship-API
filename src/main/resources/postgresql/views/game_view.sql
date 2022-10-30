@@ -10,7 +10,8 @@ select g.id,
        g.player1,
        g.player2,
        b1.layout    as boardP1,
-       b2.layout    as boardP2
+       b2.layout    as boardP2,
+       g.lastUpdated
 from Game g
          left join Gamerules gr on g.rules = gr.id
          left join ShipRules sr on gr.shiprules = sr.id
@@ -24,12 +25,11 @@ create or replace function insertGameView()
     language plpgsql
 AS $$
 declare
-    gameId int;
+    newGameId int;
     shipRulesId int;
     gameRulesId int;
 begin
-select getGameId()
-into gameId;
+    select getGameId()into newGameId;
 
     if(select not shipRulesExists(new.shiprules)) then
         insert into ShipRules(fleetInfo) values (new.shiprules);
@@ -43,12 +43,12 @@ into gameId;
     end if;
 
     select id from GameRules where boardSide = new.boardSide into gameRulesId;
-    insert into Game(id, rules, state, turn, player1, player2)
-    values (gameId, gameRulesId, new.state, new.turn, new.player1, new.player2);
+    insert into Game(id, rules, state, turn, player1, player2, lastUpdated)
+    values (newGameId, gameRulesId, new.state, new.turn, new.player1, new.player2, new.lastUpdated);
 
     if new.player1 is not null and new.player2 is not null then
-            insert into Board(layout,gameId,userId) values (new.boardP1,gameId,new.player1);
-            insert into Board(layout, gameId, userId) values (new.boardP2, gameId, new.player2);
+            insert into Board(layout,gameId,userId) values (new.boardP1,newGameId,new.player1);
+            insert into Board(layout, gameId, userId) values (new.boardP2, newGameId, new.player2);
     end if;
 
 
@@ -77,7 +77,7 @@ begin
        where gameId = new.id and userId = old.player2;
        end if;
 
-    update Game set state   = new.state, turn= new.turn, player1 = new.player1,player2 = new.player2 where id = old.id;
+    update Game set state = new.state, turn= new.turn, player1 = new.player1, player2 = new.player2, lastUpdated = new.lastUpdated where id = old.id;
 
     select id from shiprules s where s.fleetinfo = old.shiprules into shipRulesId;
 

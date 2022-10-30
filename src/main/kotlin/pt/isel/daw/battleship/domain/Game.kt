@@ -1,5 +1,6 @@
-package pt.isel.daw.battleship.model
+package pt.isel.daw.battleship.domain
 
+import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
 
 /**
@@ -10,7 +11,8 @@ data class Game(
     val state: State,
     val rules: GameRules = GameRules.DEFAULT,
     val boards: Map<UserID, Board>,
-    val turnID: UserID
+    val turnID: UserID,
+    val lastUpdated : TimeoutTime = System.currentTimeMillis()
 ) {
 
     companion object;
@@ -33,6 +35,12 @@ data class Game(
 
     val oppositeTurnBoard: Board by afterGameBegins { boards[oppositeTurnID] ?: error("No board for the opposite turn ID") }
 
+    //TODO: test this
+    val winnerId by afterGameEnds {
+        boards.keys.firstOrNull { boards[it]!!.isFleetDestroyed }
+    }
+
+
     /**
      * Returns a lazy property delegate that is only available after the game has begun.
      * @throws IllegalStateException if the game has not yet begun.
@@ -44,10 +52,25 @@ data class Game(
         }
     }
 
+    /**
+     * Returns a lazy property delegate that is only available after the game has ended.
+     * @throws IllegalStateException if the game has not yet ended.
+     */
+    private fun <T> afterGameEnds(initializer: () -> T): Lazy<T> {
+        return lazy{
+            check(isOver()) { "Can't access this property before the game ends." }
+            initializer()
+        }
+    }
+
+    /**
+     * Represents the possible States of a game.
+     */
     enum class State {
         PLACING_SHIPS,
         PLAYING,
-        FINISHED
+        FINISHED,
+        CANCELLED
     }
 }
 
@@ -59,8 +82,13 @@ data class Game(
  * or if the game is not in the [Game.State.PLAYING] state
  */
 fun Game.makePlay(squares: List<Square>): Game {
-
     require(state == Game.State.PLAYING) { "Game is not in a playable state." }
+
+    //TODO: change check and require
+    if(ranOutOfTimeFor(rules.playTimeout) ) {
+        return this.copy(state = Game.State.CANCELLED)
+    }
+
     require(squares.size == rules.shotsPerTurn) {
         "Invalid number of shots. Only ${rules.shotsPerTurn} shots allowed per play."
     }
@@ -76,7 +104,8 @@ fun Game.makePlay(squares: List<Square>): Game {
             if (gameWithNewBoards.boards.values.any { it.isInEndGameState() })
                 Game.State.FINISHED
             else
-                state
+                state,
+            lastUpdated = System.currentTimeMillis()
         )
 }
 
@@ -88,7 +117,8 @@ fun Game.Companion.new(players: Pair<UserID, UserID>,  rules: GameRules) = Game(
     state = Game.State.PLACING_SHIPS,
     rules = rules,
     boards = mapOf(players.first to Board.empty(rules.boardSide), players.second to Board.empty(rules.boardSide)),
-    turnID = players.first
+    turnID = players.first,
+    lastUpdated = System.currentTimeMillis()
 )
 
 
@@ -97,6 +127,7 @@ fun Game.Companion.new(players: Pair<UserID, UserID>,  rules: GameRules) = Game(
  */
 fun Game.isOver() = state == Game.State.FINISHED
 
+private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - lastUpdated  > timeout
 
 /**
  * Returns a new game after placing the ships on the board
@@ -106,6 +137,12 @@ fun Game.isOver() = state == Game.State.FINISHED
  */
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
     require(state == Game.State.PLACING_SHIPS) { "It is not the ship placing phase" }
+    //TODO: change check and require
+    if( ranOutOfTimeFor(rules.layoutDefinitionTimeout) ) {
+        return this.copy(state = Game.State.CANCELLED)
+    }
+
+
     val emptyBoard = Board.empty(this.rules.boardSide)
     val newBoard = emptyBoard.placeShips(shipList)
 
@@ -113,11 +150,14 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
         "Invalid ship composition. Expected ${rules.shipRules.fleetComposition}, got ${newBoard.fleetComposition}"
     }
 
+
+
+
     val newGameState = this.replaceBoard(playerID, newBoard)
     val hasBothBoardsNotEmpty = newGameState.boards.values.all { it != emptyBoard }
 
     return if(hasBothBoardsNotEmpty)
-        newGameState.copy(state = Game.State.PLAYING)
+        newGameState.copy(state = Game.State.PLAYING, lastUpdated = System.currentTimeMillis())
     else
         newGameState
 

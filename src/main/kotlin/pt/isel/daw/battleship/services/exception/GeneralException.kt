@@ -29,3 +29,9 @@ class ForbiddenAccessAppException(message: String) :
  */
 class UnauthenticatedAppException() :
     GeneralException(ErrorTypes.General.UNAUTHORIZED, "Invalid or missing token")
+
+/**
+ * Indicates that the server did not receive a complete request message within the time that it was prepared to wait.
+ */
+class TimeoutExceededAppException(message : String) :
+    GeneralException(ErrorTypes.General.TIMEOUT, message)

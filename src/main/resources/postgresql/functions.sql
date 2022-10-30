@@ -12,7 +12,6 @@ begin
 end;
 $$;
 
-
 create or replace function gameRulesExists(
     newBoardSide int, newShotsPerTurn int,
     newLayoutDefinitionTimeout int, mewPlayTimeout int,

@@ -1,7 +1,7 @@
 package pt.isel.daw.battleship.repository.dto
 
-import pt.isel.daw.battleship.model.Board
-import pt.isel.daw.battleship.model.Square
+import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.utils.UserID
 
 data class BoardDTO(

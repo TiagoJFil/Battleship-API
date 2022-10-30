@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.battleship.controller.toSiren
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.input.UserInfoInputModel
 import pt.isel.daw.battleship.controller.hypermedia.*
@@ -22,33 +23,20 @@ class UserController(
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    fun createUser(@RequestBody input: UserInfoInputModel): SirenEntity<AuthInformation>? {
-
+    fun createUser(@RequestBody input: UserInfoInputModel): SirenEntity<AuthInformation> {
         val authInfo = userService.createUser(
             UserValidation(input.username, input.password)
         )
 
-        return SirenEntity<AuthInformation>(
-            properties = authInfo,
-            title = "Register",
-            actions = listOf(loginAction),
-            links = listOf(selfLink("http://localhost:8080/api/user"))
-        )
+        return authInfo.toSiren(Uris.User.REGISTER)
     }
-
     @PostMapping(Uris.User.LOGIN)
-    fun authenticate(@RequestBody input: UserInfoInputModel): SirenEntity<AuthInformation>? {
-
+    fun authenticate(@RequestBody input: UserInfoInputModel): SirenEntity<AuthInformation> {
         val authInfo = userService.authenticate(
             UserValidation(input.username, input.password)
         )
 
-        return SirenEntity<AuthInformation>(
-            properties = authInfo,
-            title = "Login",
-            actions = listOf(registerAction),
-            links = listOf(selfLink("http://localhost:8080/api/user/login"))
-        )
+        return authInfo.toSiren(Uris.User.LOGIN)
     }
 
 }

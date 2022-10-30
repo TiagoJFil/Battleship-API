@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import pt.isel.daw.battleship.controller.interceptors.InfoInterceptor
 import pt.isel.daw.battleship.controller.interceptors.authentication.AuthenticationInterceptor
 import pt.isel.daw.battleship.controller.interceptors.authentication.UserIDArgumentResolver
 
@@ -15,8 +16,12 @@ class AppConfig : WebMvcConfigurer {
     @Autowired
     private lateinit var authenticationInterceptor: AuthenticationInterceptor
 
+    @Autowired
+    private lateinit var infoInterceptor: InfoInterceptor
+
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(authenticationInterceptor)
+        registry.addInterceptor(infoInterceptor)
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {

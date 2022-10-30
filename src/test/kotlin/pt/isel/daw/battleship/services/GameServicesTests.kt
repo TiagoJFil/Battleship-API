@@ -3,11 +3,19 @@ package pt.isel.daw.battleship.services
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.controller.dto.BoardDTO
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
+import pt.isel.daw.battleship.domain.Game
+import pt.isel.daw.battleship.domain.Orientation
+import pt.isel.daw.battleship.domain.ShipInfo
+import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.repository.GameRepository
+import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
+import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
-import pt.isel.daw.battleship.services.model.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.ID
@@ -21,14 +29,19 @@ class GameServicesTests {
         val player2: UserID
     )
 
+    private fun createUser(transaction: TransactionFactory, name: String): AuthInformation {
+        val userService = UserService(transaction)
+        return userService.createUser(UserValidation(name, "12346"))
+    }
+
     private fun createGame(transaction: TransactionFactory): TestGameInfo? {
 
         val userService = UserService(transaction)
         val gameService = GameService(transaction)
-        val (uid1, token1) = userService.createUser(UserValidation("user_test", "password"))
-        val (uid2, token2) = userService.createUser(UserValidation("user_test2", "password"))
-        gameService.createOrJoinLobby(uid1)
-        val gameID = gameService.createOrJoinLobby(uid2) ?: return null
+        val (uid1, token1) = userService.createUser(UserValidation("user_test", "password1"))
+        val (uid2, token2) = userService.createUser(UserValidation("user_test2", "password1"))
+        gameService.createOrJoinGame(uid1)
+        val gameID = gameService.createOrJoinGame(uid2) ?: return null
 
         return TestGameInfo(gameID, uid1, uid2)
     }
@@ -37,9 +50,9 @@ class GameServicesTests {
     fun `define a board layout in a game successfully`() {
         testWithTransactionManagerAndRollback {
             val gameService = GameService(it)
-            val testGameInfo = createGame(it)
+            val game = createGame(it)
 
-            if (testGameInfo == null) {
+            if (game == null) {
                 assert(false)
                 return@testWithTransactionManagerAndRollback
             }
@@ -53,14 +66,9 @@ class GameServicesTests {
                 ShipInfo(Square(1, 8), 5, Orientation.Vertical)
             )
 
-            gameService.defineFleetLayout(testGameInfo.player1, testGameInfo.id, fleet)
-            val board1 = gameService.getFleetState(testGameInfo.player1, testGameInfo.id, GameService.Fleet.MY)
-            val board2 = gameService.getFleetState(testGameInfo.player1, testGameInfo.id, GameService.Fleet.OPPONENT)
-
-            if (board1 == null || board2 == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
+            gameService.defineFleetLayout(game.player1, game.id, fleet)
+            val board1 = gameService.getFleet(game.player1, game.id, false)
+            val board2 = gameService.getFleet(game.player1, game.id, true)
 
             val expectedSquares = listOf<Square>(
                 Square(0, 0),
@@ -80,12 +88,12 @@ class GameServicesTests {
                 Square(5, 8)
             )
 
-            assertEquals(testGameInfo.player1, board1.userID)
+            assertEquals(game.player1, board1.userID)
             expectedSquares.forEach { square ->
                 assert(square in board1.shipParts)
             }
-            assertEquals(testGameInfo.player2, board2.userID)
-            assertEquals(board2.shipParts, emptyList<Square>())
+            assertEquals(game.player2, board2.userID)
+            assertEquals(emptyList<Square>(),board2.shipParts)
         }
     }
 
@@ -138,8 +146,8 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(stateForPlayer1, Game.State.PLACING_SHIPS)
-            assertEquals(stateForPlayer2, Game.State.PLACING_SHIPS)
+            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer1)
+            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer2)
         }
     }
 
@@ -169,8 +177,8 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(stateForPlayer1, Game.State.PLAYING)
-            assertEquals(stateForPlayer2, Game.State.PLAYING)
+            assertEquals(Game.State.PLAYING,stateForPlayer1)
+            assertEquals(Game.State.PLAYING,stateForPlayer2 )
         }
     }
 
@@ -199,7 +207,7 @@ class GameServicesTests {
                 val game = createGame(it)
 
                 if (game == null) {
-                    assert(false)
+                    assert(true)
                     return@testWithTransactionManagerAndRollback
                 }
 
@@ -207,6 +215,35 @@ class GameServicesTests {
             }
         }
     }
+
+
+    @Test
+    fun ` Leave the queue sucessfully`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(it)
+            val user = createUser(it,"test")
+
+            val joinedGame = gameService.createOrJoinGame(user.uid)
+            assertEquals(null,joinedGame)
+            gameService.leaveLobby(user.uid)
+        }
+    }
+
+    @Test
+    fun `Cant leave the queue if user did not join`(){
+        assertThrows<ForbiddenAccessAppException> {
+            testWithTransactionManagerAndRollback {
+                val gameService = GameService(it)
+                val user = createUser(it,"test")
+
+
+                gameService.leaveLobby(user.uid)
+            }
+        }
+    }
+
+
+
 
     @Test
     fun `whole game test`() {

@@ -8,6 +8,9 @@ val errorToStatusMap = mapOf(
     InvalidParameterException::class to HttpStatus.BAD_REQUEST,
     MissingParameterException::class to HttpStatus.BAD_REQUEST,
     NotFoundAppException::class to HttpStatus.NOT_FOUND,
+    GameNotFoundException::class to HttpStatus.NOT_FOUND,
     InternalErrorAppException::class to HttpStatus.INTERNAL_SERVER_ERROR,
     ForbiddenAccessAppException::class to HttpStatus.FORBIDDEN,
+    UnauthenticatedAppException::class to HttpStatus.UNAUTHORIZED,
+    TimeoutExceededAppException::class to HttpStatus.REQUEST_TIMEOUT,
 )

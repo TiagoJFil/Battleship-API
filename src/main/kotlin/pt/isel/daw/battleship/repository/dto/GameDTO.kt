@@ -2,11 +2,12 @@ package pt.isel.daw.battleship.repository.dto
 
 
 import org.jdbi.v3.core.mapper.Nested
-import pt.isel.daw.battleship.model.Board
-import pt.isel.daw.battleship.model.Game
-import pt.isel.daw.battleship.model.GameRules
-import pt.isel.daw.battleship.model.Id
+import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.Game
+import pt.isel.daw.battleship.domain.GameRules
+import pt.isel.daw.battleship.domain.Id
 import pt.isel.daw.battleship.utils.UserID
+import java.sql.Timestamp
 
 data class GameDTO(
     val id: Id?,
@@ -17,6 +18,7 @@ data class GameDTO(
     val player2: UserID?,
     val boardP1: String?,
     val boardP2: String?,
+    val lastUpdated : Timestamp
 ) {
     fun toGame() = Game(
         id= id,
@@ -28,7 +30,8 @@ data class GameDTO(
             player1 to Board.fromLayout(boardP1),
             player2 to Board.fromLayout(boardP2)
         ),
-        turn
+        turn,
+        lastUpdated.time
     )
 }
 
@@ -41,7 +44,8 @@ fun Game.toDTO() = GameDTO(
     player1 = boards.keys.firstOrNull(),
     player2 = boards.keys.lastOrNull(),
     boardP1 = boards.values.firstOrNull()?.toString(),
-    boardP2 = boards.values.lastOrNull()?.toString()
+    boardP2 = boards.values.lastOrNull()?.toString(),
+    lastUpdated = Timestamp(lastUpdated)
 )
 
 

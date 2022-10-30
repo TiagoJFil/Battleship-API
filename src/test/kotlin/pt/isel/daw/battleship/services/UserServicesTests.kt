@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
+import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.services.exception.UserAlreadyExistsException
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 
@@ -13,12 +14,12 @@ class UserServicesTests {
     fun `create a user successfully and authenticate after to confirm it`() {
         testWithTransactionManagerAndRollback {
             val userService = UserService(it)
-            val (uid, token) = userService.createUser(UserValidation("user_test", "password"))
+            val (uid, token) = userService.createUser(UserValidation("user_test", "password1"))
             val userID = userService.getUserIDFromToken(token)
 
             assertEquals(uid, userID)
 
-            val authInfo = userService.authenticate(UserValidation("user_test", "password"))
+            val authInfo = userService.authenticate(UserValidation("user_test", "password1"))
 
             if (authInfo == null) {
                 assert(false)
@@ -31,12 +32,32 @@ class UserServicesTests {
     }
 
     @Test
+    fun `cant create a user that has a weak password`(){
+        testWithTransactionManagerAndRollback {
+            val userService = UserService(it)
+            assertThrows<InvalidParameterException> {
+                userService.createUser(UserValidation("user_test", "123"))
+            }
+        }
+    }
+
+    @Test
+    fun `cant create a user with a very large username`(){
+        testWithTransactionManagerAndRollback {
+            val userService = UserService(it)
+            assertThrows<InvalidParameterException> {
+                userService.createUser(UserValidation("abcdefghabcdeghabcdeghabcdeghabcdeghabcdegh","password1"))
+            }
+        }
+    }
+
+    @Test
     fun `create a user that already exists fails and throws UserAlreadyExistsException`() {
         assertThrows<UserAlreadyExistsException> {
             testWithTransactionManagerAndRollback {
                 val userService = UserService(it)
-                userService.createUser(UserValidation("user_test", "password"))
-                userService.createUser(UserValidation("user_test", "password"))
+                userService.createUser(UserValidation("user_test", "password1"))
+                userService.createUser(UserValidation("user_test", "password1"))
             }
         }
     }
