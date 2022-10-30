@@ -3,13 +3,11 @@ package pt.isel.daw.battleship.services
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.model.Game
-import pt.isel.daw.battleship.model.Orientation
-import pt.isel.daw.battleship.model.ShipInfo
-import pt.isel.daw.battleship.model.Square
+import pt.isel.daw.battleship.controller.dto.BoardDTO
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
+import pt.isel.daw.battleship.services.model.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.ID
@@ -39,9 +37,9 @@ class GameServicesTests {
     fun `define a board layout in a game successfully`() {
         testWithTransactionManagerAndRollback {
             val gameService = GameService(it)
-            val game = createGame(it)
+            val testGameInfo = createGame(it)
 
-            if (game == null) {
+            if (testGameInfo == null) {
                 assert(false)
                 return@testWithTransactionManagerAndRollback
             }
@@ -55,9 +53,9 @@ class GameServicesTests {
                 ShipInfo(Square(1, 8), 5, Orientation.Vertical)
             )
 
-            gameService.defineFleetLayout(game.player1, game.id, fleet)
-            val board1 = gameService.getFleet(game.player1, game.id, false)
-            val board2 = gameService.getFleet(game.player1, game.id, true)
+            gameService.defineFleetLayout(testGameInfo.player1, testGameInfo.id, fleet)
+            val board1 = gameService.getFleetState(testGameInfo.player1, testGameInfo.id, GameService.Fleet.MY)
+            val board2 = gameService.getFleetState(testGameInfo.player1, testGameInfo.id, GameService.Fleet.OPPONENT)
 
             if (board1 == null || board2 == null) {
                 assert(false)
@@ -82,11 +80,11 @@ class GameServicesTests {
                 Square(5, 8)
             )
 
-            assertEquals(game.player1, board1.userID)
+            assertEquals(testGameInfo.player1, board1.userID)
             expectedSquares.forEach { square ->
                 assert(square in board1.shipParts)
             }
-            assertEquals(game.player2, board2.userID)
+            assertEquals(testGameInfo.player2, board2.userID)
             assertEquals(board2.shipParts, emptyList<Square>())
         }
     }
@@ -209,4 +207,84 @@ class GameServicesTests {
             }
         }
     }
+
+    @Test
+    fun `whole game test`() {
+
+        testWithTransactionManagerAndRollback {
+
+            val gameService = GameService(it)
+            val gameInfo = createGame(it)
+
+            if (gameInfo == null) {
+                assert(false)
+                return@testWithTransactionManagerAndRollback
+            }
+
+            val fleet = listOf(
+                ShipInfo(Square(0, 0), 1, Orientation.Vertical),
+                ShipInfo(Square(2, 1), 2, Orientation.Vertical),
+                ShipInfo(Square(1, 3), 3, Orientation.Horizontal),
+                ShipInfo(Square(4, 3), 4, Orientation.Horizontal),
+                ShipInfo(Square(1, 8), 5, Orientation.Vertical)
+            )
+
+            gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, fleet)
+            val startingFleet = gameService.getFleetState(gameInfo.player1, gameInfo.id, GameService.Fleet.MY)
+
+            val inBetweenState = gameService.getGameState(gameInfo.id, gameInfo.player1)
+
+            assertEquals(inBetweenState, Game.State.PLACING_SHIPS)
+
+            gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, fleet)
+
+            val stateForPlayer1 = gameService.getGameState(gameInfo.id, gameInfo.player1)
+            val stateForPlayer2 = gameService.getGameState(gameInfo.id, gameInfo.player2)
+
+            assertEquals(stateForPlayer1, stateForPlayer2)
+            assertEquals(stateForPlayer1, Game.State.PLAYING)
+
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(0, 0)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(0, 0)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(2, 1)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(2, 1)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(3, 1)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(3, 2)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(1, 3)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(1, 3)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(1, 4)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(1, 4)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(1, 5)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(1, 5)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(4, 3)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(4, 3)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(4, 4)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(4, 4)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(4, 5)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(4, 5)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(4, 6)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(4, 6)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(1, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(1, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(2, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(2, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(3, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(3, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(4, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player2, listOf(Square(4, 8)))
+            gameService.makeShots(gameInfo.id, gameInfo.player1, listOf(Square(5, 8)))
+
+            val stateForPlayer1AfterGame = gameService.getGameState(gameInfo.id, gameInfo.player1)
+            assertEquals(stateForPlayer1AfterGame, Game.State.FINISHED)
+
+
+            assertEquals(gameService.getFleetState(gameInfo.player2, gameInfo.id, GameService.Fleet.OPPONENT),
+                BoardDTO(gameInfo.player1, emptyList(), fleet.flatMap { it.getShipSquares() }, 10)
+            )
+
+        }
+
+    }
+
+
 }
