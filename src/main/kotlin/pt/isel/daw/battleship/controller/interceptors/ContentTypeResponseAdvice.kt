@@ -7,8 +7,8 @@ import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
-import pt.isel.daw.battleship.controller.hypermedia.SirenContentType
-import pt.isel.daw.battleship.controller.hypermedia.SirenEntity
+import pt.isel.daw.battleship.controller.hypermedia.siren.SirenContentType
+import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 
 
 @ControllerAdvice

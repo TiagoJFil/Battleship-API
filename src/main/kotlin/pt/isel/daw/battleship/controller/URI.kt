@@ -2,36 +2,35 @@ package pt.isel.daw.battleship.controller
 
 
 object Uris {
+    object Home {
+        const val ROOT = "/"
+        const val SYSTEM_INFO = "${ROOT}systemInfo"
+        const val STATISTICS = "${ROOT}statistics"
+    }
 
-
-    const val HOME = "/"
-    const val SYSTEM_INFO = "systemInfo"
-    const val STATISTICS = "statistics"
 
     object User {
-        const val ROOT = "/user"
-        const val LOGIN = "/login"
-        const val REGISTER = "/user"
+        private const val ROOT = "/user"
+        const val LOGIN = "$ROOT/login"
+        const val REGISTER = ROOT
     }
 
     object Lobby {
-        const val ROOT = "/lobby"
-        const val QUEUE = "/"
-        const val CANCEL_QUEUE = "/cancel"
+        private const val ROOT = "/lobby"
+        const val QUEUE = "$ROOT/"
+        const val CANCEL_QUEUE = "$ROOT/cancel"
     }
 
     object Game {
-        const val ROOT = "/game/"
+        private const val ROOT = "/game/"
 
-        const val LAYOUT_DEFINITION = "{gameId}/layoutDefinition"
-        const val SHOTS_DEFINITION = "{gameId}/shotsDefinition"
-        const val MY_FLEET = "{gameId}/myFleet"
-        const val OPPONENT_FLEET = "{gameId}/opponentFleet"
-        const val GAME_STATE = "{gameId}/gameState"
+        const val LAYOUT_DEFINITION = "$ROOT{gameId}/layoutDefinition"
+        const val SHOTS_DEFINITION = "$ROOT{gameId}/shotsDefinition"
+        const val MY_FLEET = "$ROOT{gameId}/myFleet"
+        const val OPPONENT_FLEET = "$ROOT{gameId}/opponentFleet"
+        const val GAME_STATE = "$ROOT{gameId}/gameState"
     }
 
 
 
 }
-
-
