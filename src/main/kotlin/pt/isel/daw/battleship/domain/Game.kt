@@ -1,5 +1,6 @@
 package pt.isel.daw.battleship.domain
 
+import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
 
@@ -84,14 +85,11 @@ data class Game(
 fun Game.makePlay(squares: List<Square>): Game {
     require(state == Game.State.PLAYING) { "Game is not in a playable state." }
 
-    //TODO: change check and require
     if(ranOutOfTimeFor(rules.playTimeout) ) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
-    require(squares.size == rules.shotsPerTurn) {
-        "Invalid number of shots. Only ${rules.shotsPerTurn} shots allowed per play."
-    }
+    if(squares.size == rules.shotsPerTurn) throw InvalidParameterException("Invalid number of shots")
 
     val newBoard = oppositeTurnBoard.makeShots(squares)
     val gameWithNewBoards = this.replaceBoard(oppositeTurnID, newBoard)
@@ -137,21 +135,15 @@ private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - l
  */
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
     require(state == Game.State.PLACING_SHIPS) { "It is not the ship placing phase" }
-    //TODO: change check and require
+
     if( ranOutOfTimeFor(rules.layoutDefinitionTimeout) ) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
-
     val emptyBoard = Board.empty(this.rules.boardSide)
     val newBoard = emptyBoard.placeShips(shipList)
 
-    check(newBoard.fleetComposition == rules.shipRules.fleetComposition) {
-        "Invalid ship composition. Expected ${rules.shipRules.fleetComposition}, got ${newBoard.fleetComposition}"
-    }
-
-
-
+    if(newBoard.fleetComposition != rules.shipRules.fleetComposition) throw InvalidParameterException("Invalid fleet composition")
 
     val newGameState = this.replaceBoard(playerID, newBoard)
     val hasBothBoardsNotEmpty = newGameState.boards.values.all { it != emptyBoard }

@@ -12,4 +12,10 @@ sealed class UserException(type: String?, message: String?) : AppException(type,
 class UserAlreadyExistsException(username: String) :
     UserException(ErrorTypes.User.ALREADY_EXISTS, "User $username already exists")
 
+/**
+ * Thrown when a user with the given username does not exist.
+ */
+class UserNotFoundException(username: String) :
+    UserException(ErrorTypes.User.NOT_FOUND, "User $username does not exist")
+
 

@@ -1,20 +1,17 @@
-@file:Suppress("unused")
-
-package pt.isel.daw.battleship.controller.hypermedia
+package pt.isel.daw.battleship.controller.hypermedia.siren
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import pt.isel.daw.battleship.domain.Square
 import java.net.URI
 
 private const val APPLICATION_TYPE = "application"
 private const val SIREN_SUBTYPE = "vnd.siren+json"
 
 
-const val SirenContentType = "${APPLICATION_TYPE}/${SIREN_SUBTYPE}"
+const val SirenContentType = "$APPLICATION_TYPE/$SIREN_SUBTYPE"
 
 /**
  * For details regarding the Siren media type, see <a href="https://github.com/kevinswiber/siren">Siren</a>

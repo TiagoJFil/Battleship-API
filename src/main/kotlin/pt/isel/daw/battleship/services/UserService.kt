@@ -2,10 +2,7 @@ package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Service
 import pt.isel.daw.battleship.services.entities.AuthInformation
-import pt.isel.daw.battleship.services.exception.InternalErrorAppException
-import pt.isel.daw.battleship.services.exception.InvalidParameterException
-import pt.isel.daw.battleship.services.exception.UnauthenticatedAppException
-import pt.isel.daw.battleship.services.exception.UserAlreadyExistsException
+import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.UserID
@@ -45,11 +42,14 @@ class UserService(
      * Verifies the user's credentials and returns the information need to perform authorized actions.
      * @param userValidation The user login information.
      * @return [AuthInformation] if the credentials are valid.
-     * @throws //TODO("verify")
-     * @throws InternalErrorAppException if an internal error occurs.
+     * @throws UserNotFoundException if the user does not exist.
+     * @throws InvalidParameterException if the password ou username is invalid.
      */
     fun authenticate(userValidation: UserValidation): AuthInformation =
         transactionFactory.execute {
+            if(!userRepository.hasUser(userValidation.username))
+                    throw UserNotFoundException(userValidation.username)
+
             userRepository.loginUser(
                 userValidation.username,
                 userValidation.passwordHash

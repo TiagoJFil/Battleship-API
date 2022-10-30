@@ -4,11 +4,9 @@ import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.postgresql.ds.PGSimpleDataSource
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.test.web.reactive.server.HeaderAssertions
-import org.springframework.test.web.reactive.server.WebTestClient
 import pt.isel.daw.battleship.controller.hypermedia.ProblemContentType
-import pt.isel.daw.battleship.controller.hypermedia.SirenContentType
+import pt.isel.daw.battleship.controller.hypermedia.siren.SirenContentType
 import pt.isel.daw.battleship.repository.jdbi.configure
 import pt.isel.daw.battleship.services.exception.AppException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException

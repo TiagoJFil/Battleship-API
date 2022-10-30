@@ -1,23 +1,20 @@
 package pt.isel.daw.battleship.controller.controllers
 
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.battleship.controller.toSiren
-import pt.isel.daw.battleship.controller.Uris
+import pt.isel.daw.battleship.controller.*
+import pt.isel.daw.battleship.controller.Method.*
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
-import pt.isel.daw.battleship.controller.hypermedia.SirenEntity
-import pt.isel.daw.battleship.controller.hypermedia.SirenLink
-import pt.isel.daw.battleship.controller.hypermedia.selfLink
+import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
+import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
+import pt.isel.daw.battleship.controller.hypermedia.siren.toSiren
 import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
-import pt.isel.daw.battleship.controller.noEntitySiren
 import pt.isel.daw.battleship.repository.dto.BoardDTO
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.utils.UserID
-import java.net.URI
 
 @RestController
-@RequestMapping(Uris.Game.ROOT)
 class GameController(
     val gameService: GameService
 ) {
@@ -27,8 +24,8 @@ class GameController(
     fun getUserFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
         val board = gameService.getFleet(userID, gameID, opponentFleet = false)
         return board.toSiren(
-            Uris.Game.MY_FLEET,
-            mapOf("gameId" to gameID.toString())
+            MethodInfo(Uris.Game.MY_FLEET, GET),
+            mapOf("gameId" to gameID.toString()),
         )
     }
 
@@ -38,7 +35,7 @@ class GameController(
         val board = gameService.getFleet(userID, gameID, opponentFleet = true)
 
         return board.toSiren(
-            Uris.Game.OPPONENT_FLEET,
+            MethodInfo(Uris.Game.OPPONENT_FLEET, GET),
             mapOf("gameId" to gameID.toString())
         )
     }
@@ -49,7 +46,7 @@ class GameController(
         gameService.makeShots(userID, gameID, input.shots)
 
        return noEntitySiren(
-            Uris.Game.SHOTS_DEFINITION,
+            MethodInfo(Uris.Game.SHOTS_DEFINITION, POST),
             mapOf("gameId" to gameID.toString())
         )
     }
@@ -60,7 +57,7 @@ class GameController(
         gameService.defineFleetLayout(userID, gameID, input.shipsInfo)
 
         return noEntitySiren(
-            Uris.Game.LAYOUT_DEFINITION,
+            MethodInfo(Uris.Game.LAYOUT_DEFINITION, POST),
             mapOf("gameId" to gameID.toString())
         )
     }
@@ -72,7 +69,7 @@ class GameController(
         val gameStateInfo = GameStateInfo(state)
 
         return gameStateInfo.toSiren(
-            Uris.Game.GAME_STATE,
+            MethodInfo(Uris.Game.GAME_STATE, GET),
             mapOf("gameId" to gameID.toString())
         )
     }

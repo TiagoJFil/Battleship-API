@@ -8,15 +8,10 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.returnResult
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.hypermedia.ProblemContentType
-import pt.isel.daw.battleship.controller.hypermedia.SirenContentType
-import pt.isel.daw.battleship.controller.hypermedia.SirenEntity
 import pt.isel.daw.battleship.repository.JdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.assertContentTypeSiren
-import pt.isel.daw.battleship.services.entities.SystemInfo
-import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApiTests {
@@ -65,7 +60,7 @@ class ApiTests {
     fun `get server stats ok`(){
         val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port").build()
 
-        client.get().uri("/api/${Uris.SYSTEM_INFO}")
+        client.get().uri("/api/${Uris.Home.SYSTEM_INFO}")
             .exchange()
             .expectStatus().isOk
             .expectHeader()
