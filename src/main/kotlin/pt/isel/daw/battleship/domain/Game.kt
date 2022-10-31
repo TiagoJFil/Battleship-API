@@ -89,7 +89,7 @@ fun Game.makePlay(squares: List<Square>): Game {
         return this.copy(state = Game.State.CANCELLED)
     }
 
-    if(squares.size == rules.shotsPerTurn) throw InvalidParameterException("Invalid number of shots")
+    if(squares.size != rules.shotsPerTurn) throw InvalidParameterException("Invalid number of shots")
 
     val newBoard = oppositeTurnBoard.makeShots(squares)
     val gameWithNewBoards = this.replaceBoard(oppositeTurnID, newBoard)

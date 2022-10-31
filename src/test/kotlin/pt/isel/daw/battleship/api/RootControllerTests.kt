@@ -22,7 +22,7 @@ import pt.isel.daw.battleship.repository.*
 import pt.isel.daw.battleship.services.entities.AuthInformation
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ApiTests {
+class RootControllerTests {
 
     @LocalServerPort
     var port: Int = 0

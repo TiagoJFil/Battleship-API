@@ -31,6 +31,7 @@ class UserController(
         return authInfo.toSiren(MethodInfo(Uris.User.REGISTER, POST))
     }
     @PostMapping(Uris.User.LOGIN)
+    @ResponseStatus(HttpStatus.OK)
     fun authenticate(@RequestBody input: UserInfoInputModel): SirenEntity<AuthInformation> {
         val authInfo = userService.authenticate(
             UserValidation(input.username, input.password)

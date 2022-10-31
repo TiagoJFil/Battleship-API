@@ -176,6 +176,13 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         method = shotsDefinition.method.name,
         type = mediaType,
         fields = listOf(
+            ListField(
+                name = "shots",
+                type = listOf(
+                    Field("row", "number"),
+                    Field("column", "number")
+                )
+            )
         ),
         rel = listOf("shots"),
         title = "Shots"
