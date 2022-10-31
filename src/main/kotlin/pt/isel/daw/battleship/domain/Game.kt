@@ -1,6 +1,7 @@
 package pt.isel.daw.battleship.domain
 
 import pt.isel.daw.battleship.services.exception.InvalidParameterException
+import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
 
@@ -8,7 +9,7 @@ import pt.isel.daw.battleship.utils.UserID
  * Represents a state of a battleship game.
  */
 data class Game(
-    val id: Id?,
+    val id: ID?,
     val state: State,
     val rules: GameRules = GameRules.DEFAULT,
     val boards: Map<UserID, Board>,

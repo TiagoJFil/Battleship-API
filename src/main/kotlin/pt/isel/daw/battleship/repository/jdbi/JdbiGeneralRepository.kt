@@ -4,9 +4,11 @@ import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.mapper.Nested
 import pt.isel.daw.battleship.repository.GeneralRepository
+import pt.isel.daw.battleship.repository.dto.PlayerStatisticDTO
 import pt.isel.daw.battleship.services.entities.GameStatistics
 import pt.isel.daw.battleship.services.entities.PlayerStatistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
+import pt.isel.daw.battleship.utils.ID
 
 class JdbiGeneralRepository(
     private val handle: Handle
@@ -36,17 +38,15 @@ class JdbiGeneralRepository(
             .mapTo<Int>()
             .one()
 
-        val ranking = handle.createQuery("""SELECT "User".name, COUNT(*) as gamesWon FROM "User" JOIN game ON "User".id = game.winner""" +
-                """ GROUP BY "User".name ORDER BY gamesWon DESC""")
-            .mapTo<PlayerStatistics>()
+        val rankingDto = handle.createQuery("""select * from rankingview""")
+            .mapTo<PlayerStatisticDTO>()
             .toList()
+
+        val ranking = rankingDto.mapIndexed {  index, dto ->
+            PlayerStatistics(index,dto.playerId,dto.totalGames,dto.wins)
+        }
 
         return GameStatistics(numGames, ranking)
     }
 
 }
-
-data class GameStatisticsDTO(
-    val numGames: Int,
-    @Nested val ranking: List<PlayerStatistics>
-)

@@ -16,7 +16,7 @@ import pt.isel.daw.battleship.services.entities.SystemInfo
 class RootController(
     val generalService: GeneralService
 ) {
-    @GetMapping("/")
+    @GetMapping(Uris.Home.ROOT)
     fun getHomeInfo() =
         noEntitySiren(MethodInfo(Uris.Home.ROOT,GET))
 

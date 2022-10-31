@@ -9,6 +9,7 @@ import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.dto.*
+import pt.isel.daw.battleship.utils.ID
 import java.sql.Timestamp
 
 
@@ -21,7 +22,7 @@ class JdbiGamesRepository(
      * @param gameID the id of the game
      * @return [Game] the game
      */
-    override fun get(gameID: Id): Game? {
+    override fun get(gameID: ID): Game? {
         return handle.createQuery(
             """
                 select * from gameview g where g.id = :id
@@ -38,7 +39,7 @@ class JdbiGamesRepository(
      * @param game the game to be persisted
      * @return [Id] of the game persisted
      */
-    override fun persist(game: GameDTO): Id {
+    override fun persist(game: GameDTO): ID {
         if (!hasGame(game.id)) {
             return insert(game)
         }
@@ -52,7 +53,7 @@ class JdbiGamesRepository(
      * @param game the game data transfer object to be persisted
      * @return [Id] of the game created
      */
-    private fun insert(game: GameDTO): Id {
+    private fun insert(game: GameDTO): ID {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }
         handle.createUpdate("""          
             Insert into gameview(
@@ -66,7 +67,7 @@ class JdbiGamesRepository(
             .execute()
 
         return handle.createQuery("select max(id) from gameview")
-            .mapTo<Id>()
+            .mapTo<ID>()
             .first()
     }
 
@@ -143,7 +144,7 @@ class JdbiGamesRepository(
      * @param gameID the id of the game
      * @return [Boolean] true if the game exists, false otherwise
      */
-    private fun hasGame(gameID: Id?): Boolean {
+    private fun hasGame(gameID: ID?): Boolean {
         if (gameID == null) return false
         return handle.createQuery(
             """

@@ -2,7 +2,6 @@ package pt.isel.daw.battleship.domain
 
 import java.lang.Math.abs
 
-typealias Id = Int
 
 data class Square(val row: Row, val column: Column)
 

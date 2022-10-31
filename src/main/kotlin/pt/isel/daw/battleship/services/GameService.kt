@@ -9,6 +9,7 @@ import pt.isel.daw.battleship.services.exception.GameNotFoundException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
 import pt.isel.daw.battleship.services.exception.TimeoutExceededAppException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
+import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 
 
@@ -22,7 +23,7 @@ class GameService(
      * @param gameId the id of the game
      * @return [Game.State] the game state
      */
-    fun getGameState(gameId: Id, userID: UserID): Game.State {
+    fun getGameState(gameId: ID, userID: UserID): Game.State {
         return transactionFactory.execute {
             val game = gamesRepository.get(gameId)
             game ?: throw GameNotFoundException(gameId)
@@ -34,10 +35,10 @@ class GameService(
     /**
      * Creates a new game or joins an existing one
      * @param userID the user that is creating/joining the game
-     * @return [Id] of the game created/joined or [Null] if the user joined the queue and is waiting for a game
+     * @return [ID] of the game created/joined or [Null] if the user joined the queue and is waiting for a game
      * @throws InternalErrorAppException if an error occurs while creating/joining the game
      */
-    fun createOrJoinGame(userID: UserID): Id? =
+    fun createOrJoinGame(userID: UserID): ID? =
         transactionFactory.execute {
             val pairedPlayerID = lobbyRepository.getWaitingPlayer()
 
@@ -69,7 +70,7 @@ class GameService(
      * @param gameId the id of the game
      * @param shots the shots to be made
      */
-    fun makeShots(userID: UserID, gameId: Id, shots: List<Square>) {
+    fun makeShots(userID: UserID, gameId: ID, shots: List<Square>) {
         transactionFactory.execute {
             val currentState =
                 gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
@@ -93,7 +94,7 @@ class GameService(
      * @throws GameNotFoundException if the game with the given id does not exist
      * @throws ForbiddenAccessAppException if the user is not in the game
      */
-    fun defineFleetLayout(userID: UserID, gameId: Id, ships: List<ShipInfo>) {
+    fun defineFleetLayout(userID: UserID, gameId: ID, ships: List<ShipInfo>) {
         transactionFactory.execute {
             val currentState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to define the layout in this game")
@@ -114,7 +115,7 @@ class GameService(
      * @param opponentFleet if true, returns the fleet state of the opponent, otherwise returns the fleet state of the user
      * @return [BoardDTO]
      */
-    fun getFleet(userID: UserID, gameId: Id, opponentFleet: Boolean): BoardDTO {
+    fun getFleet(userID: UserID, gameId: ID, opponentFleet: Boolean): BoardDTO {
         return transactionFactory.execute {
             val game =  gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in game.boards.keys) throw ForbiddenAccessAppException("You are not allowed to access this game")

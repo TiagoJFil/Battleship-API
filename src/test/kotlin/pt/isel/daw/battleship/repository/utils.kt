@@ -4,7 +4,9 @@ import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.postgresql.ds.PGSimpleDataSource
+import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.HeaderAssertions
+import org.springframework.test.web.reactive.server.StatusAssertions
 import pt.isel.daw.battleship.controller.hypermedia.ProblemContentType
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenContentType
 import pt.isel.daw.battleship.repository.jdbi.configure
@@ -37,7 +39,6 @@ fun JdbiTransactionFactoryTestDB() = object : JdbiTransactionFactory(jdbi) {
             }
         }
     }
-
 }
 
 fun clear(){
@@ -50,8 +51,6 @@ fun clear(){
             delete from token  cascade;
             delete from waitinglobby cascade;
             delete from "User" cascade;
-            delete from authors  cascade;
-            delete from systeminfo  cascade;
         """.trimIndent())
 
     }
@@ -79,23 +78,4 @@ fun testWithTransactionManagerAndRollback(block: (TransactionFactory) -> Unit) =
     // finally, we rollback everything
     handle.rollback()
 }
-
-
-/**
- * Asserts that the response has the Siren content type.
- */
-fun HeaderAssertions.assertContentTypeSiren()  =
-    this.value("Content-Type") {
-        assertTrue(it.equals(SirenContentType))
-    }
-
-/**
- * Asserts that the response has the Problem content type.
- */
-fun HeaderAssertions.assertContentTypeProblem()  =
-    this.value("Content-Type") {
-        assertTrue(it.equals(ProblemContentType))
-    }
-
-
 

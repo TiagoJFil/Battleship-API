@@ -7,7 +7,9 @@ data class SirenInfo(
     val name: String,
     val href: String,
     val method: String? = null,
-    val type: String? = null,
+    val outContentType: String? = null,
+
+    val inContentType: String? = null,
     val fields: List<SirenAction.FieldType>? = null,
     val rel: List<String> = emptyList(),
     val title: String
@@ -15,7 +17,7 @@ data class SirenInfo(
     fun toLink() = SirenLink(
         rel = rel,
         href = href,
-        type = type,
+        type = outContentType,
         title = title
     )
     private val defaultFields = fields?.map { field ->
@@ -34,7 +36,7 @@ data class SirenInfo(
         name = name,
         href = href,
         method = method,
-        type = type,
+        type = inContentType,
         fields = defaultFields
     )
 

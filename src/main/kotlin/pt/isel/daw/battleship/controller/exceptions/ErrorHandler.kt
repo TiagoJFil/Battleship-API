@@ -31,8 +31,25 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
             instance = servletRequest.request.requestURI.toString()
         )
 
+        ex.printStackTrace()
         logger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
         return ResponseEntity.status(errorToStatusMap[ex::class] ?: HttpStatus.INTERNAL_SERVER_ERROR)
+            .setProblemHeader()
+            .body(problem)
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(ex: Exception, servletRequest: ServletWebRequest): ResponseEntity<Problem> {
+
+        val problem = Problem(
+            URI(ErrorTypes.General.INTERNAL_ERROR),
+            ex.message,
+            instance = servletRequest.request.requestURI.toString()
+        )
+
+        ex.printStackTrace()
+        logger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .setProblemHeader()
             .body(problem)
     }

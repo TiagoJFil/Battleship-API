@@ -5,12 +5,12 @@ import org.jdbi.v3.core.mapper.Nested
 import pt.isel.daw.battleship.domain.Board
 import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.GameRules
-import pt.isel.daw.battleship.domain.Id
+import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 import java.sql.Timestamp
 
 data class GameDTO(
-    val id: Id?,
+    val id: ID?,
     val state: String,
     @Nested val rules: GameRules,
     val turn: UserID,

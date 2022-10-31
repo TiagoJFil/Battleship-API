@@ -7,7 +7,7 @@ import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenAction.*
 
 
-private val root = MethodInfo(Uris.Home.ROOT, Method.POST)
+private val root = MethodInfo(Uris.Home.ROOT, Method.GET)
 private val queue = MethodInfo(Uris.Lobby.QUEUE, Method.POST)
 private val cancelQueue = MethodInfo(Uris.Lobby.CANCEL_QUEUE, Method.POST)
 private val login = MethodInfo(Uris.User.LOGIN, Method.POST)
@@ -21,7 +21,7 @@ private val gameState = MethodInfo(Uris.Game.GAME_STATE, Method.GET)
 private val myFleet = MethodInfo(Uris.Game.MY_FLEET, Method.GET)
 
 
-private const val mediaType = "application/json"
+private const val JsonContentType = "application/json"
 
 private val UriActionsRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     queue to listOf(
@@ -91,7 +91,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "home",
         href = root.uri,
         method = root.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
         fields = listOf(),
         rel = listOf("home"),
         title = "Home"
@@ -100,7 +100,8 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "play-intent",
         href = queue.uri,
         method = queue.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
+        inContentType = JsonContentType,
         fields = listOf(),
         rel = listOf("play-intent"),
         title = "Play Intent"
@@ -109,7 +110,8 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "cancel-queue",
         method = cancelQueue.method.name,
         href = cancelQueue.uri,
-        type = mediaType,
+        outContentType = SirenContentType,
+        inContentType = JsonContentType,
         fields = listOf(),
         rel = listOf("cancel-queue"),
         title = "Cancel Queue"
@@ -118,7 +120,8 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "place-ships",
         href = layoutDefinition.uri,
         method = layoutDefinition.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
+        inContentType = JsonContentType,
         fields = listOf(
             ListField(
                 name = "shipInfo",
@@ -150,7 +153,8 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "login",
         href = login.uri,
         method = login.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
+        inContentType = JsonContentType,
         fields = listOf(
             Field(name = "username", type = "text"),
             Field(name = "password", type = "password")
@@ -162,7 +166,8 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "register",
         href = register.uri,
         method = register.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
+        inContentType = JsonContentType,
         fields = listOf(
             Field(name = "username", type = "text"),
             Field(name = "password", type = "password")
@@ -174,7 +179,8 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "shots",
         href = shotsDefinition.uri,
         method = shotsDefinition.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
+        inContentType = JsonContentType,
         fields = listOf(
         ),
         rel = listOf("shots"),
@@ -184,7 +190,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "game-state",
         href = gameState.uri,
         method = gameState.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
         fields = listOf(),
         rel = listOf("game-state"),
         title = "Game State"
@@ -193,7 +199,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "my-fleet",
         href = myFleet.uri,
         method = myFleet.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
         fields = listOf(),
         rel = listOf("my-fleet"),
         title = "My Fleet"
@@ -202,7 +208,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "opponent-fleet",
         href = opponentFleet.uri,
         method = opponentFleet.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
         fields = listOf(),
         rel = listOf("opponent-fleet"),
         title = "Opponent Fleet"
@@ -211,7 +217,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "system-info",
         href = systemInfo.uri,
         method = systemInfo.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
         fields = listOf(),
         rel = listOf("system-info"),
         title = "System Info"
@@ -220,7 +226,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         name = "statistics",
         href = statistics.uri,
         method = statistics.method.name,
-        type = mediaType,
+        outContentType = SirenContentType,
         fields = listOf(),
         rel = listOf("statistics"),
         title = "Statistics"

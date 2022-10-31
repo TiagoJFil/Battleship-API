@@ -19,6 +19,31 @@ from Game g
          left join Board b1 on b1.userId = g.player1 and b1.gameId = g.id
          left join Board b2 on b2.userId = g.player2 and b2.gameId = g.id;
 
+create or replace view WinnersView as
+
+select ws.id as gameId , ws.winner , u.name from
+    (
+        select g.player2 as winner, g.id
+              from game g
+              where state = 'finished'
+                and turn = g.player1
+    union
+        select g.player1 as winner, g.id
+              from game g
+              where state = 'finished'
+                and turn = g.player2
+    ) as ws
+join "User" u on u.id = ws.winner;
+
+CREATE OR REPLACE VIEW RankingView as
+
+    select u.id as playerId, count(g.id) as totalGames ,count(w.gameId) as wins
+    from "User" u
+             left join WinnersView w on u.id = w.winner
+        join game g on u.id = g.player1 or u.id = g.player2
+    group by u.id, u.name
+    order by wins desc;
+
 
 create or replace function insertGameView()
     returns trigger
