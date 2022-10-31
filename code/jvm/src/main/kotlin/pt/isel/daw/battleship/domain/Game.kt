@@ -150,14 +150,14 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
 }
 
 /**
- * Returns a new Game after the board from [turn] is replaced by [newBoard]
- * @param turn the player whose board is to be replaced
+ * Returns a new Game after the board from [id] is replaced by [newBoard]
+ * @param id the player whose board is to be replaced
  * @param newBoard the new board
  * @return [Game] a new Game with the new board
  */
-private fun Game.replaceBoard(turn: UserID, newBoard: Board) = copy(
+private fun Game.replaceBoard(id: UserID, newBoard: Board) = copy(
     boards = this.boards.mapValues { entry ->
-        if (entry.key == turn)
+        if (entry.key == id)
             newBoard
         else
             entry.value

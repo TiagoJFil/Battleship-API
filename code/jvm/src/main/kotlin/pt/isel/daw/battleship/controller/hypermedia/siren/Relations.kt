@@ -24,29 +24,38 @@ private val myFleet = MethodInfo(Uris.Game.MY_FLEET, Method.GET)
 private const val JsonContentType = "application/json"
 
 private val UriActionsRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
+    root to listOf(
+        register,login
+    ),
     queue to listOf(
-        cancelQueue, layoutDefinition
+        cancelQueue, layoutDefinition,
     ),
     cancelQueue to listOf(
         queue
     ),
     register to listOf(
-        login
+        queue
     ),
     login to listOf(
-        register
+        queue
     ),
     layoutDefinition to listOf(
-        shotsDefinition
+        shotsDefinition,
     ),
     opponentFleet to listOf(
         shotsDefinition
     ),
+    myFleet to listOf(
+        shotsDefinition
+    ),
+    gameState to listOf(
+        shotsDefinition
+    ),
+    shotsDefinition to listOf(
+    ),
     systemInfo to listOf(
-        login, register
     ),
     statistics to listOf(
-        login, register
     ),
 )
 
@@ -55,10 +64,9 @@ private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
         systemInfo, statistics
     ),
     queue to listOf(
-        root
+        root, gameState
     ),
     cancelQueue to listOf(
-        root
     ),
     login to listOf(
         root
@@ -67,16 +75,19 @@ private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
         root
     ),
     layoutDefinition to listOf(
-        root, gameState, myFleet, opponentFleet
+        gameState, myFleet, opponentFleet
     ),
     opponentFleet to listOf(
-        root, gameState, myFleet
+        gameState, myFleet
     ),
     myFleet to listOf(
-        root, gameState, opponentFleet
+        gameState, opponentFleet
+    ),
+    gameState to listOf(
+        myFleet, opponentFleet
     ),
     shotsDefinition to listOf(
-        root, gameState, opponentFleet
+        gameState, opponentFleet, myFleet
     ),
     systemInfo to listOf(
         root

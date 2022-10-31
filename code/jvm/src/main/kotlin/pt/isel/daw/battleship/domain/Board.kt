@@ -33,7 +33,7 @@ data class Board(val matrix: List<SquareType>) {
     fun indexToSquare(index: Int): Square {
         val rowOrdinal = index / side
         return Square(
-            rowOrdinal = rowOrdinal, columnOrdinal = index - rowOrdinal * side
+            rowOrdinal, index - rowOrdinal * side
         )
     }
 

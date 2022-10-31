@@ -5,9 +5,9 @@ import java.lang.Math.abs
 /**
  * Represents a Square
  */
-data class Square(val row: Row, val column: Column)
-
-fun Square(rowOrdinal: Int, columnOrdinal: Int) = Square(Row(rowOrdinal), Column(columnOrdinal))
+data class Square(val row: Row, val column: Column){
+    constructor(row: Int, column: Int) : this(Row(row), Column(column))
+}
 
 
 data class Row(val ordinal: Int) {
