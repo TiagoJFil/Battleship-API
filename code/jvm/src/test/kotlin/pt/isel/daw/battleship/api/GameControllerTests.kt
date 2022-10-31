@@ -321,7 +321,7 @@ class GameControllerTests {
         val usersCreation = createPlayers("player1", "player2") ?: return
         val gameID = enterLobby(usersCreation) ?: return
 
-        val gameInfo = client.get().uri("/game/$gameID/gameState")
+        val gameInfo = client.get().uri("/game/$gameID/state")
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer ${usersCreation.player1.token}")
             .exchange()

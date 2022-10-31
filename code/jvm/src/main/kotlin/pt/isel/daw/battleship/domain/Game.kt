@@ -153,7 +153,7 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
  * @return [Game] a new Game with the new board
  */
 private fun Game.replaceBoard(id: UserID, newBoard: Board) = copy(
-    boards = this.userToBoard.mapValues { entry ->
+    userToBoards = this.userToBoards.mapValues { entry ->
         if (entry.key == id)
             newBoard
         else
