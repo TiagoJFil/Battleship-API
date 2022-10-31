@@ -28,7 +28,7 @@ object Uris {
         const val SHOTS_DEFINITION = "$ROOT{gameId}/shotsDefinition"
         const val MY_FLEET = "$ROOT{gameId}/myFleet"
         const val OPPONENT_FLEET = "$ROOT{gameId}/opponentFleet"
-        const val GAME_STATE = "$ROOT{gameId}/gameState"
+        const val GAME_STATE = "$ROOT{gameId}/state"
     }
 
 

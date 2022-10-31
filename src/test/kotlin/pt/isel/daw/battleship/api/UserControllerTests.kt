@@ -45,7 +45,7 @@ class UserControllerTests {
     @Test
     fun `create a user returns 201`(){
         client.post().uri(Uris.User.REGISTER)
-            .bodyValue("""{"username":"test","password":"testad1"}""")
+            .bodyValue("""{"username":"test1","password":"testad1"}""")
             .header("Content-Type", "application/json")
             .exchange()
             .expectStatus().isCreated
@@ -69,10 +69,10 @@ class UserControllerTests {
 
     @Test
     fun `creating a user with a repeated username returns 409`(){
-        val auth = client.createUser("test","testad1")
+        val auth = client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.REGISTER)
-            .bodyValue("""{"username":"test","password":"testad1"}""")
+            .bodyValue("""{"username":"test1","password":"testad1"}""")
             .header("Content-Type", "application/json")
             .exchange()
             .expectStatus().isConflict
@@ -82,10 +82,10 @@ class UserControllerTests {
 
     @Test
     fun `log in sucessfully`(){
-        val auth = client.createUser("test","testad1")
+        val auth = client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.LOGIN)
-            .bodyValue("""{"username":"test","password":"testad1"}""")
+            .bodyValue("""{"username":"test1","password":"testad1"}""")
             .header("Content-Type", "application/json")
             .exchange()
             .expectStatus().isOk
@@ -98,10 +98,10 @@ class UserControllerTests {
 
     @Test
     fun `try to log in with invalid credentials`(){
-        val auth = client.createUser("test","testad1")
+        val auth = client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.LOGIN)
-            .bodyValue("""{"username":"test","password":"testad2"}""")
+            .bodyValue("""{"username":"test1","password":"testad2"}""")
             .header("Content-Type", "application/json")
             .exchange()
             .expectStatus().isBadRequest
@@ -111,13 +111,24 @@ class UserControllerTests {
 
     @Test
     fun `try to log in with invalid username`(){
-        val auth = client.createUser("test","testad1")
+        val auth = client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.LOGIN)
             .bodyValue("""{"username":"test2","password":"testad1"}""")
             .header("Content-Type", "application/json")
             .exchange()
             .expectStatus().isNotFound
+            .expectHeader()
+            .assertContentTypeProblem()
+    }
+
+    @Test
+    fun `missing parameter on register`(){
+        client.post().uri(Uris.User.REGISTER)
+            .bodyValue("""{"username":"test1"}""")
+            .header("Content-Type", "application/json")
+            .exchange()
+            .expectStatus().isBadRequest
             .expectHeader()
             .assertContentTypeProblem()
     }

@@ -7,6 +7,7 @@ import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.UserID
 import pt.isel.daw.battleship.utils.UserToken
+import pt.isel.daw.battleship.utils.services.generateUUId
 import java.util.*
 
 @Service
@@ -28,7 +29,7 @@ class UserService(
             if (userRepository.hasUser(userValidation.username))
                 throw UserAlreadyExistsException(userValidation.username)
 
-            val generatedToken = UUID.randomUUID().toString()
+            val generatedToken = generateUUId()
             val userID = userRepository.addUser(
                 userValidation.username,
                 generatedToken,

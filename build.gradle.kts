@@ -55,3 +55,11 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.test {
+	environment(
+		mapOf(
+			"JDBC_TEST_DATABASE" to "jdbc:postgresql://localhost/testDB?user=postgres&password=postgres}"
+		)
+	)
+}

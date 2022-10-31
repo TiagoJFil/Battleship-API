@@ -240,13 +240,13 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
     )
 )
 
-private fun updateHref(uri: String, uriVariables: Map<String, String>?): String {
+fun updateHref(uri: String, uriVariables: Map<String, String>?): String {
     if (uriVariables.isNullOrEmpty()) return uri
     val template = UriTemplate(uri)
     return template.expand(uriVariables).toString()
 }
 
-private fun get(linking: Linking, methodInfo: MethodInfo, uriVariables: Map<String, String>?): List<SirenInfo> {
+fun get(linking: Linking, methodInfo: MethodInfo, uriVariables: Map<String, String>?): List<SirenInfo> {
     val uriMethodInfoMap = if (linking == Linking.ACTIONS) UriActionsRelationsMap else UriLinksRelationsMap
     return uriMethodInfoMap[methodInfo]?.map { rel ->
         val sirenInfo = SirenInfoMap[rel] ?: throw IllegalArgumentException("No sirenInfo found for $rel")
@@ -255,13 +255,13 @@ private fun get(linking: Linking, methodInfo: MethodInfo, uriVariables: Map<Stri
     } ?: emptyList()
 }
 
-private fun getTitle(methodInfo: MethodInfo): String {
+fun getTitle(methodInfo: MethodInfo): String {
     println(methodInfo)
     return SirenInfoMap[methodInfo]?.title ?: throw IllegalArgumentException("No action found for $methodInfo")
 }
 
 
-fun <T> T.toSiren(methodInfo: MethodInfo, uriVariables: Map<String, String>? = null): SirenEntity<T> {
+inline fun <reified T> T.toSiren(methodInfo: MethodInfo, uriVariables: Map<String, String>? = null): SirenEntity<T> {
     val actions = get(Linking.ACTIONS, methodInfo, uriVariables).map { it.toAction() }
     val links =
         get(
@@ -271,6 +271,7 @@ fun <T> T.toSiren(methodInfo: MethodInfo, uriVariables: Map<String, String>? = n
         ).map { it.toLink() } + listOf(selfLink(updateHref(methodInfo.uri, uriVariables)))
 
     return SirenEntity(
+        clazz = listOf(T::class.java.simpleName),
         title = getTitle(methodInfo),
         properties = this,
         actions = actions,

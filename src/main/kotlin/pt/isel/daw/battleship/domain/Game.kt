@@ -37,10 +37,13 @@ data class Game(
 
     val oppositeTurnBoard: Board by afterGameBegins { boards[oppositeTurnID] ?: error("No board for the opposite turn ID") }
 
-    //TODO: test this
-    val winnerId by afterGameEnds {
-        boards.keys.firstOrNull { boards[it]!!.isFleetDestroyed }
-    }
+    val winnerId by
+        lazy {
+            if (state == State.FINISHED) {
+                boards.keys.firstOrNull { boards[it]!!.isFleetDestroyed }
+            } else null
+        }
+
 
 
     /**
@@ -54,16 +57,6 @@ data class Game(
         }
     }
 
-    /**
-     * Returns a lazy property delegate that is only available after the game has ended.
-     * @throws IllegalStateException if the game has not yet ended.
-     */
-    private fun <T> afterGameEnds(initializer: () -> T): Lazy<T> {
-        return lazy{
-            check(isOver()) { "Can't access this property before the game ends." }
-            initializer()
-        }
-    }
 
     /**
      * Represents the possible States of a game.
