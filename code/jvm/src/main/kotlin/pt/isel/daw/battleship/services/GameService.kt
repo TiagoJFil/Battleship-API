@@ -28,7 +28,7 @@ class GameService(
         return transactionFactory.execute {
             val game = gamesRepository.get(gameId)
             game ?: throw GameNotFoundException(gameId)
-            if(userID !in game.boards.keys) throw ForbiddenAccessAppException("User $userID is not part of the game $gameId")
+            if(userID !in game.userToBoards.keys) throw ForbiddenAccessAppException("User $userID is not part of the game $gameId")
             GameStateInfo(game.state, game.winnerId)
         }
     }
@@ -49,7 +49,7 @@ class GameService(
             }
 
             lobbyRepository.removePlayerFromLobby(pairedPlayerID)
-            val newGame = Game.new(userID to pairedPlayerID, GameRules.DEFAULT)
+            val newGame = Game.new(pairedPlayerID to userID, GameRules.DEFAULT)
             gamesRepository.persist(newGame.toDTO())
         }
 
@@ -75,8 +75,8 @@ class GameService(
         transactionFactory.execute {
             val currentState =
                 gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
-            if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to make shots in this game")
-            if(userID == currentState.turnID) throw ForbiddenAccessAppException("Not your turn!")
+            if (userID !in currentState.userToBoards.keys) throw ForbiddenAccessAppException("You are not allowed to make shots in this game")
+            if(userID != currentState.turnID) throw ForbiddenAccessAppException("Not your turn!")
 
             val newGameState = currentState.makePlay(shots)
             gamesRepository.persist(newGameState.toDTO())
@@ -98,7 +98,7 @@ class GameService(
     fun defineFleetLayout(userID: UserID, gameId: ID, ships: List<ShipInfo>) {
         transactionFactory.execute {
             val currentState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
-            if (userID !in currentState.boards.keys) throw ForbiddenAccessAppException("You are not allowed to define the layout in this game")
+            if (userID !in currentState.userToBoards.keys) throw ForbiddenAccessAppException("You are not allowed to define the layout in this game")
 
             val newGameState = currentState.placeShips(ships, userID)
             gamesRepository.persist(newGameState.toDTO())
@@ -119,15 +119,13 @@ class GameService(
     fun getFleet(userID: UserID, gameId: ID, opponentFleet: Boolean): BoardDTO {
         return transactionFactory.execute {
             val game =  gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
-            if (userID !in game.boards.keys) throw ForbiddenAccessAppException("You are not allowed to access this game")
-            game.boards[userID] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
+            if (userID !in game.userToBoards.keys) throw ForbiddenAccessAppException("You are not allowed to access this game")
+            game.userToBoards[userID] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
 
-            val user = if (opponentFleet) game.boards.keys.first { it != userID } else userID
-            val board = game.boards[user] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
+            val user = if (opponentFleet) game.userToBoards.keys.first { it != userID } else userID
+            val board = game.userToBoards[user] ?: throw ForbiddenAccessAppException("You are not allowed to see this game")
             return@execute board.toDTO(user)
         }
     }
-
-
 }
 

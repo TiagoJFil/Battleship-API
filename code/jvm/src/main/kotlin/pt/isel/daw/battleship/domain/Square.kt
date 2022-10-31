@@ -6,9 +6,8 @@ import java.lang.Math.abs
  * Represents a Square
  */
 data class Square(val row: Row, val column: Column){
-    constructor(row: Int, column: Int) : this(Row(row), Column(column))
+    constructor(rowOrdinal: Int, columnOrdinal: Int) : this(Row(rowOrdinal), Column(columnOrdinal))
 }
-
 
 data class Row(val ordinal: Int) {
     operator fun minus(other: Row): Int = ordinal - other.ordinal
