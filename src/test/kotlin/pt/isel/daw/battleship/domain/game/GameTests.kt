@@ -96,7 +96,7 @@ class GameTests {
     @Test
     fun `Placing ships on invalid squares throws an exception`(){
         val testBoard = Board.fromLayout(testBoardLayout)
-        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, boards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
+        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, userToBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
         val shipInfo = ShipInfo(Square(10,20), 5, Orientation.Horizontal)
         assertThrows<IllegalArgumentException> {
             game.placeShips(listOf(shipInfo), 1)
@@ -106,7 +106,7 @@ class GameTests {
     @Test
     fun `placing ships on valid squares works correctly`(){
         val testBoard = Board.fromLayout(emptyBoard)
-        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, boards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
+        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, userToBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
         val shipInfo = ShipInfo(Square(1,1), 2, Orientation.Vertical)
         val newGame = game.placeShips(listOf(shipInfo), 2)
         val expectedBoard = Board.fromLayout(
@@ -119,7 +119,7 @@ class GameTests {
             1 to testBoard,
             2 to expectedBoard
         )
-        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, boards= newBoards, turnID=2, newGame.lastUpdated)
+        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, userToBoards= newBoards, turnID=2, newGame.lastUpdated)
         assertEquals(expectedGame, newGame)
     }
 
@@ -133,8 +133,8 @@ class GameTests {
         val invalidBoard = Board.fromLayout(invalidLayout)
         val validBoard = Board.fromLayout(testBoardLayout)
 
-        assertThrows<java.lang.IllegalStateException> {
-            Game(0, Game.State.PLAYING, rules= testGameRules, boards = mapOf(1 to validBoard, 2 to invalidBoard), turnID= 2)
+        assertThrows<IndexOutOfBoundsException> {
+            Game(0, Game.State.PLAYING, rules= testGameRules, userToBoards = mapOf(1 to validBoard, 2 to invalidBoard), turnID= 2)
         }
     }
 
@@ -155,10 +155,10 @@ class GameTests {
             1 to Board.fromLayout(expectedLayout),
             2 to Board.fromLayout(layout)
         )
-        val newGame = Game(0, Game.State.PLAYING, rules=testGameRules, boards= boards, turnID= 2)
+        val newGame = Game(0, Game.State.PLAYING, rules=testGameRules, userToBoards= boards, turnID= 2)
                         .makePlay(listOf(Square(2,1)))
 
-        val expectedGame = Game(0, Game.State.FINISHED, rules=testGameRules, boards= expectedBoards, turnID= 1)
+        val expectedGame = Game(0, Game.State.FINISHED, rules=testGameRules, userToBoards= expectedBoards, turnID= 1)
 
         assertEquals(expectedGame, newGame)
 

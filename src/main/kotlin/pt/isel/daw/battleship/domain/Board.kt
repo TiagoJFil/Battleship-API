@@ -141,7 +141,7 @@ data class Board(val matrix: List<SquareType>) {
         return listOfNotNull(
                 topLDiagonal, topRDiagonal, bottomLDiagonal, bottomRDiagonal
         ).filter {
-            getIndexFrom(it) in matrix.indices
+            it.row.ordinal >= 0 && it.column.ordinal >= 0
         }
     }
 
@@ -195,7 +195,7 @@ data class Board(val matrix: List<SquareType>) {
         return listOfNotNull(
             top, bottom, left, right
         ).filter {
-            getIndexFrom(it) in matrix.indices
+            it.row.ordinal >= 0 && it.column.ordinal >= 0
         }
     }
 

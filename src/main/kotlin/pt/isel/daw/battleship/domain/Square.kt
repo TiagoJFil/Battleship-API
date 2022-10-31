@@ -3,10 +3,9 @@ package pt.isel.daw.battleship.domain
 import java.lang.Math.abs
 
 
-data class Square(val row: Row, val column: Column)
-
-fun Square(rowOrdinal: Int, columnOrdinal: Int) = Square(Row(rowOrdinal), Column(columnOrdinal))
-
+data class Square(val row: Row, val column: Column){
+    constructor(rowOrdinal: Int, columnOrdinal: Int) : this(Row(rowOrdinal), Column(columnOrdinal))
+}
 
 data class Row(val ordinal: Int) {
     operator fun minus(other: Row): Int = ordinal - other.ordinal
