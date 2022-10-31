@@ -182,6 +182,13 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         outContentType = SirenContentType,
         inContentType = JsonContentType,
         fields = listOf(
+            ListField(
+                name = "shots",
+                type = listOf(
+                    Field("row", "number"),
+                    Field("column", "number")
+                )
+            )
         ),
         rel = listOf("shots"),
         title = "Shots"

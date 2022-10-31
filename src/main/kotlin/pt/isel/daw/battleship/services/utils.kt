@@ -3,6 +3,7 @@ package pt.isel.daw.battleship.services
 import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.services.exception.MissingParameterException
 import java.security.MessageDigest
+import java.time.Duration
 
 private val digest = MessageDigest.getInstance("SHA-512") // "SHA-512"
 
@@ -38,3 +39,15 @@ fun requireParameter(parameter: String?, parameterName: String): String {
 fun requireParameter( value : Boolean , message: () -> Any){
     if(!value) throw InvalidParameterException(message().toString())
 }
+
+/**
+ * @param minutes the time to be converted.
+ * @return [Long] the time in milliseconds.
+ */
+fun minutesToMillis(minutes: Long) = Duration.ofMinutes(minutes).toMillis()
+
+/**
+ * @param seconds the time to be converted.
+ * @return [Long] the time in milliseconds.
+ */
+fun secondsToMillis(seconds: Long) = Duration.ofSeconds(seconds).toMillis()

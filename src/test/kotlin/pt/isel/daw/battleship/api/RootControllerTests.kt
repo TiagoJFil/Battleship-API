@@ -17,7 +17,7 @@ import pt.isel.daw.battleship.repository.*
 import pt.isel.daw.battleship.services.entities.GameStatistics
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class GeneralApiTests {
+class RootControllerTests {
 
     @LocalServerPort
     var port: Int = 0
