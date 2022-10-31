@@ -52,7 +52,7 @@ data class SirenAction(
     val clazz: List<String>? = null,
     val method: String? = null,
     val type: String? = null,
-    val fields: List<FieldType>? = null
+    val fields: List<Field>? = null
 ) {
     sealed class FieldType
 

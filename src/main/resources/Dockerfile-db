@@ -1,0 +1,12 @@
+FROM postgres
+
+USER postgres
+WORKDIR /app
+
+
+COPY src/main/resources/postgresql/creation/1_create_tables.sql /docker-entrypoint-initdb.d/1_create_tables.sql
+COPY src/main/resources/postgresql/creation/2_functions.sql /docker-entrypoint-initdb.d/2_functions.sql
+COPY src/main/resources/postgresql/creation/3_create_views.sql /docker-entrypoint-initdb.d/3_create_views.sql
+COPY src/main/resources/postgresql/creation/4_insert_data.sql /docker-entrypoint-initdb.d/4_insert_data.sql
+
+#EXPOSE 5432

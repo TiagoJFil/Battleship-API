@@ -21,10 +21,7 @@ class UserServicesTests {
 
             val authInfo = userService.authenticate(UserValidation("user_test", "password1"))
 
-            if (authInfo == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
+
 
             assertEquals(uid, authInfo.uid)
             assertEquals(token, authInfo.token)
