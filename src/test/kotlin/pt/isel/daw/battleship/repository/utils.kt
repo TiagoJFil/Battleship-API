@@ -19,9 +19,8 @@ import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransactionFactory
 
 private val jdbi = Jdbi.create(
     PGSimpleDataSource().apply {
-        setURL("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=craquesdabola123")
-        //setURL("jdbc:postgresql://localhost:5432/world?user=postgres&password=docker")
-        //setURL("jdbc:postgresql://localhost:49153/postgres?user=postgres&password=postgresw")
+        val url =System.getenv("JDBC_TEST_DATABASE_URL") ?: throw IllegalStateException("JDBC_TEST_DATABASE_URL not set")
+        setURL(url)
     }
 ).configure()
 

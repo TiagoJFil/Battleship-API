@@ -4,6 +4,7 @@ package pt.isel.daw.battleship.services
 import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.repository.dto.*
+import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
@@ -23,12 +24,12 @@ class GameService(
      * @param gameId the id of the game
      * @return [Game.State] the game state
      */
-    fun getGameState(gameId: ID, userID: UserID): Game.State {
+    fun getGameState(gameId: ID, userID: UserID): GameStateInfo {
         return transactionFactory.execute {
             val game = gamesRepository.get(gameId)
             game ?: throw GameNotFoundException(gameId)
             if(userID !in game.userToBoards.keys) throw ForbiddenAccessAppException("User $userID is not part of the game $gameId")
-            game.state
+            GameStateInfo(game.state, game.winnerId)
         }
     }
 

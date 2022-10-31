@@ -2,7 +2,9 @@ package pt.isel.daw.battleship.domain
 
 import java.lang.Math.abs
 
-
+/**
+ * Represents a Square
+ */
 data class Square(val row: Row, val column: Column){
     constructor(rowOrdinal: Int, columnOrdinal: Int) : this(Row(rowOrdinal), Column(columnOrdinal))
 }

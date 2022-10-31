@@ -146,8 +146,8 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer1)
-            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer2)
+            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer1.state)
+            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer2.state)
         }
     }
 
@@ -177,8 +177,8 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(Game.State.PLAYING,stateForPlayer1)
-            assertEquals(Game.State.PLAYING,stateForPlayer2 )
+            assertEquals(Game.State.PLAYING,stateForPlayer1.state)
+            assertEquals(Game.State.PLAYING,stateForPlayer2.state )
         }
     }
 
@@ -221,7 +221,7 @@ class GameServicesTests {
     fun ` Leave the queue sucessfully`(){
         testWithTransactionManagerAndRollback {
             val gameService = GameService(it)
-            val user = createUser(it,"test")
+            val user = createUser(it,"testuser")
 
             val joinedGame = gameService.createOrJoinGame(user.uid)
             assertEquals(null,joinedGame)
@@ -234,7 +234,7 @@ class GameServicesTests {
         assertThrows<ForbiddenAccessAppException> {
             testWithTransactionManagerAndRollback {
                 val gameService = GameService(it)
-                val user = createUser(it,"test")
+                val user = createUser(it,"testuser")
 
 
                 gameService.leaveLobby(user.uid)

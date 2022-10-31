@@ -66,9 +66,8 @@ class GameController(
     @GetMapping(Uris.Game.GAME_STATE)
     fun getGameState(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<GameStateInfo> {
         val state = gameService.getGameState(gameID, userID)
-        val gameStateInfo = GameStateInfo(state)
 
-        return gameStateInfo.toSiren(
+        return state.toSiren(
             MethodInfo(Uris.Game.GAME_STATE, GET),
             mapOf("gameId" to gameID.toString())
         )
