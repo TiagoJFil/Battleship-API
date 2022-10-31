@@ -1,0 +1,15 @@
+version: '0.1'
+services:
+  postgresdb:
+    container_name: postgresdb
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgrestests
+      - POSTGRES_PASSWORD=postgrestests
+      - POSTGRES_DB=postgrestests
+    build:
+        context: ..
+        dockerfile: ./src/main/resources/Dockerfile-db
+    ports:
+      - 5432:5432
+    network_mode: "host"

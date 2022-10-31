@@ -1,4 +1,4 @@
-create view GameView as
+create or replace view GameView as
 select g.id,
        gr.boardSide,
        gr.shotsPerTurn,

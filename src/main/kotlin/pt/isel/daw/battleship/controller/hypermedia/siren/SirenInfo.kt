@@ -1,5 +1,8 @@
 package pt.isel.daw.battleship.controller.hypermedia.siren
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+
 data class SirenInfo(
     val name: String,
     val href: String,
@@ -15,12 +18,29 @@ data class SirenInfo(
         type = type,
         title = title
     )
+    private val defaultFields = fields?.map { field ->
+        when(field) {
+            is SirenAction.Field ->  field
+            is SirenAction.ListField<*> -> SirenAction.Field(
+                name = field.name,
+                type = objectMapper.writeValueAsString(field.type),
+                title = field.title,
+                value = field.value
+            )
+        }
+    }
 
     fun toAction() = SirenAction(
         name = name,
         href = href,
         method = method,
         type = type,
-        fields = fields
+        fields = defaultFields
     )
+
+
+    companion object{
+        private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+
+    }
 }

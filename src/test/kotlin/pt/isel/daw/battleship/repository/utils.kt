@@ -17,7 +17,7 @@ import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransactionFactory
 
 private val jdbi = Jdbi.create(
     PGSimpleDataSource().apply {
-        setURL("jdbc:postgresql://localhost:5432/postgres?user=postgres&password=craquesdabola123")
+        setURL("jdbc:postgresql://localhost:5432/DawTests?user=postgres&password=postgres")
         //setURL("jdbc:postgresql://localhost:5432/world?user=postgres&password=docker")
         //setURL("jdbc:postgresql://localhost:49153/postgres?user=postgres&password=postgresw")
     }
@@ -34,17 +34,32 @@ fun JdbiTransactionFactoryTestDB() = object : JdbiTransactionFactory(jdbi) {
                 e.printStackTrace()
 
                 throw InternalErrorAppException()
-            }finally {
-                handle.rollback()
             }
-
         }
     }
 
 }
 
+fun clear(){
+    executeWithHandle { handle ->
+        handle.execute("""
+            delete from board cascade;
+            delete from game cascade;
+            delete from gamerules cascade;
+            delete from shiprules cascade;
+            delete from token  cascade;
+            delete from waitinglobby cascade;
+            delete from "User" cascade;
+            delete from authors  cascade;
+            delete from systeminfo  cascade;
+        """.trimIndent())
+
+    }
+}
+
 fun executeWithHandle(block: (Handle) -> Unit) = jdbi.useTransaction<Exception> { handle ->
     block(handle)
+
 }
 
 fun testWithTransactionManagerAndRollback(block: (TransactionFactory) -> Unit) = jdbi.useTransaction<Exception>

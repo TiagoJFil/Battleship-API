@@ -1,4 +1,4 @@
-create function getGameId() returns int
+create or replace function getGameId() returns int
     language plpgsql
     as $$
 declare
