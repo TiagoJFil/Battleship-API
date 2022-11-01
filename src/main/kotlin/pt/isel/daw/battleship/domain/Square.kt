@@ -4,7 +4,11 @@ import java.lang.Math.abs
 
 typealias Id = Int
 
-data class Square(val row: Row, val column: Column)
+data class Square(val row: Row, val column: Column) {
+    override fun toString(): String {
+        return "(${row.ordinal}, ${column.ordinal})"
+    }
+}
 
 fun Square(rowOrdinal: Int, columnOrdinal: Int) = Square(Row(rowOrdinal), Column(columnOrdinal))
 

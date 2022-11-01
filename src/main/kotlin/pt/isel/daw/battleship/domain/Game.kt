@@ -83,17 +83,16 @@ data class Game(
  * or if the game is not in the [Game.State.PLAYING] state
  */
 fun Game.makePlay(squares: List<Square>): Game {
-    require(state == Game.State.PLAYING) { "Game is not in a playable state." }
+    require(state == Game.State.PLAYING) { "Game is not in a playable state. State=$state" }
 
     if(ranOutOfTimeFor(rules.playTimeout) ) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
-    if(squares.size == rules.shotsPerTurn) throw InvalidParameterException("Invalid number of shots")
+    if (squares.size != rules.shotsPerTurn) throw InvalidParameterException("Invalid number of shots")
 
     val newBoard = oppositeTurnBoard.makeShots(squares)
-    val gameWithNewBoards = this.replaceBoard(oppositeTurnID, newBoard)
-
+    val gameWithNewBoards = replaceBoard(oppositeTurnID, newBoard)
 
     return gameWithNewBoards
         .copy(

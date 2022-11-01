@@ -37,6 +37,11 @@ class GameServicesTests {
         )
     )
 
+    private val validRuleFleet = listOf(
+        ShipInfo(Square(0, 0), 2, Orientation.Vertical),
+        ShipInfo(Square(3, 1), 3, Orientation.Horizontal)
+    )
+
     private fun createUser(transaction: TransactionFactory, name: String): AuthInformation {
         val userService = UserService(transaction)
         return userService.createUser(UserValidation(name, "12346"))
@@ -96,6 +101,8 @@ class GameServicesTests {
             expectedSquares.forEach { square ->
                 assert(square in myBoard.shipParts)
             }
+            assertEquals(emptyList<Square>(), myBoard.shots)
+            assertEquals(emptyList<Square>(), myBoard.hits)
             assertEquals(game.player2, opponentsBoard.userID)
             assertEquals(emptyList<Square>(), opponentsBoard.shipParts)
         }
@@ -166,23 +173,15 @@ class GameServicesTests {
                 return@testWithTransactionManagerAndRollback
             }
 
-            val fleet = listOf(
-                ShipInfo(Square(0, 0), 1, Orientation.Vertical),
-                ShipInfo(Square(2, 1), 2, Orientation.Vertical),
-                ShipInfo(Square(1, 3), 3, Orientation.Horizontal),
-                ShipInfo(Square(4, 3), 4, Orientation.Horizontal),
-                ShipInfo(Square(1, 8), 5, Orientation.Vertical)
-            )
-
-            gameService.defineFleetLayout(game.player1, game.id, fleet)
-            gameService.defineFleetLayout(game.player2, game.id, fleet)
+            gameService.defineFleetLayout(game.player1, game.id, validRuleFleet)
+            gameService.defineFleetLayout(game.player2, game.id, validRuleFleet)
 
             val stateForPlayer1 = gameService.getGameState(game.id, game.player1)
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(Game.State.PLAYING,stateForPlayer1)
-            assertEquals(Game.State.PLAYING,stateForPlayer2 )
+            assertEquals(Game.State.PLAYING, stateForPlayer1)
+            assertEquals(Game.State.PLAYING, stateForPlayer2)
         }
     }
 
@@ -264,21 +263,13 @@ class GameServicesTests {
                 return@testWithTransactionManagerAndRollback
             }
 
-            val fleet = listOf(
-                ShipInfo(Square(0, 0), 1, Orientation.Vertical),
-                ShipInfo(Square(2, 1), 2, Orientation.Vertical),
-                ShipInfo(Square(1, 3), 3, Orientation.Horizontal),
-                ShipInfo(Square(4, 3), 4, Orientation.Horizontal),
-                ShipInfo(Square(1, 8), 5, Orientation.Vertical)
-            )
-
-            gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, fleet)
+            gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
 
             val inBetweenState = gameService.getGameState(gameInfo.id, gameInfo.player1)
 
             assertEquals(inBetweenState, Game.State.PLACING_SHIPS)
 
-            gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, fleet)
+            gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
 
             val stateForPlayer1 = gameService.getGameState(gameInfo.id, gameInfo.player1)
             val stateForPlayer2 = gameService.getGameState(gameInfo.id, gameInfo.player2)
@@ -287,7 +278,7 @@ class GameServicesTests {
             assertEquals(stateForPlayer1, stateForPlayer2)
 
 
-            val squaresToHit = fleet.flatMap { it.getShipSquares() }
+            val squaresToHit = validRuleFleet.flatMap { it.getShipSquares() }
 
             squaresToHit.forEachIndexed { index, square ->
                 gameService.makeShots(gameInfo.player1, gameInfo.id, listOf(square))
@@ -302,8 +293,8 @@ class GameServicesTests {
 
             assertEquals(board.userID, gameInfo.player2)
             assertEquals(board.shipParts, emptyList<Square>())
-            assertEquals(squaresToHit.size, board.shots.size)
-            assertEquals(squaresToHit, board.shots)
+            assertEquals(squaresToHit.size, board.hits.size)
+            assertEquals(squaresToHit, board.hits)
         }
 
     }

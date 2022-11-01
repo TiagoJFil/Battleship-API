@@ -102,9 +102,10 @@ data class Board(val matrix: List<SquareType>) {
         val shotSquareIdx = requireValidIndex(square)
         val isHit = isHit(square)
         val searchResult = if (isHit) searchKnownWaterSquares(square) else null
-        if(matrix[shotSquareIdx] == SquareType.Hit
-                ||
-                matrix[shotSquareIdx] == SquareType.Shot) throw IllegalArgumentException("Square already shot")
+        if (matrix[shotSquareIdx] == SquareType.Hit
+            ||
+            matrix[shotSquareIdx] == SquareType.Shot
+        ) throw IllegalArgumentException("Square $square already shot.")
 
         val squares = when (searchResult) {
             is ClearShipNeighbours ->

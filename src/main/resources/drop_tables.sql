@@ -1,8 +1,8 @@
 drop table board cascade;
-drop table game;
+drop table game cascade;
 drop table shiprules cascade;
 drop table gamerules cascade;
 drop table "User" cascade;
-drop table token;
-drop table systeminfo;
-drop table authors;
+drop table token cascade;
+drop table authors cascade;
+drop table systeminfo cascade;
