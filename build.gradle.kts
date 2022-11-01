@@ -54,4 +54,7 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	// Env Variables for test task
+
+
 }
