@@ -11,8 +11,7 @@ import pt.isel.daw.battleship.controller.hypermedia.ProblemContentType
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenContentType
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.services.entities.AuthInformation
-import pt.isel.daw.battleship.services.entities.GameInformation
-import pt.isel.daw.battleship.utils.ID
+import pt.isel.daw.battleship.services.entities.LobbyInformation
 
 
 fun WebTestClient.createUser(username: String, password: String): AuthInformation {
@@ -32,21 +31,22 @@ fun WebTestClient.createUser(username: String, password: String): AuthInformatio
     return AuthInformation(id!!, token!!)
 }
 
-fun WebTestClient.joinQueue(authToken: String): ID? {
+fun WebTestClient.joinQueue(authToken: String): LobbyInformation? {
     val res = this.post().uri(Uris.Lobby.QUEUE)
         .setAuthToken(authToken)
         .exchange()
         .expectStatus().isOk
         .expectHeader()
         .assertContentTypeSiren()
-        .expectBody<SirenEntity<GameInformation>>()
+        .expectBody<SirenEntity<LobbyInformation>>()
         .returnResult()
         .responseBody!!
 
-    return res.properties?.id
+    return res.properties
 }
 
 
+fun  WebTestClient.RequestHeadersSpec<*>.bearerToken(token: String) = header("Authorization", "Bearer $token")
 
 /**
  * Asserts that the response has the Siren content type.

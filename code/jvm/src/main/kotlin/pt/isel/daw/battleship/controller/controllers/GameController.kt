@@ -1,10 +1,10 @@
 package pt.isel.daw.battleship.controller.controllers
 
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.battleship.controller.*
-import pt.isel.daw.battleship.controller.Method.*
+import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
 import pt.isel.daw.battleship.controller.hypermedia.siren.toSiren
@@ -22,9 +22,9 @@ class GameController(
     @Authentication
     @GetMapping(Uris.Game.MY_FLEET)
     fun getUserFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
-        val board = gameService.getFleet(userID, gameID, opponentFleet = false)
+        val board = gameService.getFleetState(userID, gameID, whichFleet = GameService.Fleet.MY)
         return board.toSiren(
-            MethodInfo(Uris.Game.MY_FLEET, GET),
+            AppEndpointsMetaData.myFleet,
             mapOf("gameId" to gameID.toString()),
         )
     }
@@ -32,10 +32,10 @@ class GameController(
     @Authentication
     @GetMapping(Uris.Game.OPPONENT_FLEET)
     fun getOpponentFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
-        val board = gameService.getFleet(userID, gameID, opponentFleet = true)
+        val board = gameService.getFleetState(userID, gameID, whichFleet = GameService.Fleet.OPPONENT)
 
         return board.toSiren(
-            MethodInfo(Uris.Game.OPPONENT_FLEET, GET),
+            AppEndpointsMetaData.opponentFleet,
             mapOf("gameId" to gameID.toString())
         )
     }
@@ -46,7 +46,7 @@ class GameController(
         gameService.makeShots(userID, gameID, input.shots)
 
        return noEntitySiren(
-            MethodInfo(Uris.Game.SHOTS_DEFINITION, POST),
+            AppEndpointsMetaData.shotsDefinition,
             mapOf("gameId" to gameID.toString())
         )
     }
@@ -57,7 +57,7 @@ class GameController(
         gameService.defineFleetLayout(userID, gameID, input.shipsInfo)
 
         return noEntitySiren(
-            MethodInfo(Uris.Game.LAYOUT_DEFINITION, POST),
+            AppEndpointsMetaData.layoutDefinition,
             mapOf("gameId" to gameID.toString())
         )
     }
@@ -68,7 +68,7 @@ class GameController(
         val state = gameService.getGameState(gameID, userID)
 
         return state.toSiren(
-            MethodInfo(Uris.Game.GAME_STATE, GET),
+            AppEndpointsMetaData.gameState,
             mapOf("gameId" to gameID.toString())
         )
     }

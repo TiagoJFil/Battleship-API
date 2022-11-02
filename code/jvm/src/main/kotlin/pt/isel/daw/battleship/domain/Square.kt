@@ -2,16 +2,12 @@ package pt.isel.daw.battleship.domain
 
 import java.lang.Math.abs
 
-typealias Id = Int
-
-data class Square(val row: Row, val column: Column) {
-    override fun toString(): String {
-        return "(${row.ordinal}, ${column.ordinal})"
-    }
+/**
+ * Represents a Square
+ */
+data class Square(val row: Row, val column: Column){
+    constructor(rowOrdinal: Int, columnOrdinal: Int) : this(Row(rowOrdinal), Column(columnOrdinal))
 }
-
-fun Square(rowOrdinal: Int, columnOrdinal: Int) = Square(Row(rowOrdinal), Column(columnOrdinal))
-
 
 data class Row(val ordinal: Int) {
     operator fun minus(other: Row): Int = ordinal - other.ordinal

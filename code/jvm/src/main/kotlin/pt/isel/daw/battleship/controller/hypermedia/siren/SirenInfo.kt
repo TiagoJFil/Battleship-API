@@ -14,18 +14,22 @@ data class SirenInfo(
     val rel: List<String> = emptyList(),
     val title: String
 ) {
+
     fun toLink() = SirenLink(
         rel = rel,
         href = href,
         type = outContentType,
         title = title
     )
+
     private val defaultFields = fields?.map { field ->
         when(field) {
             is SirenAction.Field ->  field
             is SirenAction.ListField<*> -> SirenAction.Field(
                 name = field.name,
-                type = objectMapper.writeValueAsString(field.type),
+                type = objectMapper.writeValueAsString(field.type)
+                    .filter { it != '\\' && it != '"' }
+                    .removeSurrounding("[", "]"),
                 title = field.title,
                 value = field.value
             )

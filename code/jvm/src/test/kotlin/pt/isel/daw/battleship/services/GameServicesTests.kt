@@ -7,8 +7,10 @@ import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.repository.dto.toDTO
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.entities.AuthInformation
+import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
+import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.ID
@@ -42,12 +44,12 @@ class GameServicesTests {
         ShipInfo(Square(3, 1), 3, Orientation.Horizontal)
     )
 
-    private fun createUser(transaction: TransactionFactory, name: String): AuthInformation {
+    private fun createUser(transaction: TransactionFactory): AuthInformation {
         val userService = UserService(transaction)
-        return userService.createUser(UserValidation(name, "12346"))
+        return userService.createUser(UserValidation("teste", "12346"))
     }
 
-    private fun createGame(transaction: TransactionFactory): TestGameInfo? {
+    private fun createGame(transaction: TransactionFactory): TestGameInfo {
         val userService = UserService(transaction)
         val (uid1, _) = userService.createUser(UserValidation("user_test", "password1"))
         val (uid2, _) = userService.createUser(UserValidation("user_test2", "password1"))
@@ -66,11 +68,6 @@ class GameServicesTests {
         testWithTransactionManagerAndRollback {
             val gameService = GameService(it)
             val game = createGame(it)
-
-            if (game == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
 
 
             val fleet = listOf(
@@ -115,11 +112,6 @@ class GameServicesTests {
                 val gameService = GameService(it)
                 val game = createGame(it)
 
-                if (game == null) {
-                    assert(false)
-                    return@testWithTransactionManagerAndRollback
-                }
-
                 gameService.defineFleetLayout(game.player1, game.id + 1, emptyList())
             }
         }
@@ -132,11 +124,6 @@ class GameServicesTests {
                 val gameService = GameService(it)
                 val game = createGame(it)
 
-                if (game == null) {
-                    assert(false)
-                    return@testWithTransactionManagerAndRollback
-                }
-
                 gameService.defineFleetLayout(game.player2 + 1, game.id, emptyList())
             }
         }
@@ -148,17 +135,15 @@ class GameServicesTests {
             val gameService = GameService(it)
             val game = createGame(it)
 
-            if (game == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
 
             val stateForPlayer1 = gameService.getGameState(game.id, game.player1)
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer1)
-            assertEquals(Game.State.PLACING_SHIPS,stateForPlayer2)
+            val expectedState = GameStateInfo(Game.State.PLACING_SHIPS, null)
+
+            assertEquals(expectedState, stateForPlayer1)
+            assertEquals(expectedState, stateForPlayer2)
         }
     }
 
@@ -168,11 +153,6 @@ class GameServicesTests {
             val gameService = GameService(it)
             val game = createGame(it)
 
-            if (game == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
-
             gameService.defineFleetLayout(game.player1, game.id, validRuleFleet)
             gameService.defineFleetLayout(game.player2, game.id, validRuleFleet)
 
@@ -180,8 +160,7 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(Game.State.PLAYING, stateForPlayer1)
-            assertEquals(Game.State.PLAYING, stateForPlayer2)
+            assertEquals(GameStateInfo(Game.State.PLAYING, null), stateForPlayer1)
         }
     }
 
@@ -191,12 +170,6 @@ class GameServicesTests {
             testWithTransactionManagerAndRollback {
                 val gameService = GameService(it)
                 val game = createGame(it)
-
-                if (game == null) {
-                    assert(false)
-                    return@testWithTransactionManagerAndRollback
-                }
-
                 gameService.getGameState(game.id + 1, game.player1)
             }
         }
@@ -209,46 +182,42 @@ class GameServicesTests {
                 val gameService = GameService(it)
                 val game = createGame(it)
 
-                if (game == null) {
-                    assert(true)
-                    return@testWithTransactionManagerAndRollback
-                }
-
                 gameService.getGameState(game.id, game.player2 + 1)
             }
         }
     }
 
-
     @Test
-    fun ` Leave the queue sucessfully`(){
-        testWithTransactionManagerAndRollback {
-            val gameService = GameService(it)
-            val user = createUser(it,"test")
-
-            val joinedGame = gameService.createOrJoinGame(user.uid)
-            assertEquals(null,joinedGame)
-            gameService.leaveLobby(user.uid)
-        }
-    }
-
-    @Test
-    fun
-
-            `Cant leave the queue if user did not join`() {
+    fun `Cant leave the queue if user did not join`() {
         assertThrows<ForbiddenAccessAppException> {
-            testWithTransactionManagerAndRollback {
-                val gameService = GameService(it)
-                val user = createUser(it, "test")
-
+            testWithTransactionManagerAndRollback { factory ->
+                val gameService = GameService(factory)
+                val user = createUser(factory)
 
                 gameService.leaveLobby(user.uid)
             }
         }
     }
 
+    @Test
+    fun `making a play with an invalid number of shots gives xxxxxxException`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(it)
+            val gameInfo = createGame(it)
 
+            gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
+            gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
 
+            assertThrows<InvalidParameterException> {
+                gameService.makeShots(
+                    userID=gameInfo.player1,
+                    gameId=gameInfo.id,
+                    shots=listOf(Square(0,0), Square(1,0))
+                )
+            }
+
+        }
+    }
 
     @Test
     fun `whole game test`() {
@@ -258,25 +227,19 @@ class GameServicesTests {
             val gameService = GameService(it)
             val gameInfo = createGame(it)
 
-            if (gameInfo == null) {
-                assert(false)
-                return@testWithTransactionManagerAndRollback
-            }
-
             gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
 
             val inBetweenState = gameService.getGameState(gameInfo.id, gameInfo.player1)
 
-            assertEquals(inBetweenState, Game.State.PLACING_SHIPS)
+            assertEquals(GameStateInfo(Game.State.PLACING_SHIPS, null), inBetweenState)
 
             gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
 
             val stateForPlayer1 = gameService.getGameState(gameInfo.id, gameInfo.player1)
             val stateForPlayer2 = gameService.getGameState(gameInfo.id, gameInfo.player2)
 
-            assertEquals(stateForPlayer1, Game.State.PLAYING)
+            assertEquals(GameStateInfo(Game.State.PLAYING, null), stateForPlayer1)
             assertEquals(stateForPlayer1, stateForPlayer2)
-
 
             val squaresToHit = validRuleFleet.flatMap { it.getShipSquares() }
 
@@ -287,7 +250,7 @@ class GameServicesTests {
             }
 
             val stateForPlayer1AfterGame = gameService.getGameState(gameInfo.id, gameInfo.player1)
-            assertEquals(stateForPlayer1AfterGame, Game.State.FINISHED)
+            assertEquals(GameStateInfo(Game.State.FINISHED, gameInfo.player1), stateForPlayer1AfterGame)
 
             val board = gameService.getFleetState(gameInfo.player1, gameInfo.id, GameService.Fleet.OPPONENT)
 

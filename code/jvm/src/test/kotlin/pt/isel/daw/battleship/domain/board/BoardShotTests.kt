@@ -6,6 +6,7 @@ import org.junit.platform.commons.logging.LoggerFactory
 import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.domain.column
 import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.board.BoardTests
 import pt.isel.daw.battleship.domain.makeShots
 import pt.isel.daw.battleship.domain.pretty
 import pt.isel.daw.battleship.domain.row

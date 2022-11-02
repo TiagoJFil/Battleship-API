@@ -1,8 +1,9 @@
-package pt.isel.daw.battleship.board
+package pt.isel.daw.battleship.domain.board
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.platform.commons.logging.LoggerFactory
 import pt.isel.daw.battleship.domain.Column
 import pt.isel.daw.battleship.domain.Row
 import pt.isel.daw.battleship.domain.Square
@@ -18,6 +19,8 @@ class BoardTests {
                 "####" +
                 "####" +
                 "####"
+
+        private val logger = LoggerFactory.getLogger(BoardTests::class.java)
     }
 
     @Test
@@ -153,7 +156,8 @@ class BoardTests {
                 "######"
 
         val board = Board.fromLayout(layout)
-        val finalBoard = board.placeShip(Square(0.row, 0.column),3, Orientation.Horizontal)
+        val ship = ShipInfo(Square(0.row, 0.column),3, Orientation.Horizontal)
+        val finalBoard = board.placeShip(ship)
 
         println(finalBoard)
 
@@ -211,7 +215,10 @@ class BoardTests {
         val board = Board.fromLayout(layout)
         assertThrows<IllegalArgumentException> {
             board.placeShip(
-                Square(Row(0), Column(1)), 2, Orientation.Vertical)
+                ShipInfo(
+                    Square(Row(0), Column(1)), 2, Orientation.Vertical
+                )
+            )
         }
 
     }
@@ -221,7 +228,10 @@ class BoardTests {
         assertThrows<IllegalArgumentException> {
             val board = Board.fromLayout(FOUR_BY_FOUR_EMPTY_LAYOUT)
             board.placeShip(
-                Square(Row(0), Column(3)), 2, Orientation.Horizontal)
+                ShipInfo(
+                    Square(Row(0), Column(3)), 2, Orientation.Horizontal
+                )
+            )
         }
     }
 
@@ -239,9 +249,45 @@ class BoardTests {
         val board = Board.fromLayout(layout)
 
         assertThrows<IllegalArgumentException> {
-            board.placeShip(Square(0.row, 0.column), 3, Orientation.Horizontal)
+            board.placeShip(
+                ShipInfo(
+                    Square(0.row, 0.column), 3, Orientation.Horizontal
+                )
+            )
 
         }
+    }
+
+    @Test
+    fun `get index from square test`(){
+
+        val board = Board.fromLayout(FOUR_BY_FOUR_EMPTY_LAYOUT)
+        val squares = listOf(
+            Square(Row(0), Column(0)),
+            Square(Row(0), Column(1)),
+            Square(Row(0), Column(2)),
+            Square(Row(0), Column(3)),
+            Square(Row(1), Column(0)),
+            Square(Row(1), Column(1)),
+            Square(Row(1), Column(2)),
+            Square(Row(1), Column(3)),
+            Square(Row(2), Column(0)),
+            Square(Row(2), Column(1)),
+            Square(Row(2), Column(2)),
+            Square(Row(2), Column(3)),
+            Square(Row(3), Column(0)),
+            Square(Row(3), Column(1)),
+            Square(Row(3), Column(2)),
+            Square(Row(3), Column(3)),
+        )
+
+        val expected = listOf(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+
+        squares.forEachIndexed { index, square ->
+            logger.info { "index: $index, square: $square" }
+            assertEquals(expected[index], board.getIndexFrom(square))
+        }
+
     }
 
 

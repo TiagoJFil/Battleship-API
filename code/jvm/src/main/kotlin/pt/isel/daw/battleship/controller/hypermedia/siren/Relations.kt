@@ -4,28 +4,45 @@ import org.springframework.web.util.UriTemplate
 import pt.isel.daw.battleship.controller.Method
 import pt.isel.daw.battleship.controller.MethodInfo
 import pt.isel.daw.battleship.controller.Uris
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.cancelQueue
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.gameState
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.layoutDefinition
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.lobbyState
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.login
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.myFleet
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.opponentFleet
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.queue
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.register
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.root
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.shotsDefinition
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.statistics
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.systemInfo
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenAction.*
 
 
-private val root = MethodInfo(Uris.Home.ROOT, Method.GET)
-private val queue = MethodInfo(Uris.Lobby.QUEUE, Method.POST)
-private val cancelQueue = MethodInfo(Uris.Lobby.CANCEL_QUEUE, Method.POST)
-private val login = MethodInfo(Uris.User.LOGIN, Method.POST)
-private val register = MethodInfo(Uris.User.REGISTER, Method.POST)
-private val layoutDefinition = MethodInfo(Uris.Game.LAYOUT_DEFINITION, Method.POST)
-private val opponentFleet = MethodInfo(Uris.Game.OPPONENT_FLEET, Method.GET)
-private val shotsDefinition = MethodInfo(Uris.Game.SHOTS_DEFINITION, Method.POST)
-private val systemInfo = MethodInfo(Uris.Home.SYSTEM_INFO, Method.GET)
-private val statistics = MethodInfo(Uris.Home.STATISTICS, Method.GET)
-private val gameState = MethodInfo(Uris.Game.GAME_STATE, Method.GET)
-private val myFleet = MethodInfo(Uris.Game.MY_FLEET, Method.GET)
 
+object AppEndpointsMetaData{
+
+    val root = MethodInfo(Uris.Home.ROOT, Method.GET)
+    val queue = MethodInfo(Uris.Lobby.QUEUE, Method.POST)
+    val cancelQueue = MethodInfo(Uris.Lobby.CANCEL_QUEUE, Method.POST)
+    val login = MethodInfo(Uris.User.LOGIN, Method.POST)
+    val register = MethodInfo(Uris.User.REGISTER, Method.POST)
+    val layoutDefinition = MethodInfo(Uris.Game.LAYOUT_DEFINITION, Method.POST)
+    val opponentFleet = MethodInfo(Uris.Game.OPPONENT_FLEET, Method.GET)
+    val shotsDefinition = MethodInfo(Uris.Game.SHOTS_DEFINITION, Method.POST)
+    val systemInfo = MethodInfo(Uris.Home.SYSTEM_INFO, Method.GET)
+    val statistics = MethodInfo(Uris.Home.STATISTICS, Method.GET)
+    val gameState = MethodInfo(Uris.Game.GAME_STATE, Method.GET)
+    val myFleet = MethodInfo(Uris.Game.MY_FLEET, Method.GET)
+    val lobbyState = MethodInfo(Uris.Lobby.STATE, Method.GET)
+}
 
 private const val JsonContentType = "application/json"
 
 private val UriActionsRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     root to listOf(
-        register,login
+        register, login
     ),
     queue to listOf(
         cancelQueue, layoutDefinition,
@@ -51,12 +68,12 @@ private val UriActionsRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     gameState to listOf(
         shotsDefinition
     ),
-    shotsDefinition to listOf(
-    ),
-    systemInfo to listOf(
-    ),
-    statistics to listOf(
-    ),
+    shotsDefinition to listOf(),
+    systemInfo to listOf(),
+    statistics to listOf(),
+    lobbyState to listOf(
+        cancelQueue, layoutDefinition
+    )
 )
 
 private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
@@ -64,7 +81,7 @@ private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
         systemInfo, statistics
     ),
     queue to listOf(
-        root, gameState
+        root, gameState, lobbyState
     ),
     cancelQueue to listOf(
     ),
@@ -95,6 +112,7 @@ private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     statistics to listOf(
         root
     ),
+    lobbyState to listOf()
 )
 
 private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
@@ -248,20 +266,30 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         fields = listOf(),
         rel = listOf("statistics"),
         title = "Statistics"
+    ),
+    lobbyState to SirenInfo(
+        name = "lobby-state",
+        href = lobbyState.uri,
+        method = lobbyState.method.name,
+        outContentType = SirenContentType,
+        fields = listOf(),
+        rel = listOf("lobby"),
+        title = "Lobby State"
     )
 )
 
-fun updateHref(uri: String, uriVariables: Map<String, String>?): String {
+fun updateHref(uri: String, uriVariables: Map<String, String?>?): String {
     if (uriVariables.isNullOrEmpty()) return uri
     val template = UriTemplate(uri)
     return template.expand(uriVariables).toString()
 }
 
-fun get(linking: Linking, methodInfo: MethodInfo, uriVariables: Map<String, String>?): List<SirenInfo> {
+fun get(linking: Linking, methodInfo: MethodInfo, uriVariables: Map<String, String?>?): List<SirenInfo> {
     val uriMethodInfoMap = if (linking == Linking.ACTIONS) UriActionsRelationsMap else UriLinksRelationsMap
+
     return uriMethodInfoMap[methodInfo]?.map { rel ->
         val sirenInfo = SirenInfoMap[rel] ?: throw IllegalArgumentException("No sirenInfo found for $rel")
-        val href = updateHref(sirenInfo.href, uriVariables)
+        val href = updateHref(sirenInfo.href, uriVariables?.filter { it.key in sirenInfo.href && it.value != null })
         sirenInfo.copy(href = href)
     } ?: emptyList()
 }
@@ -271,8 +299,9 @@ fun getTitle(methodInfo: MethodInfo): String {
     return SirenInfoMap[methodInfo]?.title ?: throw IllegalArgumentException("No action found for $methodInfo")
 }
 
+// TODO: Adapt actions and links depending on uriVariables
+inline fun <reified T> T.toSiren(methodInfo: MethodInfo, uriVariables: Map<String, String?>? = null): SirenEntity<T> {
 
-inline fun <reified T> T.toSiren(methodInfo: MethodInfo, uriVariables: Map<String, String>? = null): SirenEntity<T> {
     val actions = get(Linking.ACTIONS, methodInfo, uriVariables).map { it.toAction() }
     val links =
         get(

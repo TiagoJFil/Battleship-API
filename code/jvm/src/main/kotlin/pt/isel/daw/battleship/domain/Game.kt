@@ -1,6 +1,5 @@
 package pt.isel.daw.battleship.domain
 
-import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
@@ -11,10 +10,10 @@ import pt.isel.daw.battleship.utils.UserID
 data class Game(
     val id: ID?,
     val state: State,
-    val rules: GameRules = GameRules.DEFAULT,
+    val rules: GameRules,
     val userToBoards: Map<UserID, Board>,
     val turnID: UserID,
-    val lastUpdated : TimeoutTime = System.currentTimeMillis()
+    val lastUpdated: TimeoutTime = System.currentTimeMillis()
 ) {
 
     companion object;
@@ -23,25 +22,31 @@ data class Game(
         val playerBoards = userToBoards.values
 
 
-        require(playerBoards.all { it.side == rules.boardSide }) { "Board's side length is different from the rules" }
-        require(userToBoards.size == 2)
+        requireGameRule(playerBoards.all { it.side == rules.boardSide }) {
+            "Board's side length is different from the rules"
+        }
+
+        require(userToBoards.size == 2){ "Game must have exactly 2 players" }
 
         // Check fleet composition
         if (state == State.PLAYING)
-            check(playerBoards.all { it.fleetComposition == rules.shipRules.fleetComposition })
+            check(playerBoards.all { it.fleetComposition == rules.shipRules.fleetComposition }) {
+                "Fleet composition is different from the rules"
+            }
     }
 
     val oppositeTurnID by afterGameBegins { userToBoards.keys.first { it != turnID } }
 
-    val oppositeTurnBoard: Board by afterGameBegins { userToBoards[oppositeTurnID] ?: error("No board for the opposite turn ID") }
+    val oppositeTurnBoard: Board by afterGameBegins {
+        userToBoards[oppositeTurnID] ?: error("No board for the opposite turn ID")
+    }
 
     val winnerId by
-        lazy {
-            if (state == State.FINISHED) {
-                userToBoards.keys.firstOrNull { userToBoards[it]!!.isFleetDestroyed }
-            } else null
-        }
-
+    lazy {
+        if (state == State.FINISHED) {
+            userToBoards.keys.single{ !userToBoards[it]!!.isInEndGameState() }
+        } else null
+    }
 
 
     /**
@@ -49,13 +54,13 @@ data class Game(
      * @throws IllegalStateException if the game has not yet begun.
      */
     private fun <T> afterGameBegins(initializer: () -> T): Lazy<T> {
-        return lazy{
+        return lazy {
             check(userToBoards.size == 2 && (state == State.PLAYING || state == State.FINISHED)) { "Can't access this property before the game begins." }
             initializer()
         }
     }
 
-     /**
+    /**
      * Represents the possible States of a game.
      */
     enum class State {
@@ -74,13 +79,15 @@ data class Game(
  * or if the game is not in the [Game.State.PLAYING] state
  */
 fun Game.makePlay(squares: List<Square>): Game {
-    require(state == Game.State.PLAYING) { "Game is not in a playable state. State=$state" }
+    requireGameState(Game.State.PLAYING)
 
-    if(ranOutOfTimeFor(rules.playTimeout) ) {
+    if (ranOutOfTimeFor(rules.playTimeout)) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
-    if(squares.size != rules.shotsPerTurn) throw InvalidParameterException("Invalid number of shots")
+    requireGameRule(squares.size == rules.shotsPerTurn){
+        "A play requires exactly ${rules.shotsPerTurn} shots."
+    }
 
     val newBoard = oppositeTurnBoard.makeShots(squares)
     val gameWithNewBoards = replaceBoard(oppositeTurnID, newBoard)
@@ -100,7 +107,7 @@ fun Game.makePlay(squares: List<Square>): Game {
 /**
  * Returns a new fresh game
  */
-fun Game.Companion.new(players: Pair<UserID, UserID>,  rules: GameRules) = Game(
+fun Game.Companion.new(players: Pair<UserID, UserID>, rules: GameRules) = Game(
     id = null,
     state = Game.State.PLACING_SHIPS,
     rules = rules,
@@ -110,12 +117,7 @@ fun Game.Companion.new(players: Pair<UserID, UserID>,  rules: GameRules) = Game(
 )
 
 
-/**
- * Returns true if the game is over
- */
-fun Game.isOver() = state == Game.State.FINISHED
-
-private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - lastUpdated  > timeout
+private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - lastUpdated > timeout
 
 /**
  * Returns a new game after placing the ships on the board
@@ -124,21 +126,26 @@ private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - l
  * @throws IllegalArgumentException if the ship is invalid according to the [Game.rules]
  */
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
-    require(state == Game.State.PLACING_SHIPS) { "It is not the ship placing phase" }
+    requireGameState(Game.State.PLACING_SHIPS)
 
-    if( ranOutOfTimeFor(rules.layoutDefinitionTimeout) ) {
+    if (ranOutOfTimeFor(rules.layoutDefinitionTimeout)) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
     val emptyBoard = Board.empty(this.rules.boardSide)
     val newBoard = emptyBoard.placeShips(shipList)
 
-    if(newBoard.fleetComposition != rules.shipRules.fleetComposition) throw InvalidParameterException("Invalid fleet composition")
+    requireGameRule(newBoard.fleetComposition == rules.shipRules.fleetComposition){
+        "Require the following fleet composition: " +
+        rules.shipRules.fleetComposition.entries.joinToString(", "){
+            "${it.value} boats of ${it.key} squares."
+        }
+    }
 
     val newGameState = this.replaceBoard(playerID, newBoard)
     val hasBothBoardsNotEmpty = newGameState.userToBoards.values.all { it != emptyBoard }
 
-    return if(hasBothBoardsNotEmpty)
+    return if (hasBothBoardsNotEmpty)
         newGameState.copy(state = Game.State.PLAYING, lastUpdated = System.currentTimeMillis())
     else
         newGameState

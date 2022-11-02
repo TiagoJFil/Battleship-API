@@ -16,12 +16,6 @@ create table if not exists "User" (
   password varchar(200) not null
 );
 
-create table if not exists WaitingLobby(
-    id serial primary key,
-    userID int,
-    foreign key (userID) references "User"(id)
-);
-
 create table if not exists token(
     token varchar(255) primary key,
     userID int,
@@ -46,12 +40,19 @@ create table if not exists GameRules (
 create table if not exists Game (
     id serial primary key,
     rules int, foreign key(rules) references GameRules(id),
-    "state" varchar(20) check ("state" like 'placing_ships' or "state" like 'playing' or "state" like 'finished'),
+    "state" varchar(20) check ("state" like 'placing_ships' or "state" like 'playing' or "state" like 'finished' or "state" like 'cancelled'),
     turn int,
     player1 int, foreign key(player1) references "User"(id),
     player2 int, foreign key(player2) references "User"(id),
     lastUpdated timestamp default now(),
     foreign key(turn) references "User"(id)
+);
+
+create table if not exists WaitingLobby(
+   id serial primary key,
+   player1 int, foreign key(player1) references "User"(id),
+   player2 int, foreign key(player2) references "User"(id),
+   gameid int, foreign key(gameid) references Game(id)
 );
 
 create table if not exists Board (
@@ -63,7 +64,5 @@ create table if not exists Board (
     foreign key (userId) references "User"(id)
 );
 commit;
-
-
 
 

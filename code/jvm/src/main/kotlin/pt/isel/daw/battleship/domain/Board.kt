@@ -55,11 +55,8 @@ data class Board(val matrix: List<SquareType>) {
             }
         }
 
-        ships.associate {
-            val shipSize = it.size
-            val shipCount = ships.count{ it.size == shipSize }
-            shipSize to shipCount
-        }
+        ships.groupingBy { it.size }
+            .eachCount()
     }
 
 
@@ -102,10 +99,10 @@ data class Board(val matrix: List<SquareType>) {
         val shotSquareIdx = requireValidIndex(square)
         val isHit = isHit(square)
         val searchResult = if (isHit) searchKnownWaterSquares(square) else null
-        if (matrix[shotSquareIdx] == SquareType.Hit
-            ||
-            matrix[shotSquareIdx] == SquareType.Shot
-        ) throw IllegalArgumentException("Square $square already shot.")
+
+        require(matrix[shotSquareIdx] != SquareType.Hit && matrix[shotSquareIdx] != SquareType.Shot) {
+            "Square $square already shot."
+        }
 
         val squares = when (searchResult) {
             is ClearShipNeighbours ->
@@ -142,7 +139,7 @@ data class Board(val matrix: List<SquareType>) {
         return listOfNotNull(
                 topLDiagonal, topRDiagonal, bottomLDiagonal, bottomRDiagonal
         ).filter {
-            it.row.ordinal >= 0 && it.column.ordinal >= 0
+            isValid(it) && getIndexFrom(it) in matrix.indices
         }
     }
 
@@ -153,7 +150,7 @@ data class Board(val matrix: List<SquareType>) {
     private fun Square.getNeighbours() : List<Square> {
         val axis = this.getAxisNeighbours()
         val diagonals = this.getDiagonals()
-        return axis + diagonals
+        return (axis + diagonals)
     }
 
     /**
@@ -164,8 +161,7 @@ data class Board(val matrix: List<SquareType>) {
     private fun checkForAdjacentShips(shipSquares: List<Square>) {
         val seen = mutableListOf<Square>()
         val unchecked = LinkedList(shipSquares)
-        shipSquares.forEach { seen.add(it) }
-
+        seen.addAll(shipSquares)
 
         while (unchecked.isNotEmpty()) {
             val square = unchecked.removeFirst()
@@ -176,7 +172,6 @@ data class Board(val matrix: List<SquareType>) {
                         throw IllegalArgumentException("Ships cannot be adjacent.")
                     }
                     seen.add(it)
-
                 }
             }
         }
@@ -196,7 +191,7 @@ data class Board(val matrix: List<SquareType>) {
         return listOfNotNull(
             top, bottom, left, right
         ).filter {
-            it.row.ordinal >= 0 && it.column.ordinal >= 0
+            isValid(it) && getIndexFrom(it) in matrix.indices
         }
     }
 
@@ -232,15 +227,15 @@ data class Board(val matrix: List<SquareType>) {
      * @param initialSquare of the ship
      * @return List<Square> containing all the ship parts
      */
-    fun getShipParts(initialSquare: Square): List<Square> {
+    private fun getShipParts(initialSquare: Square): List<Square> {
         val seen = mutableSetOf<Square>(initialSquare)
         val frontier = LinkedList<Square>()
         frontier.add(initialSquare)
 
         while (frontier.isNotEmpty()) {
             val square = frontier.removeFirst()
-            val neighbours = square.getAxisNeighbours()
-            neighbours.filter { sqr ->
+            val neighbours = square.getAxisNeighbours().filter { getIndexFrom(it) in matrix.indices && isValid(it) }
+             neighbours.filter { sqr ->
                 val squareType = matrix[getIndexFrom(sqr)]
                 (squareType == SquareType.ShipPart || squareType == SquareType.Hit) && sqr !in seen
             }.forEach { sqr ->
@@ -256,7 +251,8 @@ data class Board(val matrix: List<SquareType>) {
      * @param square square to check
      * @return [Int] the index of the given square
      */
-    private fun getIndexFrom(square: Square): Int = square.row.ordinal * side + square.column.ordinal
+    fun getIndexFrom(square: Square): Int = square.row.ordinal * side + square.column.ordinal
+
 
     /**
      * Checks if the index from the given square is valid
@@ -265,13 +261,15 @@ data class Board(val matrix: List<SquareType>) {
      * @throws IllegalArgumentException if the square is not in the bounds of the board
      */
     private fun requireValidIndex(square: Square): Int {
-        if( square.row.ordinal  > side || square.column.ordinal > side) {
+        if(!isValid(square)) {
             throw IllegalArgumentException("Square is out of bounds of the board.")
         }
         val index = getIndexFrom(square)
         require(index in matrix.indices) { "The index from the specified tile is not in the bounds of the board" }
         return index
     }
+
+    fun isValid(square: Square) = square.row.ordinal in  0 until side && square.column.ordinal in 0 until side
 
     /**
      * Returns true if the square trying to be shot has a [SquareType.ShipPart] in it
@@ -293,19 +291,19 @@ data class Board(val matrix: List<SquareType>) {
 
     /**
      * Places a ship on the board
-     * @param initialSquare of the ship
-     * @param shipSize
-     * @param orientation Horizontal or Vertical
+     * @param shipInfo the information required to represent a ship in the board
      * @returns [Board] the new board with the ship placed
      * @throws IllegalArgumentException if the square is not in the bounds of the board
      */
-    fun placeShip(initialSquare: Square, shipSize: Int, orientation: Orientation): Board {
+    fun placeShip(shipInfo: ShipInfo): Board {
+        val initialSquare = shipInfo.initialSquare
         requireValidIndex(initialSquare)
 
-        val endSquare = if(orientation == Orientation.Horizontal){
-            Square(initialSquare.row, (initialSquare.column.ordinal + shipSize - 1).column)
+
+        val endSquare = if(shipInfo.orientation == Orientation.Horizontal){
+            Square(initialSquare.row, (initialSquare.column.ordinal + shipInfo.size - 1).column)
         } else {
-            Square((initialSquare.row.ordinal + shipSize - 1).row, initialSquare.column)
+            Square((initialSquare.row.ordinal + shipInfo.size - 1).row, initialSquare.column)
         }
         requireValidIndex(endSquare)
 
@@ -351,10 +349,6 @@ data class Board(val matrix: List<SquareType>) {
     }
 }
 
-//TODO : test this
-val Board.isFleetDestroyed : Boolean
-    get() = fleetComposition.isEmpty()
-
 
 /**
  * Place a fleet on the Board
@@ -363,7 +357,7 @@ val Board.isFleetDestroyed : Boolean
  */
 fun Board.placeShips(shipInfoList : List<ShipInfo>) : Board =
         shipInfoList.fold(this){ acc, shipInfo ->
-            acc.placeShip(shipInfo.initialSquare, shipInfo.size, shipInfo.orientation)
+            acc.placeShip(shipInfo)
         }
 
 /**

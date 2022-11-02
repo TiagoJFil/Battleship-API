@@ -2,6 +2,7 @@ package pt.isel.daw.battleship.repository.dto
 
 import pt.isel.daw.battleship.domain.Board
 import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.utils.UserID
 
 /**
@@ -18,7 +19,7 @@ data class BoardDTO(
 /**
  * Converts a [Board] to a [BoardDTO]
  */
-fun Board.toDTO(userID: UserID): BoardDTO {
+fun Board.toDTO(userID: UserID, fleet: GameService.Fleet): BoardDTO {
 
     data class SquareInfo(val square: Square, val type: Board.SquareType)
 
@@ -32,7 +33,7 @@ fun Board.toDTO(userID: UserID): BoardDTO {
 
     return BoardDTO(
         userID = userID,
-        shipParts = getAllSquaresByType(Board.SquareType.ShipPart),
+        shipParts = if(fleet == GameService.Fleet.MY) getAllSquaresByType(Board.SquareType.ShipPart) else emptyList(),
         shots = getAllSquaresByType(Board.SquareType.Shot),
         hits = getAllSquaresByType(Board.SquareType.Hit),
         boardSide = side

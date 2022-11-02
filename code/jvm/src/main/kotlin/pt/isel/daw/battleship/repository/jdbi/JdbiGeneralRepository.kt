@@ -2,13 +2,11 @@ package pt.isel.daw.battleship.repository.jdbi
 
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
-import org.jdbi.v3.core.mapper.Nested
 import pt.isel.daw.battleship.repository.GeneralRepository
 import pt.isel.daw.battleship.repository.dto.PlayerStatisticDTO
 import pt.isel.daw.battleship.services.entities.GameStatistics
 import pt.isel.daw.battleship.services.entities.PlayerStatistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
-import pt.isel.daw.battleship.utils.ID
 
 class JdbiGeneralRepository(
     private val handle: Handle
@@ -42,8 +40,8 @@ class JdbiGeneralRepository(
             .mapTo<PlayerStatisticDTO>()
             .toList()
 
-        val ranking = rankingDto.mapIndexed {  index, dto ->
-            PlayerStatistics(index,dto.playerId,dto.totalGames,dto.wins)
+        val ranking = rankingDto.mapIndexed { index, dto ->
+            PlayerStatistics(index, dto.playerId, dto.totalGames, dto.wins)
         }
 
         return GameStatistics(numGames, ranking)

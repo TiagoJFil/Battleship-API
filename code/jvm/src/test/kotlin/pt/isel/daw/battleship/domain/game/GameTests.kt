@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pt.isel.daw.battleship.services.secondsToMillis
 import pt.isel.daw.battleship.domain.*
-import pt.isel.daw.battleship.services.exception.InvalidParameterException
 
 
 class GameTests {
@@ -39,7 +38,7 @@ class GameTests {
 
         val game = Game(0, Game.State.PLAYING, rules = testGameRules, boards, 0)
 
-        assertThrows<InvalidParameterException> {
+        assertThrows<GameRuleViolationException> {
             game.makePlay(listOf(Square(0, 0), Square(1, 0)))
         }
 
@@ -54,7 +53,7 @@ class GameTests {
                                                                  "#####" +
                                                                  "#####") }
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<GameRuleViolationException> {
             Game(0, Game.State.PLAYING, rules = testGameRules, boards, 0)
         }
 
@@ -124,7 +123,7 @@ class GameTests {
     }
 
     @Test
-    fun `Starting a game with a board that does not respect the rules fails`(){
+    fun `Starting a game with a board that does not respect the fleet composition fails`(){
         val invalidLayout = "###B" +
                            "#B##" +
                            "#B##" +
@@ -133,7 +132,7 @@ class GameTests {
         val invalidBoard = Board.fromLayout(invalidLayout)
         val validBoard = Board.fromLayout(testBoardLayout)
 
-        assertThrows<IndexOutOfBoundsException> {
+        assertThrows<IllegalStateException> {
             Game(0, Game.State.PLAYING, rules= testGameRules, userToBoards = mapOf(1 to validBoard, 2 to invalidBoard), turnID= 2)
         }
     }

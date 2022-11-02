@@ -25,8 +25,8 @@ import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.repository.*
 import pt.isel.daw.battleship.repository.dto.BoardDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
-import pt.isel.daw.battleship.services.entities.GameInformation
 import pt.isel.daw.battleship.services.entities.GameStateInfo
+import pt.isel.daw.battleship.services.entities.LobbyInformation
 import pt.isel.daw.battleship.utils.ID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -75,7 +75,6 @@ class GameControllerTests {
             return
         }
 
-
         assert(board.shipParts.isEmpty())
         assert(board.shots.isEmpty())
 
@@ -115,7 +114,7 @@ class GameControllerTests {
     @Test
     fun `A user tries to get the fleet of a game that isn't his and it fails with problem`() {
         val usersCreation = createPlayers("player1", "player2") ?: return
-        val gameID = enterLobby(usersCreation) ?: return
+        enterLobby(usersCreation) ?: return
 
         val usersCreation2 = createPlayers("player3", "player4") ?: return
         val gameID2 = enterLobby(usersCreation2) ?: return
@@ -191,7 +190,7 @@ class GameControllerTests {
         client.post().uri("/game/0/layoutDefinition")
             .bodyValue(fleetJson)
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer ${usersCreation.player1.token}")
+            .bearerToken(usersCreation.player1.token)
             .exchange()
             .expectStatus().isNotFound
             .expectHeader()
@@ -203,7 +202,7 @@ class GameControllerTests {
     fun `define a fleet with invalid token fails with problem`() {
         val usersCreation = createPlayers("player1", "player2") ?: return
         val userCreation2 = createPlayers("player3", "player4") ?: return
-        val gameID = enterLobby(usersCreation) ?: return
+        enterLobby(usersCreation) ?: return
         val gameID2 = enterLobby(userCreation2) ?: return
 
         val fleet = LayoutInfoInputModel(
@@ -217,7 +216,7 @@ class GameControllerTests {
         client.post().uri("/game/$gameID2/layoutDefinition")
             .bodyValue(fleetJson)
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer 0invalid0?!xd«?")
+            .bearerToken("0invalid0?!xd«?")
             .exchange()
             .expectStatus().isUnauthorized
             .expectHeader()
@@ -229,7 +228,7 @@ class GameControllerTests {
     fun `A user tries to define the fleet of a game that isn't his and it fails with problem`(){
         val usersCreation = createPlayers("player1", "player2") ?: return
         val userCreation2 = createPlayers("player3", "player4") ?: return
-        val gameID = enterLobby(usersCreation) ?: return
+        enterLobby(usersCreation) ?: return
         val gameID2 = enterLobby(userCreation2) ?: return
 
         val fleet = LayoutInfoInputModel(
@@ -243,7 +242,7 @@ class GameControllerTests {
         client.post().uri("/game/$gameID2/layoutDefinition")
             .bodyValue(fleetJson)
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer ${usersCreation.player1.token}")
+            .bearerToken(usersCreation.player1.token)
             .exchange()
             .expectStatus().isForbidden
             .expectHeader()
@@ -271,7 +270,7 @@ class GameControllerTests {
         client.post().uri("/game/$gameID/shotsDefinition")
             .bodyValue(shotsJson)
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer ${usersCreation.player1.token}")
+            .bearerToken(usersCreation.player1.token)
             .exchange()
             .expectBody<SirenEntity<Nothing>>()
 
@@ -323,7 +322,7 @@ class GameControllerTests {
 
         val gameInfo = client.get().uri("/game/$gameID/state")
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer ${usersCreation.player1.token}")
+            .bearerToken(usersCreation.player1.token)
             .exchange()
             .expectHeader()
             .assertContentTypeSiren()
@@ -363,14 +362,14 @@ class GameControllerTests {
         client.post().uri("${Uris.Lobby.QUEUE}/")
             .assertAndEnterLobby(usersCreation.player1.token)
 
-        val gameInfo = client.post().uri("${Uris.Lobby.QUEUE}/")
+        val lobbyInfo = client.post().uri("${Uris.Lobby.QUEUE}/")
             .assertAndEnterLobby(usersCreation.player2.token)
 
-        return if (gameInfo == null) {
+        return if (lobbyInfo == null) {
             assert(false)
             null
         } else {
-            gameInfo.id
+            lobbyInfo.gameID
         }
     }
 
@@ -384,13 +383,13 @@ class GameControllerTests {
             .expectBody<SirenEntity<BoardDTO>>()
             .returnResult().responseBody?.properties
 
-    private fun WebTestClient.RequestHeadersSpec<*>.assertAndEnterLobby(userToken: String): GameInformation? {
+    private fun WebTestClient.RequestHeadersSpec<*>.assertAndEnterLobby(userToken: String): LobbyInformation? {
         return header("Content-Type", "application/json")
-            .header("Authorization", "Bearer $userToken")
+            .bearerToken(userToken)
             .exchange()
             .expectHeader()
             .assertContentTypeSiren()
-            .expectBody<SirenEntity<GameInformation>>()
+            .expectBody<SirenEntity<LobbyInformation>>()
             .returnResult().responseBody?.properties
     }
 
@@ -413,7 +412,7 @@ class GameControllerTests {
     private fun WebTestClient.RequestBodySpec.assertAndDefineFleet(fleetJson: String, userToken: String){
         bodyValue(fleetJson)
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer $userToken")
+            .bearerToken(userToken)
             .exchange()
             .expectBody<SirenEntity<Nothing>>()
     }

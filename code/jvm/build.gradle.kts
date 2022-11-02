@@ -62,7 +62,7 @@ tasks.withType<Test> {
 tasks.test {
 	environment(
 		mapOf(
-			"JDBC_TEST_DATABASE" to "jdbc:postgresql://localhost/testDB?user=postgres&password=postgres}"
+			"JDBC_TEST_DATABASE_URL" to "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=craquesdabola123"
 		)
 	)
 }
