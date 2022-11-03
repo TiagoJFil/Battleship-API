@@ -15,7 +15,7 @@ interface UserRepository {
      * @param hashedPassword the hashed password of the user
      * @return the [ID] of the new user or null if the user already exists
      */
-    fun addUser(userName: String, userAuthToken: UserToken, hashedPassword: String): UserID?
+    fun addUser(userName: String, userAuthToken: UserToken, hashedPassword: String, salt: String): UserID?
 
     /**
      * Verifies whether the given name is already in use by another user.
@@ -27,10 +27,19 @@ interface UserRepository {
     /**
      * Checks if the given username and password are valid.
      * @param userName the name of the user
-     * @param hashedPassword the hashed password of the user
+     * @param hashAndSaltedPassword the hashed and salted password of the user
      * @return the [ID] of the user if the credentials are valid, null otherwise
      */
-    fun loginUser(userName: String, hashedPassword: String): AuthInformation?
+    fun verifyUserCredentials(userName: String, hashAndSaltedPassword: String): AuthInformation?
+
+    /**
+     * Gets a [User]'s salt.
+     * @param userName the name of the user
+     * @return the salt of the user if the user exists, null otherwise
+     */
+    fun getUserSalt(userName: String): String
+
+
 
     /**
      * Gets the [ID] of the user with the given token.

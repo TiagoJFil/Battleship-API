@@ -56,21 +56,8 @@ class GameService(
                 return@execute LobbyInformation(lobbyID, null)
             }
 
-            val presentationGameRules = GameRules(
-                shotsPerTurn = 1,
-                boardSide = 10,
-                playTimeout = 99999999,
-                layoutDefinitionTimeout = 999999999,
-                shipRules=GameRules.ShipRules(
-                    name="Presentation",
-                    fleetComposition = mapOf(
-                        2 to 1,
-                        1 to 1
-                    )
-                )
-            )
 
-            val newGame = Game.new(lobbyDto.player1 to userID, presentationGameRules)
+            val newGame = Game.new(lobbyDto.player1 to userID, GameRules.DEFAULT)
             val gameID = gamesRepository.persist(newGame.toDTO())
 
             if (!lobbyRepository.completeLobby(lobbyDto.id, userID, gameID))

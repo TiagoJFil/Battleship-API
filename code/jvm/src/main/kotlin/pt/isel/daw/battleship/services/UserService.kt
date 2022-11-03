@@ -6,9 +6,6 @@ import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.UserID
-import pt.isel.daw.battleship.utils.UserToken
-import pt.isel.daw.battleship.utils.services.generateUUId
-import java.util.*
 
 @Service
 class UserService(
@@ -30,14 +27,20 @@ class UserService(
                 throw UserAlreadyExistsException(userValidation.username)
 
             val generatedToken = generateUUId()
+
+            val salt = generateSalt()
+            val hashedPassword = hashPassword(userValidation.password, salt)
+
             val userID = userRepository.addUser(
                 userValidation.username,
                 generatedToken,
-                userValidation.passwordHash
+                hashedPassword,
+                salt
             ) ?: throw InternalErrorAppException()
 
             AuthInformation(userID, generatedToken)
         }
+
 
     /**
      * Verifies the user's credentials and returns the information need to perform authorized actions.
@@ -51,9 +54,13 @@ class UserService(
             if(!userRepository.hasUser(userValidation.username))
                     throw UserNotFoundException(userValidation.username)
 
-            userRepository.loginUser(
+            val salt = userRepository.getUserSalt(userValidation.username)
+
+            val hashedAndSaltedPassword = hashPassword(userValidation.password, salt)
+
+            userRepository.verifyUserCredentials(
                 userValidation.username,
-                userValidation.passwordHash
+                hashedAndSaltedPassword
             ) ?: throw InvalidParameterException("Invalid username or password")
         }
 

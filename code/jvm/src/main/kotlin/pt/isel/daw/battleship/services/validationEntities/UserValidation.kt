@@ -1,6 +1,5 @@
 package pt.isel.daw.battleship.services.validationEntities
 
-import pt.isel.daw.battleship.services.hashPassword
 import pt.isel.daw.battleship.services.requireParameter
 
 /**
@@ -15,7 +14,7 @@ class UserValidation(
 ) {
 
     val username: String
-    val passwordHash: String
+    val password: String
 
     init {
         val safeUsername = requireParameter(username, "username")
@@ -27,7 +26,7 @@ class UserValidation(
         requireParameter(safeUsername.length <= 30) { "Username must be at most 30 characters long" }
 
         this.username = safeUsername
-        this.passwordHash = hashPassword(safePassword)
+        this.password = safePassword
     }
 
 }

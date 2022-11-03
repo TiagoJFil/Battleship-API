@@ -3,13 +3,36 @@ package pt.isel.daw.battleship.services
 import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.services.exception.MissingParameterException
 import java.security.MessageDigest
+import java.security.SecureRandom
 import java.time.Duration
+import java.util.*
 
 private val digest = MessageDigest.getInstance("SHA-512") // "SHA-512"
 
 fun ByteArray.toHex(): String = joinToString("") { "%02x".format(it) }
 
-fun hashPassword(password: String): String = digest.digest(password.toByteArray()).toHex()
+/**
+ * Hashes the password using SHA-512 with the given salt.
+ */
+fun hashPassword(password: String, salt: String): String {
+    val passPlusSalt = password + salt
+    return digest.digest(passPlusSalt.toByteArray()).toHex()
+}
+
+/**
+ * Generates a random UUID.
+ */
+fun generateUUId() = UUID.randomUUID().toString()
+
+/**
+ * Generates a random Salt for the password.
+ */
+fun generateSalt(): String {
+    val random = SecureRandom()
+    val salt = ByteArray(32)
+    random.nextBytes(salt)
+    return salt.toString()
+}
 
 /**
  * @param parameter the parameter to check.

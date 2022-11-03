@@ -2,45 +2,55 @@ package pt.isel.daw.battleship.controller.interceptors
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import org.springframework.web.method.HandlerMethod
+import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import pt.isel.daw.battleship.controller.hypermedia.Problem
+import org.springframework.web.util.ContentCachingRequestWrapper
+import org.springframework.web.util.ContentCachingResponseWrapper
+import java.io.IOException
+import java.io.UnsupportedEncodingException
+import javax.servlet.FilterChain
+import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.HttpServletResponseWrapper
+
+
 
 @Component
-class InfoInterceptor: HandlerInterceptor {
-
-    private var startTime: Long = 0
-
-    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-
-        val paramsString = request.parameterMap.map { "${it.key}=${it.value[0]}" }.joinToString("&")
-        val bodyString = "test" //TODO: get body somehow, maybe with a wrapper
-
-        startTime = System.currentTimeMillis()
-        logger.info("Request received: ${request.method} ${request.requestURI} with parameters [$paramsString] and body [$bodyString]")
-        return super.preHandle(request, response, handler)
-    }
-
-    override fun postHandle(
+class LoggingFilter : OncePerRequestFilter() {
+    @Throws(ServletException::class, IOException::class)
+    override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        handler: Any,
-        modelAndView: ModelAndView?
+        filterChain: FilterChain
     ) {
+        val requestWrapper = ContentCachingRequestWrapper(request)
+        val startTime = System.currentTimeMillis()
+        filterChain.doFilter(requestWrapper, response)
+        val timeTaken = System.currentTimeMillis() - startTime
+        val requestBody = getStringValue(
+            requestWrapper.contentAsByteArray,
+            request.characterEncoding
+        )
+        val paramsString = request.parameterMap.map { "${it.key}=${it.value[0]}" }.joinToString("&")
 
-        val endTime = System.currentTimeMillis()
-        val elapsedTime = endTime - startTime
-        logger.info("Request from ${request.requestURI} took $elapsedTime ms")
-        super.postHandle(request, response, handler, modelAndView)
+        LOGGER.info(
+            "Request ${request.method} on ${request.requestURI} took $timeTaken millis with params: |$paramsString| and body: |$requestBody|",
+
+        )
     }
 
-    companion object{
-        private val logger = LoggerFactory.getLogger(ResponseEntityExceptionHandler::class.java)
+    private fun getStringValue(contentAsByteArray: ByteArray, characterEncoding: String): String {
+        try {
+            return String(contentAsByteArray, charset(characterEncoding))
+        } catch (e: UnsupportedEncodingException) {
+            e.printStackTrace()
+        }
+        return ""
     }
 
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(LoggingFilter::class.java)
+    }
 }
