@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.api
+package pt.isel.daw.battleship.integration
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -7,14 +7,9 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
-import org.springframework.http.HttpStatus
-import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
 import pt.isel.daw.battleship.controller.Uris
-import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.repository.*
-import pt.isel.daw.battleship.services.entities.AuthInformation
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerTests {
@@ -69,7 +64,7 @@ class UserControllerTests {
 
     @Test
     fun `creating a user with a repeated username returns 409`(){
-        val auth = client.createUser("test1","testad1")
+        client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.REGISTER)
             .bodyValue("""{"username":"test1","password":"testad1"}""")
@@ -98,7 +93,7 @@ class UserControllerTests {
 
     @Test
     fun `try to log in with invalid credentials`(){
-        val auth = client.createUser("test1","testad1")
+        client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.LOGIN)
             .bodyValue("""{"username":"test1","password":"testad2"}""")
@@ -111,7 +106,7 @@ class UserControllerTests {
 
     @Test
     fun `try to log in with invalid username`(){
-        val auth = client.createUser("test1","testad1")
+        client.createUser("test1","testad1")
 
         client.post().uri(Uris.User.LOGIN)
             .bodyValue("""{"username":"test2","password":"testad1"}""")

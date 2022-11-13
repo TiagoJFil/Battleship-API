@@ -163,4 +163,136 @@ class GameTests {
 
     }
 
+    @Test
+    fun `taking too much time to placeships cancels the game`(){
+
+        val specificGameRules = GameRules(
+            shotsPerTurn = 1,
+            boardSide=4,
+            playTimeout= secondsToMillis(60),
+            layoutDefinitionTimeout = secondsToMillis(0),
+            GameRules.ShipRules(
+                "test", mapOf(2 to 1)
+            )
+        )
+
+        val testBoard = Board.fromLayout(emptyBoard)
+        val lastUpdated = System.currentTimeMillis() - secondsToMillis(1000)
+
+        val game = Game.new(1 to 2, specificGameRules)
+            .copy(id=0, lastUpdated = lastUpdated)
+            .placeShips(listOf(ShipInfo(Square(1,1), 2, Orientation.Vertical)), 1)
+
+        val expectedGame = Game(
+                0,
+                Game.State.CANCELLED,
+                rules= specificGameRules,
+                userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+                turnID= 1,
+                lastUpdated = lastUpdated
+            )
+
+        assertEquals(expectedGame, game)
+    }
+
+    @Test
+    fun `taking too much time to play cancels the game`(){
+
+        val specificGameRules = GameRules(
+            shotsPerTurn = 1,
+            boardSide=4,
+            playTimeout= secondsToMillis(0),
+            layoutDefinitionTimeout = secondsToMillis(60),
+            GameRules.ShipRules(
+                "test", mapOf(2 to 1)
+            )
+        )
+
+        val validBoardLayout =
+                "####" +
+                "#B##" +
+                "#B##" +
+                "####"
+
+        val testBoard = Board.fromLayout(validBoardLayout)
+        val lastUpdated = System.currentTimeMillis() - secondsToMillis(1000)
+
+        val game = Game(
+            id=0,
+            state= Game.State.PLAYING,
+            rules= specificGameRules,
+            userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+            turnID= 1,
+            lastUpdated = lastUpdated
+        ).makePlay(listOf(Square(0,0)))
+
+        val expectedGame = Game(
+            0,
+            Game.State.CANCELLED,
+            rules= specificGameRules,
+            userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+            turnID= 1,
+            lastUpdated = lastUpdated
+        )
+
+        assertEquals(expectedGame, game)
+    }
+
+    @Test
+    fun `Place ships with invalid fleet composition throws GameRuleViolationException`(){
+
+        val specificGameRules = GameRules(
+            shotsPerTurn = 1,
+            boardSide=4,
+            playTimeout= secondsToMillis(60),
+            layoutDefinitionTimeout = secondsToMillis(60),
+            GameRules.ShipRules(
+                "test", mapOf(2 to 1)
+            )
+        )
+
+
+
+        assertThrows<GameRuleViolationException> {
+            Game.new(1 to 2, specificGameRules)
+                .copy(id=0)
+                .placeShips(listOf(ShipInfo(Square(1,1), 1, Orientation.Vertical)), 1)
+        }
+
+    }
+
+    @Test
+    fun `try to play with the game in place_ships state returns IllegalGameStateException`(){
+
+        assertThrows<IllegalGameStateException> {
+            Game.new(1 to 2, testGameRules)
+                .copy(id=0)
+                .makePlay(listOf(Square(1,1)))
+        }
+
+    }
+
+    @Test
+    fun `try to place_ships with the game in PLAYING state returns IllegalGameStateException`(){
+
+            val validBoardLayout =
+                    "####" +
+                    "#B##" +
+                    "#B##" +
+                    "####"
+
+            val testBoard = Board.fromLayout(validBoardLayout)
+
+            assertThrows<IllegalGameStateException> {
+                Game(
+                    id=0,
+                    state= Game.State.PLAYING,
+                    rules= testGameRules,
+                    userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+                    turnID= 1
+                ).placeShips(listOf(ShipInfo(Square(1,1), 2, Orientation.Vertical)), 1)
+            }
+
+    }
+
 }

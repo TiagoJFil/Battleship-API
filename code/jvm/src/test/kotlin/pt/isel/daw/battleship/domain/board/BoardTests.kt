@@ -120,7 +120,7 @@ class BoardTests {
 
         val board = Board.fromLayout(layout)
 
-        assertEquals("#BX#O####BBX#O#O", board.toString())
+        assertEquals("#BX#O####BBX#O#O", board.toLayout())
     }
 
     @Test
@@ -287,6 +287,39 @@ class BoardTests {
             logger.info { "index: $index, square: $square" }
             assertEquals(expected[index], board.getIndexFrom(square))
         }
+
+    }
+
+    @Test
+    fun `SquareType toString gives the same as the representation`(){
+        val expected = Board.SquareType.values().associateWith { it.representation.toString() }
+        val actual = Board.SquareType.values().associateWith { it.toString() }
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `getting the layout from a board with hiddenShips gives back a board with only water`(){
+
+        val layout =
+                "######" +
+                "######" +
+                "##BBB#" +
+                "######" +
+                "#B####" +
+                "#B####"
+
+        val board = Board.fromLayout(layout)
+
+        val expected =
+                "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######" +
+                "######"
+
+
+        assertEquals(expected, board.toLayout(hiddenShips = true))
 
     }
 

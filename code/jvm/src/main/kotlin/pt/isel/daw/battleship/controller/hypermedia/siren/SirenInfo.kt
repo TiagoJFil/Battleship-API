@@ -1,8 +1,5 @@
 package pt.isel.daw.battleship.controller.hypermedia.siren
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-
 data class SirenInfo(
     val name: String,
     val href: String,

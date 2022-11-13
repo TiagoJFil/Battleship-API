@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.api
+package pt.isel.daw.battleship.integration
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -89,7 +89,6 @@ class RootControllerTests {
             .returnResult()
             .responseBody
         assert(ranking?.properties?.nGames == 0)
-
     }
 
 

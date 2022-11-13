@@ -43,8 +43,8 @@ fun Game.toDTO() = GameDTO(
     turn = turnID,
     player1 = userToBoards.keys.firstOrNull(),
     player2 = userToBoards.keys.lastOrNull(),
-    boardP1 = userToBoards.values.firstOrNull()?.toString(),
-    boardP2 = userToBoards.values.lastOrNull()?.toString(),
+    boardP1 = userToBoards.values.firstOrNull()?.toLayout(),
+    boardP2 = userToBoards.values.lastOrNull()?.toLayout(),
     lastUpdated = Timestamp(lastUpdated)
 )
 

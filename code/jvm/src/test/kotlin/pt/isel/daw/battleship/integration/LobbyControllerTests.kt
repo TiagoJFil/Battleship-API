@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.api
+package pt.isel.daw.battleship.integration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail

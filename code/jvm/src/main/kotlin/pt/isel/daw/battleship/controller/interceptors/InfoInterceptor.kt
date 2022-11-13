@@ -3,11 +3,7 @@ package pt.isel.daw.battleship.controller.interceptors
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import org.springframework.web.servlet.HandlerInterceptor
-import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import org.springframework.web.util.ContentCachingRequestWrapper
-import org.springframework.web.util.ContentCachingResponseWrapper
 import java.io.IOException
 import java.io.UnsupportedEncodingException
 import javax.servlet.FilterChain
@@ -37,7 +33,6 @@ class LoggingFilter : OncePerRequestFilter() {
 
         LOGGER.info(
             "Request ${request.method} on ${request.requestURI} took $timeTaken millis with params: |$paramsString| and body: |$requestBody|",
-
         )
     }
 

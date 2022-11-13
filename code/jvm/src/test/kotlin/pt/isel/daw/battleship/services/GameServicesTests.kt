@@ -10,7 +10,6 @@ import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.services.exception.ForbiddenAccessAppException
 import pt.isel.daw.battleship.services.exception.GameNotFoundException
-import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.ID
@@ -251,7 +250,7 @@ class GameServicesTests {
     }
 
     @Test
-    fun `making a play with an invalid number of shots gives xxxxxxException`(){
+    fun `making a play with an invalid number of shots gives GameRuleViolationException`(){
         testWithTransactionManagerAndRollback {
             val gameService = GameService(this)
             val gameInfo = createGame()
@@ -259,7 +258,7 @@ class GameServicesTests {
             gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
             gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
 
-            assertThrows<InvalidParameterException> {
+            assertThrows<GameRuleViolationException> {
                 gameService.makeShots(
                     userID=gameInfo.player1,
                     gameId=gameInfo.id,

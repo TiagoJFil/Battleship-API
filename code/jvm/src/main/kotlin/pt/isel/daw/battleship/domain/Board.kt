@@ -327,26 +327,18 @@ data class Board(val matrix: List<SquareType>) {
      * @param hiddenShips 
      * @return [String] representation of the board
      */
-    fun toString(hiddenShips : Boolean = false): String {
-        val method: (SquareType) -> String =
-                if (hiddenShips) {
-                    {
-                        if (it == SquareType.ShipPart) SquareType.Water.toString()
-                        else it.toString()
-                    }
-                } else {
-                    { it.representation.toString() }
-                }
+    fun toLayout(hiddenShips : Boolean = false): String = matrix.joinToString("") {
+            if (hiddenShips && it == SquareType.ShipPart)
+                SquareType.Water.toString()
+            else
+                it.toString()
+        }
 
-        return matrix.joinToString("") { method(it) }
-    }
 
     /**
      * @return [String] representation of the Board
      */
-    override fun toString(): String {
-        return toString(false)
-    }
+    fun toLayout(): String = toLayout(false)
 }
 
 
@@ -417,6 +409,6 @@ fun Board.Companion.empty(boardSide: Int) = Board(
  * Returns a String with a human-readable representation of the board
  * @return [String]
  */
-fun Board.pretty() = toString().chunked(this.side).joinToString("\n")
+fun Board.pretty() = toLayout().chunked(this.side).joinToString("\n")
 
 
