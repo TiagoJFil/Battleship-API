@@ -274,10 +274,19 @@ class GameControllerTests {
             .exchange()
             .expectBody<SirenEntity<Nothing>>()
 
-        val board = client.get().uri("/game/$gameID/opponentFleet")
+        val oppFleetFromP1 = client.get().uri("/game/$gameID/opponentFleet")
             .assertAndGetBoard(usersCreation.player1.token)
 
-        if(board == null) {
+        val p2Fleet = client.get().uri("/game/$gameID/myFleet")
+            .assertAndGetBoard(usersCreation.player2.token)
+
+
+        if(oppFleetFromP1 == null) {
+            assert(false)
+            return
+        }
+
+        if(p2Fleet == null) {
             assert(false)
             return
         }
@@ -307,10 +316,10 @@ class GameControllerTests {
 
         //assertEquals(usersCreation.player2.uid, board.userID)
         expectedShipSquares.forEach { square ->
-            assert(square in board.shipParts)
+            assert(square in p2Fleet.shipParts)
         }
         expectedShotsSquares.forEach { square ->
-            assert(square in board.shots)
+            assert(square in oppFleetFromP1.shots)
         }
 
     }

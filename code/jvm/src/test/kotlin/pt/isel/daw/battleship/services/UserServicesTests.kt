@@ -13,7 +13,7 @@ class UserServicesTests {
     @Test
     fun `create a user successfully and authenticate after to confirm it`() {
         testWithTransactionManagerAndRollback {
-            val userService = UserService(it)
+            val userService = UserService(this)
             val (uid, token) = userService.createUser(UserValidation("user_test", "password1"))
             val userID = userService.getUserIDFromToken(token)
 
@@ -31,7 +31,7 @@ class UserServicesTests {
     @Test
     fun `cant create a user that has a weak password`(){
         testWithTransactionManagerAndRollback {
-            val userService = UserService(it)
+            val userService = UserService(this)
             assertThrows<InvalidParameterException> {
                 userService.createUser(UserValidation("user_test", "123"))
             }
@@ -41,7 +41,7 @@ class UserServicesTests {
     @Test
     fun `cant create a user with a very large username`(){
         testWithTransactionManagerAndRollback {
-            val userService = UserService(it)
+            val userService = UserService(this)
             assertThrows<InvalidParameterException> {
                 userService.createUser(UserValidation("abcdefghabcdeghabcdeghabcdeghabcdeghabcdegh","password1"))
             }
@@ -52,7 +52,7 @@ class UserServicesTests {
     fun `create a user that already exists fails and throws UserAlreadyExistsException`() {
         assertThrows<UserAlreadyExistsException> {
             testWithTransactionManagerAndRollback {
-                val userService = UserService(it)
+                val userService = UserService(this)
                 userService.createUser(UserValidation("user_test", "password1"))
                 userService.createUser(UserValidation("user_test", "password1"))
             }

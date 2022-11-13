@@ -44,17 +44,17 @@ class GameServicesTests {
         ShipInfo(Square(3, 1), 3, Orientation.Horizontal)
     )
 
-    private fun createUser(transaction: TransactionFactory): AuthInformation {
-        val userService = UserService(transaction)
-        return userService.createUser(UserValidation("teste", "12346"))
+    private fun TransactionFactory.createUser(name: String): AuthInformation {
+        val userService = UserService(this)
+        return userService.createUser(UserValidation(name, "12346"))
     }
 
-    private fun createGame(transaction: TransactionFactory): TestGameInfo {
-        val userService = UserService(transaction)
+    private fun TransactionFactory.createGame(): TestGameInfo {
+        val userService = UserService(this)
         val (uid1, _) = userService.createUser(UserValidation("user_test", "password1"))
         val (uid2, _) = userService.createUser(UserValidation("user_test2", "password1"))
 
-        val gameID = transaction.execute {
+        val gameID = this.execute {
             gamesRepository.persist(
                 Game.new(uid1 to uid2, testGameRules).toDTO()
             )
@@ -66,8 +66,8 @@ class GameServicesTests {
     @Test
     fun `define a board layout in a game successfully`() {
         testWithTransactionManagerAndRollback {
-            val gameService = GameService(it)
-            val game = createGame(it)
+            val gameService = GameService(this)
+            val game = createGame()
 
 
             val fleet = listOf(
@@ -109,8 +109,8 @@ class GameServicesTests {
     fun `define a board layout in a game that doesn't exist`() {
         assertThrows<GameNotFoundException> {
             testWithTransactionManagerAndRollback {
-                val gameService = GameService(it)
-                val game = createGame(it)
+                val gameService = GameService(this)
+                val game = createGame()
 
                 gameService.defineFleetLayout(game.player1, game.id + 1, emptyList())
             }
@@ -121,8 +121,8 @@ class GameServicesTests {
     fun `define a board layout in a game that doesn't belong to the user`() {
         assertThrows<ForbiddenAccessAppException> {
             testWithTransactionManagerAndRollback {
-                val gameService = GameService(it)
-                val game = createGame(it)
+                val gameService = GameService(this)
+                val game = createGame()
 
                 gameService.defineFleetLayout(game.player2 + 1, game.id, emptyList())
             }
@@ -132,8 +132,8 @@ class GameServicesTests {
     @Test
     fun `Get the state of a game successfully after two players matched`() {
         testWithTransactionManagerAndRollback {
-            val gameService = GameService(it)
-            val game = createGame(it)
+            val gameService = GameService(this)
+            val game = createGame()
 
 
             val stateForPlayer1 = gameService.getGameState(game.id, game.player1)
@@ -150,8 +150,8 @@ class GameServicesTests {
     @Test
     fun `Get the state of a game sucessfully after two player define their layouts`(){
         testWithTransactionManagerAndRollback {
-            val gameService = GameService(it)
-            val game = createGame(it)
+            val gameService = GameService(this)
+            val game = createGame()
 
             gameService.defineFleetLayout(game.player1, game.id, validRuleFleet)
             gameService.defineFleetLayout(game.player2, game.id, validRuleFleet)
@@ -168,8 +168,8 @@ class GameServicesTests {
     fun `Get the state of a game that doesn't exist`() {
         assertThrows<GameNotFoundException> {
             testWithTransactionManagerAndRollback {
-                val gameService = GameService(it)
-                val game = createGame(it)
+                val gameService = GameService(this)
+                val game = createGame()
                 gameService.getGameState(game.id + 1, game.player1)
             }
         }
@@ -179,8 +179,8 @@ class GameServicesTests {
     fun `Get the state of a game that doesn't belong to the user`() {
         assertThrows<ForbiddenAccessAppException> {
             testWithTransactionManagerAndRollback {
-                val gameService = GameService(it)
-                val game = createGame(it)
+                val gameService = GameService(this)
+                val game = createGame()
 
                 gameService.getGameState(game.id, game.player2 + 1)
             }
@@ -190,9 +190,9 @@ class GameServicesTests {
     @Test
     fun `Cant leave the queue if user did not join`() {
         assertThrows<ForbiddenAccessAppException> {
-            testWithTransactionManagerAndRollback { factory ->
-                val gameService = GameService(factory)
-                val user = createUser(factory)
+            testWithTransactionManagerAndRollback {
+                val gameService = GameService(this)
+                val user = createUser("abasdd")
 
                 gameService.leaveLobby(user.uid)
             }
@@ -200,10 +200,61 @@ class GameServicesTests {
     }
 
     @Test
+    fun `Get into the queue successfully`() {
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(this)
+
+            val user = createUser("abasdasd")
+
+            val res =gameService.enqueue(user.uid)
+
+            val queue = gameService.getMyLobbyState(user.uid,res.id)
+
+            assertEquals(null, queue.gameID)
+        }
+    }
+
+    @Test
+    fun `Join a game sucessfully with the queue`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(this)
+
+            val user = createUser("asssss")
+            val user2 = createUser("aaaaaa")
+
+            val res =gameService.enqueue(user.uid)
+            val res2 =gameService.enqueue(user2.uid)
+
+            val queue = gameService.getMyLobbyState(user.uid,res.id)
+            val queue2 = gameService.getMyLobbyState(user2.uid,res2.id)
+
+            assert(queue.gameID != null)
+            assert(queue2.gameID != null)
+
+            assertEquals(queue.gameID, queue2.gameID)
+        }
+    }
+
+    @Test
+    fun `Same user joins the queue twice`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(this)
+
+            val user = createUser("abcdde")
+
+            val res1 =gameService.enqueue(user.uid)
+            val res2 =gameService.enqueue(user.uid)
+            assert(res1.id != res2.id)
+            assert(res1.gameID == null)
+            assert(res2.gameID == null)
+        }
+    }
+
+    @Test
     fun `making a play with an invalid number of shots gives xxxxxxException`(){
         testWithTransactionManagerAndRollback {
-            val gameService = GameService(it)
-            val gameInfo = createGame(it)
+            val gameService = GameService(this)
+            val gameInfo = createGame()
 
             gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
             gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
@@ -224,8 +275,8 @@ class GameServicesTests {
 
         testWithTransactionManagerAndRollback {
 
-            val gameService = GameService(it)
-            val gameInfo = createGame(it)
+            val gameService = GameService(this)
+            val gameInfo = createGame()
 
             gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
 

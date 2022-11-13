@@ -26,7 +26,12 @@ interface LobbyRepository {
     fun removePlayerFromLobby(userID: UserID): Boolean
 
 
-    fun findWaitingLobby(): LobbyDTO?
+    /**
+     * Gets the first lobby in the waiting list where the given [UserID] is not present.
+     * @param userID The player's ID.
+     * @return [LobbyDTO]
+     */
+    fun findWaitingLobby(userID: UserID): LobbyDTO?
 
 
     fun get(lobbyId: ID): LobbyDTO?

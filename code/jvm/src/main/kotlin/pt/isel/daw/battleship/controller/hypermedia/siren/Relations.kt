@@ -152,28 +152,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         outContentType = SirenContentType,
         inContentType = JsonContentType,
         fields = listOf(
-            ListField(
-                name = "shipInfo",
-                type = listOf(
-                    listOf(
-                        ListField(
-                            name = "initialSquare",
-                            type = listOf(
-                                Field("row", "number"),
-                                Field("column", "number")
-                            )
-                        ),
-                        Field(
-                            name = "size",
-                            type = "number"
-                        ),
-                        Field(
-                            name = "orientation",
-                            type = "string"
-                        )
-                    )
-                )
-            ),
+            Field(name = "shipInfoList", type= "shipinfolist")
         ),
         rel = listOf("place-ships"),
         title = "Place Ships"
@@ -211,13 +190,7 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         outContentType = SirenContentType,
         inContentType = JsonContentType,
         fields = listOf(
-            ListField(
-                name = "shots",
-                type = listOf(
-                    Field("row", "number"),
-                    Field("column", "number")
-                )
-            )
+           Field(name = "shotlist", type = "shotlist"),
         ),
         rel = listOf("shots"),
         title = "Shots"

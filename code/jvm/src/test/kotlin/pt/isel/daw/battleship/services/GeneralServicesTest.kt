@@ -9,7 +9,7 @@ class GeneralServicesTest {
     @Test
     fun `getSystemInfo returns the correct system info`() {
         testWithTransactionManagerAndRollback {
-            val generalService = GeneralService(it)
+            val generalService = GeneralService(this)
 
             val systemInfo = generalService.getSystemInfo()
             assertEquals(systemInfo.authors.sortedBy { it.name }.map { it.name },
@@ -23,7 +23,7 @@ class GeneralServicesTest {
     @Test
     fun `get statistics returns the correct statistics`() {
         testWithTransactionManagerAndRollback {
-            val generalService = GeneralService(it)
+            val generalService = GeneralService(this)
 
             val statistics = generalService.getStatistics()
 

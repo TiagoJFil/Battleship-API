@@ -49,7 +49,7 @@ class GameService(
      */
     fun enqueue(userID: UserID) =
         transactionFactory.execute {
-            val lobbyDto = lobbyRepository.findWaitingLobby()
+            val lobbyDto = lobbyRepository.findWaitingLobby(userID)
 
             if (lobbyDto == null) {
                 val lobbyID = lobbyRepository.createLobby(userID)

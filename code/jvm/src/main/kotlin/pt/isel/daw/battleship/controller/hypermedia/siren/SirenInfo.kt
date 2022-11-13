@@ -10,7 +10,7 @@ data class SirenInfo(
     val outContentType: String? = null,
 
     val inContentType: String? = null,
-    val fields: List<SirenAction.FieldType>? = null,
+    val fields: List<SirenAction.Field>? = null,
     val rel: List<String> = emptyList(),
     val title: String
 ) {
@@ -22,31 +22,14 @@ data class SirenInfo(
         title = title
     )
 
-    private val defaultFields = fields?.map { field ->
-        when(field) {
-            is SirenAction.Field ->  field
-            is SirenAction.ListField<*> -> SirenAction.Field(
-                name = field.name,
-                type = objectMapper.writeValueAsString(field.type)
-                    .filter { it != '\\' && it != '"' }
-                    .removeSurrounding("[", "]"),
-                title = field.title,
-                value = field.value
-            )
-        }
-    }
 
     fun toAction() = SirenAction(
         name = name,
         href = href,
         method = method,
         type = inContentType,
-        fields = defaultFields
+        fields = fields
     )
 
 
-    companion object{
-        private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
-
-    }
 }

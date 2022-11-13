@@ -47,10 +47,13 @@ class JdbiLobbyRepository(
     }
 
     /**
-     * Gets the first lobby in the waiting list.
+     * Gets the first lobby in the waiting list where the given [UserID] is not present.
+     * @param userID The player's ID.
+     * @return [LobbyDTO]
      */
-    override fun findWaitingLobby(): LobbyDTO? {
-        return handle.createQuery("SELECT * FROM waitinglobby WHERE player2 IS NULL")
+    override fun findWaitingLobby(userID: UserID): LobbyDTO? {
+        return handle.createQuery("SELECT * FROM waitinglobby WHERE player2 IS NULL and player1 <> :userID")
+            .bind("userID", userID)
             .mapTo(LobbyDTO::class.java)
             .findFirst()
             .orElse(null)

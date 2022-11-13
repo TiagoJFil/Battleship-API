@@ -54,7 +54,6 @@ data class SirenAction(
     val type: String? = null,
     val fields: List<Field>? = null
 ) {
-    sealed class FieldType
 
     /**
      * Represents action's fields
@@ -65,15 +64,8 @@ data class SirenAction(
         val type: String? = null,
         val value: String? = null,
         val title: String? = null
-    ): FieldType()
+    )
 
-    @JsonInclude(NON_NULL)
-     data class ListField<T>(
-        val name: String,
-        val type: List<T>? = null,
-        val value: String? = null,
-        val title: String? = null
-    ): FieldType()
 }
 
 @JsonInclude(NON_NULL)
