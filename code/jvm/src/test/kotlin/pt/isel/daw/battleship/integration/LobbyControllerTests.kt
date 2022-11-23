@@ -149,7 +149,7 @@ class LobbyControllerTests {
 
         val lobbyInfoPlayer1 = client.joinQueue(player1Info.token) ?: fail()
 
-        client.get().uri("/lobby/${lobbyInfoPlayer1.id}")
+        client.get().uri(Uris.Lobby.STATE, lobbyInfoPlayer1.id)
             .setAuthToken(player2Info.token)
             .exchange()
             .expectStatus().isForbidden
