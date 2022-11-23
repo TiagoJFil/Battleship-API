@@ -3,18 +3,14 @@ package pt.isel.daw.battleship.controller.hypermedia.siren
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.springframework.http.MediaType
 
 private const val APPLICATION_TYPE = "application"
 private const val SIREN_SUBTYPE = "vnd.siren+json"
 
-
-const val SirenContentType = "$APPLICATION_TYPE/$SIREN_SUBTYPE"
-
 /**
  * For details regarding the Siren media type, see <a href="https://github.com/kevinswiber/siren">Siren</a>
  */
-val SirenMediaType = MediaType.valueOf(SirenContentType)
+const val SirenContentType = "$APPLICATION_TYPE/$SIREN_SUBTYPE"
 
 /**
  * Gets a Siren self link for the given URI

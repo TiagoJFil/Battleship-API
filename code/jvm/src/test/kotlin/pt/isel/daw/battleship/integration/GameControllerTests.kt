@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import pt.isel.daw.battleship.controller.Uris
+import pt.isel.daw.battleship.controller.dto.BoardDTO
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.UserInfoInputModel
@@ -24,7 +25,6 @@ import pt.isel.daw.battleship.domain.ShipInfo
 import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.repository.JdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.clear
-import pt.isel.daw.battleship.repository.dto.BoardDTO
 import pt.isel.daw.battleship.repository.executeWithHandle
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.entities.GameStateInfo

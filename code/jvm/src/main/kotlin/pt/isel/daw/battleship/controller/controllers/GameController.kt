@@ -3,13 +3,13 @@ package pt.isel.daw.battleship.controller.controllers
 import noEntitySiren
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.battleship.controller.Uris
+import pt.isel.daw.battleship.controller.dto.BoardDTO
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
 import pt.isel.daw.battleship.controller.hypermedia.siren.AppSirenNavigation
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.siren.appToSiren
 import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
-import pt.isel.daw.battleship.repository.dto.BoardDTO
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.utils.UserID
