@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import java.net.URI
 
 private const val APPLICATION_TYPE = "application"
 private const val SIREN_SUBTYPE = "vnd.siren+json"
@@ -18,16 +16,13 @@ const val SirenContentType = "$APPLICATION_TYPE/$SIREN_SUBTYPE"
  */
 val SirenMediaType = MediaType.valueOf(SirenContentType)
 
-fun ResponseEntity.BodyBuilder.setSirenHeader() = contentType(SirenMediaType)
-
 /**
  * Gets a Siren self link for the given URI
  *
  * @param uri   the string with the self URI
  * @return the resulting siren link
  */
-@JsonInclude(NON_NULL)
-fun selfLink(uri: String) = SirenLink(rel = listOf("self"), href = uri)
+@JsonInclude(NON_NULL)fun selfLink(uri: String) = SirenLink(rel = listOf("self"), href = uri)
 
 /**
  * Class whose instances represent links as they are represented in Siren.
@@ -89,8 +84,8 @@ data class EmbeddedLink(
     @JsonProperty("class")
     val clazz: List<String>? = null,
     val rel: List<String>,
-    val href: URI,
-    val type: MediaType? = null,
+    val href: String,
+    val type: String? = null,
     val title: String? = null
 ) : SubEntity()
 

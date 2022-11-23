@@ -7,6 +7,7 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import pt.isel.daw.battleship.repository.jdbi.configure
 
+
 @SpringBootApplication
 class BattleshipApplication {
 

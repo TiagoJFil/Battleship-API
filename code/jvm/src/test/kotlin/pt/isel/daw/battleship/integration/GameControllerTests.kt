@@ -22,8 +22,10 @@ import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.Orientation
 import pt.isel.daw.battleship.domain.ShipInfo
 import pt.isel.daw.battleship.domain.Square
-import pt.isel.daw.battleship.repository.*
+import pt.isel.daw.battleship.repository.JdbiTransactionFactoryTestDB
+import pt.isel.daw.battleship.repository.clear
 import pt.isel.daw.battleship.repository.dto.BoardDTO
+import pt.isel.daw.battleship.repository.executeWithHandle
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.services.entities.LobbyInformation
@@ -64,10 +66,10 @@ class GameControllerTests {
         val usersCreation = createPlayers("player1", "player2") ?: return
         val gameID = enterLobby(usersCreation) ?: return
 
-        val board = client.get().uri("/game/$gameID/myFleet")
+        val board = client.get().uri(Uris.Game.FLEET, gameID, "my")
             .assertAndGetBoard(usersCreation.player1.token)
 
-        val boardOpponent = client.get().uri("/game/$gameID/opponentFleet")
+        val boardOpponent = client.get().uri(Uris.Game.FLEET, gameID, "opponent")
             .assertAndGetBoard(usersCreation.player2.token)
 
         if (board == null || boardOpponent == null) {
@@ -86,7 +88,7 @@ class GameControllerTests {
     fun `get user's and opponent fleet with invalid game id fails with problem`() {
         val usersCreation = createPlayers("player1", "player2") ?: return
 
-        client.get().uri("/game/0/myFleet")
+        client.get().uri(Uris.Game.FLEET, 0, "my")
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer ${usersCreation.player1.token}")
             .exchange()
@@ -101,7 +103,7 @@ class GameControllerTests {
         val usersCreation = createPlayers("player1", "player2") ?: return
         val gameID = enterLobby(usersCreation) ?: return
 
-        client.get().uri("/game/$gameID/myFleet")
+        client.get().uri(Uris.Game.FLEET, gameID, "my")
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer 0invalid0?!xd«?")
             .exchange()
@@ -119,7 +121,7 @@ class GameControllerTests {
         val usersCreation2 = createPlayers("player3", "player4") ?: return
         val gameID2 = enterLobby(usersCreation2) ?: return
 
-        client.get().uri("/game/$gameID2/myFleet")
+        client.get().uri(Uris.Game.FLEET, gameID2, "my")
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer ${usersCreation.player1.token}")
             .exchange()
@@ -136,11 +138,11 @@ class GameControllerTests {
 
         val fleetJson = objectMapper.writeValueAsString(defaultFleet)
 
-        client.post().uri("/game/$gameID/layoutDefinition")
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
             .assertAndDefineFleet(fleetJson, usersCreation.player1.token)
 
 
-        val board = client.get().uri("/game/$gameID/myFleet")
+        val board = client.get().uri(Uris.Game.FLEET, gameID, "my")
             .assertAndGetBoard(usersCreation.player1.token)
 
 
@@ -187,7 +189,7 @@ class GameControllerTests {
 
         val fleetJson = objectMapper.writeValueAsString(fleet)
 
-        client.post().uri("/game/0/layoutDefinition")
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, 0)
             .bodyValue(fleetJson)
             .header("Content-Type", "application/json")
             .bearerToken(usersCreation.player1.token)
@@ -213,7 +215,7 @@ class GameControllerTests {
 
         val fleetJson = objectMapper.writeValueAsString(fleet)
 
-        client.post().uri("/game/$gameID2/layoutDefinition")
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID2)
             .bodyValue(fleetJson)
             .header("Content-Type", "application/json")
             .bearerToken("0invalid0?!xd«?")
@@ -229,7 +231,7 @@ class GameControllerTests {
         val usersCreation = createPlayers("player1", "player2") ?: return
         val userCreation2 = createPlayers("player3", "player4") ?: return
         enterLobby(usersCreation) ?: return
-        val gameID2 = enterLobby(userCreation2) ?: return
+        val gameID = enterLobby(userCreation2) ?: return
 
         val fleet = LayoutInfoInputModel(
             listOf(
@@ -239,7 +241,8 @@ class GameControllerTests {
 
         val fleetJson = objectMapper.writeValueAsString(fleet)
 
-        client.post().uri("/game/$gameID2/layoutDefinition")
+
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
             .bodyValue(fleetJson)
             .header("Content-Type", "application/json")
             .bearerToken(usersCreation.player1.token)
@@ -257,27 +260,27 @@ class GameControllerTests {
 
         val fleetJson = objectMapper.writeValueAsString(defaultFleet)
 
-        client.post().uri("/game/$gameID/layoutDefinition")
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
             .assertAndDefineFleet(fleetJson, usersCreation.player1.token)
 
-        client.post().uri("/game/$gameID/layoutDefinition")
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
             .assertAndDefineFleet(fleetJson, usersCreation.player2.token)
 
         val shots = ShotsInfoInputModel(
             listOf(Square(0, 0))
         )
         val shotsJson = objectMapper.writeValueAsString(shots)
-        client.post().uri("/game/$gameID/shotsDefinition")
+        client.post().uri(Uris.Game.SHOTS_DEFINITION, gameID)
             .bodyValue(shotsJson)
             .header("Content-Type", "application/json")
             .bearerToken(usersCreation.player1.token)
             .exchange()
             .expectBody<SirenEntity<Nothing>>()
 
-        val oppFleetFromP1 = client.get().uri("/game/$gameID/opponentFleet")
+        val oppFleetFromP1 = client.get().uri(Uris.Game.FLEET, gameID, "opponent")
             .assertAndGetBoard(usersCreation.player1.token)
 
-        val p2Fleet = client.get().uri("/game/$gameID/myFleet")
+        val p2Fleet = client.get().uri(Uris.Game.FLEET, gameID, "my")
             .assertAndGetBoard(usersCreation.player2.token)
 
 
@@ -329,7 +332,7 @@ class GameControllerTests {
         val usersCreation = createPlayers("player1", "player2") ?: return
         val gameID = enterLobby(usersCreation) ?: return
 
-        val gameInfo = client.get().uri("/game/$gameID/state")
+        val gameInfo = client.get().uri(Uris.Game.STATE, gameID)
             .header("Content-Type", "application/json")
             .bearerToken(usersCreation.player1.token)
             .exchange()

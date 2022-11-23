@@ -1,18 +1,19 @@
 package pt.isel.daw.battleship.controller.controllers
 
+import noEntitySiren
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
-import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppSirenNavigation
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
-import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
-import pt.isel.daw.battleship.controller.hypermedia.siren.toSiren
+import pt.isel.daw.battleship.controller.hypermedia.siren.appToSiren
 import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
 import pt.isel.daw.battleship.repository.dto.BoardDTO
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.utils.UserID
+import siren_navigation.builders.NoEntitySiren
 
 @RestController
 class GameController(
@@ -20,56 +21,53 @@ class GameController(
 ) {
 
     @Authentication
-    @GetMapping(Uris.Game.MY_FLEET)
-    fun getUserFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
-        val board = gameService.getFleetState(userID, gameID, whichFleet = GameService.Fleet.MY)
-        return board.toSiren(
-            AppEndpointsMetaData.myFleet,
-            mapOf("gameId" to gameID.toString()),
-        )
-    }
-
-    @Authentication
-    @GetMapping(Uris.Game.OPPONENT_FLEET)
-    fun getOpponentFleet(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<BoardDTO> {
-        val board = gameService.getFleetState(userID, gameID, whichFleet = GameService.Fleet.OPPONENT)
-
-        return board.toSiren(
-            AppEndpointsMetaData.opponentFleet,
-            mapOf("gameId" to gameID.toString())
-        )
+    @GetMapping(Uris.Game.FLEET)
+    fun getFleetState(
+        @PathVariable("gameId") gameID: Int,
+        userID: UserID,
+        @PathVariable("whichFleet") fleet: String
+    ): SirenEntity<BoardDTO> {
+        val board = gameService.getFleetState(userID, gameID, whichFleet = fleet)
+        return board.appToSiren(AppSirenNavigation.FLEET_NODE_KEY, mapOf("gameId" to gameID.toString()))
     }
 
     @Authentication
     @PostMapping(Uris.Game.SHOTS_DEFINITION)
-    fun defineShots(@PathVariable("gameId") gameID: Int, userID: UserID, @RequestBody input: ShotsInfoInputModel): SirenEntity<Nothing> {
+    fun defineShots(
+        @PathVariable("gameId") gameID: Int,
+        userID: UserID,
+        @RequestBody input: ShotsInfoInputModel
+    ): SirenEntity<NoEntitySiren> {
         gameService.makeShots(userID, gameID, input.shots)
 
-       return noEntitySiren(
-            AppEndpointsMetaData.shotsDefinition,
-            mapOf("gameId" to gameID.toString())
+        // How to proceed - TODO: The type is not the same as the one in the graph (NoEntitySiren vs. GameState)
+
+        return noEntitySiren(
+            AppSirenNavigation.graph,
+            AppSirenNavigation.SHOTS_DEFINITION_NODE_KEY
         )
+
     }
 
     @Authentication
     @PostMapping(Uris.Game.LAYOUT_DEFINITION)
-    fun defineLayout(@PathVariable("gameId") gameID: Int, userID: UserID, @RequestBody input: LayoutInfoInputModel): SirenEntity<Nothing> {
+    fun defineLayout(
+        @PathVariable("gameId") gameID: Int,
+        userID: UserID,
+        @RequestBody input: LayoutInfoInputModel
+    ): SirenEntity<NoEntitySiren> {
         gameService.defineFleetLayout(userID, gameID, input.shipsInfo)
 
         return noEntitySiren(
-            AppEndpointsMetaData.layoutDefinition,
-            mapOf("gameId" to gameID.toString())
+            AppSirenNavigation.graph,
+            AppSirenNavigation.DEFINE_LAYOUT_NODE_ID
         )
     }
 
     @Authentication
-    @GetMapping(Uris.Game.GAME_STATE)
+    @GetMapping(Uris.Game.STATE)
     fun getGameState(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<GameStateInfo> {
         val state = gameService.getGameState(gameID, userID)
-
-        return state.toSiren(
-            AppEndpointsMetaData.gameState,
-            mapOf("gameId" to gameID.toString())
-        )
+        return state.appToSiren(AppSirenNavigation.GAME_STATE_NODE_KEY)
     }
 }

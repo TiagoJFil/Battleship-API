@@ -15,6 +15,7 @@ import pt.isel.daw.battleship.controller.hypermedia.ProblemContentType
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.repository.*
 import pt.isel.daw.battleship.services.entities.GameStatistics
+import siren_navigation.builders.NoEntitySiren
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RootControllerTests {
@@ -50,7 +51,7 @@ class RootControllerTests {
             .expectStatus().isNotFound
             .expectHeader()
             .value("content-type") {
-                assertTrue(it.equals("application/problem+json"))
+                assertTrue(it.equals(ProblemContentType))
             }
     }
 
@@ -80,7 +81,7 @@ class RootControllerTests {
 
     @Test
     fun `get user ranking without any games played`(){
-        val ranking = client.get().uri(Uris.Home.STATISTICS)
+        client.get().uri(Uris.Home.STATISTICS)
             .exchange()
             .expectStatus().isOk
             .expectHeader()
@@ -88,21 +89,19 @@ class RootControllerTests {
             .expectBody<SirenEntity<GameStatistics>>()
             .returnResult()
             .responseBody
-        assert(ranking?.properties?.nGames == 0)
     }
 
 
     @Test
     fun `Get home representation`(){
-        val res = client.get().uri(Uris.Home.ROOT)
+        client.get().uri(Uris.Home.ROOT)
             .exchange()
             .expectStatus().isOk
             .expectHeader()
             .assertContentTypeSiren()
-            .expectBody<SirenEntity<Nothing>>()
+            .expectBody<SirenEntity<NoEntitySiren>>()
             .returnResult()
             .responseBody
-        assert(res?.links?.size == 3)
     }
 
 

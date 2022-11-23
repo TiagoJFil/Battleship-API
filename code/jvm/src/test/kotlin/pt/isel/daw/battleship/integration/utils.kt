@@ -35,7 +35,7 @@ fun WebTestClient.joinQueue(authToken: String): LobbyInformation? {
     val res = this.post().uri(Uris.Lobby.QUEUE)
         .setAuthToken(authToken)
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isCreated
         .expectHeader()
         .assertContentTypeSiren()
         .expectBody<SirenEntity<LobbyInformation>>()

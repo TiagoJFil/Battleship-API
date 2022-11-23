@@ -131,16 +131,24 @@ class GameService(
      * @param whichFleet the fleet to be retrieved
      * @return [BoardDTO]
      */
-    fun getFleetState(userID: UserID, gameId: ID, whichFleet: Fleet): BoardDTO {
+    fun getFleetState(userID: UserID, gameId: ID, whichFleet: String): BoardDTO {
         return transactionFactory.execute {
             val game = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             game.userToBoards[userID] ?: throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
-            val fleetOwnerID = when (whichFleet) {
+
+            val fleetState = when (whichFleet) {
+                "my" -> Fleet.MY
+                "opponent" -> Fleet.OPPONENT
+                else -> throw NotFoundAppException("Fleet $whichFleet not found")
+            }
+
+            val fleetOwnerID = when (fleetState) {
                 Fleet.MY -> userID
                 Fleet.OPPONENT -> game.userToBoards.keys.first { it != userID }
             }
+
             val board = game.userToBoards[fleetOwnerID] ?: throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
-            return@execute board.toDTO(fleetOwnerID, whichFleet)
+            return@execute board.toDTO(fleetOwnerID, fleetState)
         }
     }
 

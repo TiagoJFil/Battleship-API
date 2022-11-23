@@ -1,3 +1,4 @@
+
 package pt.isel.daw.battleship.domain
 
 import pt.isel.daw.battleship.utils.ID

@@ -82,8 +82,8 @@ class GameServicesTests {
              */
 
             gameService.defineFleetLayout(game.player1, game.id, fleet)
-            val myBoard = gameService.getFleetState(game.player1, game.id, GameService.Fleet.MY)
-            val opponentsBoard = gameService.getFleetState(game.player1, game.id, GameService.Fleet.OPPONENT)
+            val myBoard = gameService.getFleetState(game.player1, game.id, "my")
+            val opponentsBoard = gameService.getFleetState(game.player1, game.id, "opponent")
 
             val expectedSquares = listOf<Square>(
                 Square(0, 0),
@@ -302,7 +302,7 @@ class GameServicesTests {
             val stateForPlayer1AfterGame = gameService.getGameState(gameInfo.id, gameInfo.player1)
             assertEquals(GameStateInfo(Game.State.FINISHED, gameInfo.player1), stateForPlayer1AfterGame)
 
-            val board = gameService.getFleetState(gameInfo.player1, gameInfo.id, GameService.Fleet.OPPONENT)
+            val board = gameService.getFleetState(gameInfo.player1, gameInfo.id, GameService.Fleet.OPPONENT.toString().lowercase())
 
             assertEquals(board.userID, gameInfo.player2)
             assertEquals(board.shipParts, emptyList<Square>())
