@@ -12,6 +12,7 @@ object Uris {
 
     object User {
         private const val ROOT = "/user"
+        const val HOME = "/my"
         const val LOGIN = "$ROOT/login"
         const val REGISTER = ROOT
     }

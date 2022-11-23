@@ -7,6 +7,7 @@ import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
+import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
 import pt.isel.daw.battleship.services.GeneralService
 import pt.isel.daw.battleship.services.entities.GameStatistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
@@ -15,6 +16,7 @@ import pt.isel.daw.battleship.services.entities.SystemInfo
 class RootController(
     val generalService: GeneralService
 ) {
+    @Authentication
     @GetMapping(Uris.Home.ROOT)
     fun getHomeInfo() = noEntitySiren(AppEndpointsMetaData.root)
 

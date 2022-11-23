@@ -17,6 +17,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.r
 import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.shotsDefinition
 import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.statistics
 import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.systemInfo
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppEndpointsMetaData.userRoot
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenAction.*
 
 
@@ -24,6 +25,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.SirenAction.*
 object AppEndpointsMetaData{
 
     val root = MethodInfo(Uris.Home.ROOT, Method.GET)
+    val userRoot = MethodInfo(Uris.User.HOME, Method.GET)
     val queue = MethodInfo(Uris.Lobby.QUEUE, Method.POST)
     val cancelQueue = MethodInfo(Uris.Lobby.CANCEL_QUEUE, Method.POST)
     val login = MethodInfo(Uris.User.LOGIN, Method.POST)
@@ -44,8 +46,11 @@ private val UriActionsRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     root to listOf(
         register, login
     ),
+    userRoot to listOf(
+        queue
+    ),
     queue to listOf(
-        cancelQueue, layoutDefinition,
+        cancelQueue
     ),
     cancelQueue to listOf(
         queue
@@ -80,16 +85,19 @@ private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     root to listOf(
         systemInfo, statistics
     ),
+    userRoot to listOf(
+        statistics, systemInfo
+    ),
     queue to listOf(
-        root, gameState, lobbyState
+        root, lobbyState
     ),
     cancelQueue to listOf(
     ),
     login to listOf(
-        root
+        userRoot
     ),
     register to listOf(
-        root
+        userRoot
     ),
     layoutDefinition to listOf(
         gameState, myFleet, opponentFleet
@@ -106,10 +114,10 @@ private val UriLinksRelationsMap = mutableMapOf<MethodInfo, List<MethodInfo>>(
     shotsDefinition to listOf(
         gameState, opponentFleet, myFleet
     ),
-    systemInfo to listOf(
+    systemInfo to listOf(  //TODO() user root se estiver logado
         root
     ),
-    statistics to listOf(
+    statistics to listOf( //TODO() user root se estiver logado
         root
     ),
     lobbyState to listOf()
@@ -124,6 +132,15 @@ private val SirenInfoMap = mutableMapOf<MethodInfo, SirenInfo>(
         fields = listOf(),
         rel = listOf("home"),
         title = "Home"
+    ),
+    userRoot to SirenInfo(
+        name = "user-home",
+        href = userRoot.uri,
+        method = userRoot.method.name,
+        outContentType = SirenContentType,
+        fields = listOf(),
+        rel = listOf("user-home"),
+        title = "User Home"
     ),
     queue to SirenInfo(
         name = "play-intent",
@@ -309,6 +326,16 @@ fun noEntitySiren(methodInfo: MethodInfo, uriVariables: Map<String, String>? = n
         entities = listOf()
     )
 }
+fun <E> compare(o1: E, o2:E): Int{
+    o1 as Comparable<*>
+    o2 as Comparable<*>
+    return when{
+        o1 > o2 -> 1
+        o1 < o2 -> -1
+        else -> 0
+    }
+}
+
 
 
 
