@@ -41,7 +41,7 @@ class JdbiGeneralRepository(
             .toList()
 
         val ranking = rankingDto.mapIndexed { index, dto ->
-            PlayerStatistics(index, dto.playerId, dto.totalGames, dto.wins)
+            PlayerStatistics(index+1, dto.playerId, dto.totalGames, dto.wins)
         }
 
         return GameStatistics(numGames, ranking)

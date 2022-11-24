@@ -21,7 +21,7 @@ import pt.isel.daw.battleship.controller.hypermedia.Problem
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.Orientation
-import pt.isel.daw.battleship.domain.ShipInfo
+import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.repository.JdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.clear

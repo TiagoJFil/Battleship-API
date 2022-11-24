@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pt.isel.daw.battleship.services.secondsToMillis
 import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.board.Board
+import pt.isel.daw.battleship.domain.board.ShipInfo
 
 
 class GameTests {

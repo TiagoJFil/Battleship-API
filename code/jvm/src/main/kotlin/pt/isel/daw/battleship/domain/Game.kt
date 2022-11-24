@@ -1,6 +1,7 @@
 
 package pt.isel.daw.battleship.domain
 
+import pt.isel.daw.battleship.domain.board.*
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID

@@ -2,9 +2,10 @@ package pt.isel.daw.battleship.repository.dto
 
 
 import org.jdbi.v3.core.mapper.Nested
-import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.board.Board
 import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.GameRules
+import pt.isel.daw.battleship.domain.board.toLayout
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 import java.sql.Timestamp
@@ -36,6 +37,9 @@ data class GameDTO(
 }
 
 
+/**
+ * Converts a domain [Game] to a repository [GameDTO].
+ */
 fun Game.toDTO() = GameDTO(
     id = id,
     state = state.toString().lowercase(),

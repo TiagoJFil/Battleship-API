@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.controller.dto.BoardDTO
 import pt.isel.daw.battleship.controller.dto.toDTO
 import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.repository.dto.toDTO
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.services.entities.LobbyInformation

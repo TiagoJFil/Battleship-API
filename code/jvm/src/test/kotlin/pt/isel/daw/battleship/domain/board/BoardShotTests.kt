@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test
 import org.junit.platform.commons.logging.LoggerFactory
 import pt.isel.daw.battleship.domain.Square
 import pt.isel.daw.battleship.domain.column
-import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.board.Board
 import pt.isel.daw.battleship.domain.board.BoardTests
-import pt.isel.daw.battleship.domain.makeShots
-import pt.isel.daw.battleship.domain.pretty
+import pt.isel.daw.battleship.domain.board.makeShots
+import pt.isel.daw.battleship.domain.board.pretty
 import pt.isel.daw.battleship.domain.row
 
 class BoardShotTests {
@@ -91,7 +91,7 @@ class BoardShotTests {
 
         val expectedBoard = Board.fromLayout(expectedLayout)
 
-        Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
+        Assertions.assertEquals(expectedBoard.linearMatrix, newBoard.linearMatrix)
     }
 
     @Test
@@ -115,7 +115,7 @@ class BoardShotTests {
 
         val expectedBoard = Board.fromLayout(expectedLayout)
 
-        Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
+        Assertions.assertEquals(expectedBoard.linearMatrix, newBoard.linearMatrix)
     }
 
     @Test
@@ -139,7 +139,7 @@ class BoardShotTests {
 
         val expectedBoard = Board.fromLayout(expectedLayout)
 
-        Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
+        Assertions.assertEquals(expectedBoard.linearMatrix, newBoard.linearMatrix)
     }
 
 
@@ -168,7 +168,7 @@ class BoardShotTests {
 
         val expectedBoard = Board.fromLayout(expectedLayout)
 
-        Assertions.assertEquals(expectedBoard.matrix, newBoard.matrix)
+        Assertions.assertEquals(expectedBoard.linearMatrix, newBoard.linearMatrix)
     }
 
 

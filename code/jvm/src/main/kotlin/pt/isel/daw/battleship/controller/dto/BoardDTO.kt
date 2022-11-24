@@ -1,7 +1,8 @@
 package pt.isel.daw.battleship.controller.dto
 
-import pt.isel.daw.battleship.domain.Board
 import pt.isel.daw.battleship.domain.Square
+import pt.isel.daw.battleship.domain.board.Board
+import pt.isel.daw.battleship.domain.board.indexToSquare
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.utils.UserID
 
@@ -23,7 +24,7 @@ fun Board.toDTO(userID: UserID, fleet: GameService.Fleet): BoardDTO {
 
     data class SquareInfo(val square: Square, val type: Board.SquareType)
 
-    val squaresToSquareType = matrix.mapIndexed { idx, squareType ->
+    val squaresToSquareType = linearMatrix.mapIndexed { idx, squareType ->
         SquareInfo(indexToSquare(idx), squareType)
     }
 

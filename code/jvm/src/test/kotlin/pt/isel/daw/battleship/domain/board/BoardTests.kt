@@ -11,6 +11,12 @@ import pt.isel.daw.battleship.domain.column
 import pt.isel.daw.battleship.domain.row
 import pt.isel.daw.battleship.domain.*
 
+/**
+ * Returns a String with a human-readable representation of the board
+ * @return [String]
+ */
+fun Board.pretty() = toLayout().chunked(this.side).joinToString("\n")
+
 class BoardTests {
 
     companion object {
@@ -66,7 +72,7 @@ class BoardTests {
         val expected = List(layout.length) { Board.SquareType.Water }
 
 
-        assert(board.matrix == expected)
+        assert(board.linearMatrix == expected)
 
     }
 
@@ -142,7 +148,7 @@ class BoardTests {
 
         val expectedNewBoard = Board.fromLayout(newLayout)
 
-        assert(expectedNewBoard.matrix == newBoard.matrix)
+        assert(expectedNewBoard.linearMatrix == newBoard.linearMatrix)
     }
 
     @Test
@@ -168,7 +174,7 @@ class BoardTests {
                 "######" +
                 "######" +
                 "######"
-        assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
+        assert(finalBoard.linearMatrix == Board.fromLayout(expected).linearMatrix)
     }
 
 
@@ -199,7 +205,7 @@ class BoardTests {
                 "#B####" +
                 "######"
 
-        assert(finalBoard.matrix == Board.fromLayout(expected).matrix)
+        assert(finalBoard.linearMatrix == Board.fromLayout(expected).linearMatrix)
     }
 
     @Test

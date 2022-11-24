@@ -1,7 +1,5 @@
 package pt.isel.daw.battleship.domain
 
-import java.lang.Math.abs
-
 /**
  * Represents a Square
  */
@@ -20,38 +18,71 @@ data class Column(val ordinal: Int) {
 val Int.row get() = Row(this)
 val Int.column get() = Column(this)
 
-class Vector(initialSquare: Square, finalSquare: Square) {
+/**
+ * Gets the neighbours of a square on the y-axis and x-axis
+ *
+ * @receiver the square to get the neighbours from
+ * @return [List] containing the vertical and horizontal neighbours of the square
+ */
+fun Square.getAxisNeighbours(): List<Square> {
+    val top = Square((row.ordinal - 1), column.ordinal)
+    val bottom = Square((row.ordinal + 1), column.ordinal)
+    val left = Square(row.ordinal, (column.ordinal - 1))
+    val right = Square(row.ordinal, (column.ordinal + 1))
 
-    val orientation = Orientation.get(initialSquare, finalSquare)
-        ?: throw IllegalArgumentException("The squares are not in the same row or column")
-
-    val direction = if (orientation == Orientation.Horizontal)
-        finalSquare.column - initialSquare.column
-    else
-        finalSquare.row - initialSquare.row
-
-    val absDirection = abs(direction)
-
-    val factor = if (direction > 0) 1 else -1
+    return listOfNotNull(
+        top, bottom, left, right
+    )
 }
 
-enum class Orientation {
-    Horizontal,
-    Vertical;
+/**
+ * Gets the neighbours of a square
+ * @return List<Square> diagonal, vertical and horizontal neighbours of the ship
+ */
+fun Square.getSurrounding() : List<Square> = this.getAxisNeighbours() + this.getDiagonals()
 
-    companion object {
-        fun get(initialSquare: Square, finalSquare: Square): Orientation? {
-            val verticalSize = kotlin.math.abs(initialSquare.row - finalSquare.row)
-            val horizontalSize = kotlin.math.abs(initialSquare.column - finalSquare.column)
+/**
+ * Gets the diagonal neighbours of a square
+ * @return List<Square> containing the diagonal neighbours of the ship
+ */
+fun Square.getDiagonals(): List<Square> {
+    val topLeft = Square((row.ordinal - 1), (column.ordinal - 1))
+    val topRight = Square((row.ordinal - 1), (column.ordinal + 1))
+    val bottomLeft = Square((row.ordinal + 1), (column.ordinal - 1))
+    val bottomRight = Square((row.ordinal + 1), (column.ordinal + 1))
 
-            return if (verticalSize == 0) {
-                Horizontal
-            } else if (horizontalSize == 0) {
-                Vertical
-            } else {
-                null
-            }
-        }
+    return listOf(
+        topLeft, topRight, bottomLeft, bottomRight
+    )
+}
+
+/**
+ * Gets the squares between the initial and final square included
+ * @receiver the initial square
+ * @param finalSquare the final square
+ *
+ * @return the squares between the initial and final square included
+ */
+fun Square.getBetween(finalSquare: Square): List<Square> {
+    val squareList = mutableListOf<Square>()
+    val squaresVector = Vector(this, finalSquare)
+    val initialSquare = this
+
+    for (it in 0..squaresVector.absDirection) {
+        squareList.add(
+            if (squaresVector.orientation == Orientation.Horizontal)
+                Square(
+                    initialSquare.row,
+                    Column(initialSquare.column.ordinal + it * squaresVector.factor)
+                )
+            else
+                Square(
+                    Row(initialSquare.row.ordinal + it * squaresVector.factor),
+                    initialSquare.column
+                )
+        )
     }
+    return squareList
 }
+
 

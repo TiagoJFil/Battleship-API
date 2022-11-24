@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pt.isel.daw.battleship.domain.*
+import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.repository.dto.toDTO
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.entities.AuthInformation

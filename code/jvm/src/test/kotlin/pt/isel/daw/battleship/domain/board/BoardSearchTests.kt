@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test
 import pt.isel.daw.battleship.domain.Column
 import pt.isel.daw.battleship.domain.Row
 import pt.isel.daw.battleship.domain.Square
-import pt.isel.daw.battleship.domain.Board
+import pt.isel.daw.battleship.domain.board.Board
+import pt.isel.daw.battleship.domain.board.ClearDiagonals
+import pt.isel.daw.battleship.domain.board.ClearSurroundingWaterSquares
+import pt.isel.daw.battleship.domain.board.findKnownWaterSquares
 
 class BoardSearchTests {
     @Test
@@ -19,9 +22,9 @@ class BoardSearchTests {
         val board = Board.fromLayout(layout)
         val square = Square(Row(2), Column(3))
 
-        val result = board.searchKnownWaterSquares(square)
+        val result = board.findKnownWaterSquares(square)
 
-        assert(result is Board.ClearDiagonals)
+        assert(result is ClearDiagonals)
     }
 
     @Test
@@ -35,9 +38,9 @@ class BoardSearchTests {
         val board = Board.fromLayout(layout)
         val square = Square(Row(4), Column(3))
 
-        val result = board.searchKnownWaterSquares(square)
+        val result = board.findKnownWaterSquares(square)
 
-        val expected = Board.ClearShipNeighbours(
+        val expected = ClearSurroundingWaterSquares(
             listOf(
                 square,
                 square.copy(Row(3)),
@@ -59,9 +62,9 @@ class BoardSearchTests {
         val board = Board.fromLayout(layout)
         val square = Square(Row(4), Column(3))
 
-        val result = board.searchKnownWaterSquares(square)
+        val result = board.findKnownWaterSquares(square)
 
-        val expected = Board.ClearShipNeighbours(
+        val expected = ClearSurroundingWaterSquares(
             listOf(
                 square,
                 square.copy(Row(3)),
@@ -84,9 +87,9 @@ class BoardSearchTests {
         val board = Board.fromLayout(layout)
         val square = Square(Row(4), Column(3))
 
-        val result = board.searchKnownWaterSquares(square)
+        val result = board.findKnownWaterSquares(square)
 
-        val expected = Board.ClearShipNeighbours(
+        val expected = ClearSurroundingWaterSquares(
             listOf(
                 square,
             )
@@ -105,9 +108,9 @@ class BoardSearchTests {
         val board = Board.fromLayout(layout)
         val square = Square(Row(1), Column(0))
 
-        val result = board.searchKnownWaterSquares(square)
+        val result = board.findKnownWaterSquares(square)
 
-        val expected = Board.ClearDiagonals
+        val expected = ClearDiagonals
 
         assertEquals(expected, result)
     }
