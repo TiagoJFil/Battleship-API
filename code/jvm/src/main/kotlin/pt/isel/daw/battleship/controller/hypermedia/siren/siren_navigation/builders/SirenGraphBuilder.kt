@@ -1,11 +1,12 @@
-package siren_navigation.builders
+package pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders
 
-import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.SirenNode
-import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.SirenNodeBuilder
-import siren_navigation.SirenNavGraph
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNavGraph
 
 object NoEntitySiren
 
+/**
+ * Used to build a [SirenNavGraph].
+ */
 class SirenGraphBuilder{
 
     private val nodes = hashMapOf<String, SirenNode<*>>()

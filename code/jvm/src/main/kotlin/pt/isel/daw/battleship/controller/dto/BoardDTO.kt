@@ -18,7 +18,7 @@ data class BoardDTO(
 )
 
 /**
- * Converts a [Board] to a [BoardDTO]
+ * Converts a [Board] to a controller [BoardDTO]
  */
 fun Board.toDTO(userID: UserID, fleet: GameService.Fleet): BoardDTO {
 
@@ -28,8 +28,8 @@ fun Board.toDTO(userID: UserID, fleet: GameService.Fleet): BoardDTO {
         SquareInfo(indexToSquare(idx), squareType)
     }
 
-    val getAllSquaresByType: (Board.SquareType) -> List<Square> = { st: Board.SquareType ->
-        squaresToSquareType.filter { it.type == st }.map { it.square }
+    val getAllSquaresByType: (Board.SquareType) -> List<Square> = { squareType: Board.SquareType ->
+        squaresToSquareType.filter { it.type == squareType }.map { it.square }
     }
 
     return BoardDTO(

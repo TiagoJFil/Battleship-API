@@ -1,14 +1,10 @@
-package pt.isel.daw.battleship.services.transactions.jdbi
+package pt.isel.daw.battleship.repository.jdbi
 
 import org.jdbi.v3.core.Handle
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.GeneralRepository
 import pt.isel.daw.battleship.repository.LobbyRepository
 import pt.isel.daw.battleship.repository.UserRepository
-import pt.isel.daw.battleship.repository.jdbi.JdbiGamesRepository
-import pt.isel.daw.battleship.repository.jdbi.JdbiGeneralRepository
-import pt.isel.daw.battleship.repository.jdbi.JdbiLobbyRepository
-import pt.isel.daw.battleship.repository.jdbi.JdbiUsersRepository
 import pt.isel.daw.battleship.services.transactions.Transaction
 
 class JdbiTransaction(

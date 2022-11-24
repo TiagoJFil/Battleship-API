@@ -3,10 +3,10 @@ package pt.isel.daw.battleship.domain.game
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pt.isel.daw.battleship.services.secondsToMillis
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.Board
 import pt.isel.daw.battleship.domain.board.ShipInfo
+import pt.isel.daw.battleship.services.secondsToMillis
 
 
 class GameTests {
@@ -97,7 +97,7 @@ class GameTests {
     @Test
     fun `Placing ships on invalid squares throws an exception`(){
         val testBoard = Board.fromLayout(testBoardLayout)
-        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, userToBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
+        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, playerBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
         val shipInfo = ShipInfo(Square(10,20), 5, Orientation.Horizontal)
         assertThrows<IllegalArgumentException> {
             game.placeShips(listOf(shipInfo), 1)
@@ -107,7 +107,7 @@ class GameTests {
     @Test
     fun `placing ships on valid squares works correctly`(){
         val testBoard = Board.fromLayout(emptyBoard)
-        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, userToBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
+        val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, playerBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
         val shipInfo = ShipInfo(Square(1,1), 2, Orientation.Vertical)
         val newGame = game.placeShips(listOf(shipInfo), 2)
         val expectedBoard = Board.fromLayout(
@@ -120,7 +120,7 @@ class GameTests {
             1 to testBoard,
             2 to expectedBoard
         )
-        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, userToBoards= newBoards, turnID=2, newGame.lastUpdated)
+        val expectedGame = Game(0, Game.State.PLACING_SHIPS, rules=testGameRules, playerBoards= newBoards, turnID=2, newGame.lastUpdated)
         assertEquals(expectedGame, newGame)
     }
 
@@ -135,7 +135,7 @@ class GameTests {
         val validBoard = Board.fromLayout(testBoardLayout)
 
         assertThrows<IllegalStateException> {
-            Game(0, Game.State.PLAYING, rules= testGameRules, userToBoards = mapOf(1 to validBoard, 2 to invalidBoard), turnID= 2)
+            Game(0, Game.State.PLAYING, rules= testGameRules, playerBoards = mapOf(1 to validBoard, 2 to invalidBoard), turnID= 2)
         }
     }
 
@@ -156,10 +156,10 @@ class GameTests {
             1 to Board.fromLayout(expectedLayout),
             2 to Board.fromLayout(layout)
         )
-        val newGame = Game(0, Game.State.PLAYING, rules=testGameRules, userToBoards= boards, turnID= 2)
+        val newGame = Game(0, Game.State.PLAYING, rules=testGameRules, playerBoards= boards, turnID= 2)
                         .makePlay(listOf(Square(2,1)))
 
-        val expectedGame = Game(0, Game.State.FINISHED, rules=testGameRules, userToBoards= expectedBoards, turnID= 1)
+        val expectedGame = Game(0, Game.State.FINISHED, rules=testGameRules, playerBoards= expectedBoards, turnID= 1)
 
         assertEquals(expectedGame, newGame)
 
@@ -189,7 +189,7 @@ class GameTests {
                 0,
                 Game.State.CANCELLED,
                 rules= specificGameRules,
-                userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+                playerBoards = mapOf(1 to testBoard, 2 to testBoard),
                 turnID= 1,
                 lastUpdated = lastUpdated
             )
@@ -223,7 +223,7 @@ class GameTests {
             id=0,
             state= Game.State.PLAYING,
             rules= specificGameRules,
-            userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+            playerBoards = mapOf(1 to testBoard, 2 to testBoard),
             turnID= 1,
             lastUpdated = lastUpdated
         ).makePlay(listOf(Square(0,0)))
@@ -232,7 +232,7 @@ class GameTests {
             0,
             Game.State.CANCELLED,
             rules= specificGameRules,
-            userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+            playerBoards = mapOf(1 to testBoard, 2 to testBoard),
             turnID= 1,
             lastUpdated = lastUpdated
         )
@@ -290,7 +290,7 @@ class GameTests {
                     id=0,
                     state= Game.State.PLAYING,
                     rules= testGameRules,
-                    userToBoards = mapOf(1 to testBoard, 2 to testBoard),
+                    playerBoards = mapOf(1 to testBoard, 2 to testBoard),
                     turnID= 1
                 ).placeShips(listOf(ShipInfo(Square(1,1), 2, Orientation.Vertical)), 1)
             }

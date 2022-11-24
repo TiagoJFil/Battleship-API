@@ -13,7 +13,7 @@ data class Game(
     val id: ID?,
     val state: State,
     val rules: GameRules,
-    val userToBoards: Map<UserID, Board>,
+    val playerBoards: Map<UserID, Board>,
     val turnID: UserID,
     val lastUpdated: TimeoutTime = System.currentTimeMillis()
 ) {
@@ -21,14 +21,14 @@ data class Game(
     companion object;
 
     init {
-        val playerBoards = userToBoards.values
+        val playerBoards = playerBoards.values
 
 
         requireGameRule(playerBoards.all { it.side == rules.boardSide }) {
             "Board's side length is different from the rules"
         }
 
-        require(userToBoards.size == 2){ "Game must have exactly 2 players" }
+        require(this.playerBoards.size == 2){ "Game must have exactly 2 players" }
 
         // Check fleet composition
         if (state == State.PLAYING)
@@ -37,16 +37,16 @@ data class Game(
             }
     }
 
-    val oppositeTurnID by afterGameBegins { userToBoards.keys.first { it != turnID } }
+    val oppositeTurnID by afterGameBegins { playerBoards.keys.first { it != turnID } }
 
     val oppositeTurnBoard: Board by afterGameBegins {
-        userToBoards[oppositeTurnID] ?: error("No board for the opposite turn ID")
+        playerBoards[oppositeTurnID] ?: error("No board for the opposite turn ID")
     }
 
     val winnerId by
     lazy {
         if (state == State.FINISHED) {
-            userToBoards.keys.single{ !userToBoards[it]!!.isInEndGameState() }
+            playerBoards.keys.single{ !playerBoards[it]!!.isInEndGameState() }
         } else null
     }
 
@@ -57,7 +57,9 @@ data class Game(
      */
     private fun <T> afterGameBegins(initializer: () -> T): Lazy<T> {
         return lazy {
-            check(userToBoards.size == 2 && (state == State.PLAYING || state == State.FINISHED)) { "Can't access this property before the game begins." }
+            check(playerBoards.size == 2 && (state == State.PLAYING || state == State.FINISHED)) {
+                "Can't access this property before the game begins."
+            }
             initializer()
         }
     }
@@ -98,7 +100,7 @@ fun Game.makePlay(squares: List<Square>): Game {
         .copy(
             turnID = oppositeTurnID,
             state =
-            if (gameWithNewBoards.userToBoards.values.any { it.isInEndGameState() })
+            if (gameWithNewBoards.playerBoards.values.any { it.isInEndGameState() })
                 Game.State.FINISHED
             else
                 state,
@@ -113,7 +115,10 @@ fun Game.Companion.new(players: Pair<UserID, UserID>, rules: GameRules) = Game(
     id = null,
     state = Game.State.PLACING_SHIPS,
     rules = rules,
-    userToBoards = mapOf(players.first to Board.empty(rules.boardSide), players.second to Board.empty(rules.boardSide)),
+    playerBoards = mapOf(
+        players.first to Board.empty(rules.boardSide),
+        players.second to Board.empty(rules.boardSide)
+    ),
     turnID = players.first,
     lastUpdated = System.currentTimeMillis()
 )
@@ -145,7 +150,7 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
     }
 
     val newGameState = this.replaceBoard(playerID, newBoard)
-    val hasBothBoardsNotEmpty = newGameState.userToBoards.values.all { it != emptyBoard }
+    val hasBothBoardsNotEmpty = newGameState.playerBoards.values.all { it != emptyBoard }
 
     return if (hasBothBoardsNotEmpty)
         newGameState.copy(state = Game.State.PLAYING, lastUpdated = System.currentTimeMillis())
@@ -161,7 +166,7 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
  * @return [Game] a new Game with the new board
  */
 private fun Game.replaceBoard(id: UserID, newBoard: Board) = copy(
-    userToBoards = this.userToBoards.mapValues { entry ->
+    playerBoards = this.playerBoards.mapValues { entry ->
         if (entry.key == id)
             newBoard
         else

@@ -10,7 +10,6 @@ import pt.isel.daw.battleship.domain.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.dto.*
 import pt.isel.daw.battleship.utils.ID
-import java.sql.Timestamp
 
 
 class JdbiGamesRepository(
@@ -37,7 +36,7 @@ class JdbiGamesRepository(
     /**
      * Persists the given game in the database
      * @param game the game to be persisted
-     * @return [Id] of the game persisted
+     * @return [ID] of the game persisted
      */
     override fun persist(game: GameDTO): ID {
         if (!hasGame(game.id)) {
@@ -126,7 +125,7 @@ class JdbiGamesRepository(
      * @param rules the game rules to be bound
      * @return the [Update] object with the parameters bound
      */
-    private fun Update.bindGameRules(rules: GameRules): Update {
+    private fun Update.bindGameRules(rules: GameRulesDTO): Update {
         return bindMultiple(
             listOf<Pair<String, Any?>>(
                 GameView.SHOTS_PER_TURN.columnName to rules.shotsPerTurn,
@@ -190,6 +189,5 @@ enum class GameView(val columnName: String) {
     BOARD_P2("boardp2"),
     SHIP_RULES("shiprules"),
     LAST_UPDATED("lastupdated")
-
 }
 

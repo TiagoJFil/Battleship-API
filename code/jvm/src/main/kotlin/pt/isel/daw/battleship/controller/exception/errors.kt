@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.controller.exceptions
+package pt.isel.daw.battleship.controller.exception
 
 import org.springframework.http.HttpStatus
 import pt.isel.daw.battleship.services.exception.*

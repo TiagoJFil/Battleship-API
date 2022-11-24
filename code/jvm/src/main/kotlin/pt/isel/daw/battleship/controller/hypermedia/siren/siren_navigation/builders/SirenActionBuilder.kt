@@ -2,7 +2,9 @@ package pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.buil
 
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenAction
 
-
+/**
+ * Builder for [SirenAction]s.
+ */
 class SirenActionBuilder {
 
     private val fields = mutableListOf<SirenAction.Field>()

@@ -3,7 +3,7 @@ package pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.buil
 import pt.isel.daw.battleship.controller.hypermedia.siren.EmbeddedLink
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenAction
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenLink
-import siren_navigation.*
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNodeID
 
 abstract class Relationship<T> {
     var predicate: ((T) -> Boolean)? = null
@@ -24,6 +24,9 @@ data class SirenNode<T>(
     val title: String? = null
 )
 
+/**
+ * Builds a [SirenNode] for the SirenNavGraph.
+ */
 class SirenNodeBuilder<T>(val id: SirenNodeID) {
 
     private val links = mutableListOf<LinkRelationship<T>>()

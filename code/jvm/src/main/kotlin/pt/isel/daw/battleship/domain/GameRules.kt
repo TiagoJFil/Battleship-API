@@ -1,9 +1,9 @@
 package pt.isel.daw.battleship.domain
 
+import pt.isel.daw.battleship.services.secondsToMillis
 import pt.isel.daw.battleship.utils.ShipCount
 import pt.isel.daw.battleship.utils.ShipSize
 import pt.isel.daw.battleship.utils.TimeoutTime
-import pt.isel.daw.battleship.services.secondsToMillis
 
 data class GameRules(
     val shotsPerTurn: Int,
@@ -22,8 +22,8 @@ data class GameRules(
         val DEFAULT = GameRules(
             1,
             10,
-            secondsToMillis(60),
-            secondsToMillis(60),
+            secondsToMillis(seconds=60),
+            secondsToMillis(seconds=60),
             ShipRules(
                 "Classic",
                 mapOf<ShipSize, ShipCount>(

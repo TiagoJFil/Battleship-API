@@ -8,6 +8,12 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
+/**
+ * Intercepts the request and checks if the handler requires authentication.
+ *
+ * If it does then it will check if the request has a valid Authorization header,
+ * parse it and inject the user id into the handler arguments.
+ */
 @Component
 class AuthenticationInterceptor(
     private val authorizationHeaderProcessor: AuthorizationHeaderProcessor

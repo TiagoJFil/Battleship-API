@@ -1,12 +1,8 @@
-import pt.isel.daw.battleship.controller.hypermedia.siren.EmbeddedLink
-import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
-import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.ActionRelationship
-import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.LinkRelationship
-import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.Relationship
-import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.SirenNode
-import siren_navigation.SirenNavGraph
-import siren_navigation.SirenNodeID
-import siren_navigation.builders.*
+package pt.isel.daw.battleship.controller.hypermedia.siren
+
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNavGraph
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNodeID
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 

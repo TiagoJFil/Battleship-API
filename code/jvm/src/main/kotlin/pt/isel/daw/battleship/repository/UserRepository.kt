@@ -1,6 +1,8 @@
 package pt.isel.daw.battleship.repository
 
 
+import org.apache.catalina.User
+import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
@@ -10,12 +12,9 @@ interface UserRepository {
 
     /**
      * Creates a new user with the given name and password and token.
-     * @param userName the name of the user
-     * @param userAuthToken the token of the user
-     * @param hashedPassword the hashed password of the user
-     * @return the [ID] of the new user or null if the user already exists
+     * @param user the user to be created
      */
-    fun addUser(userName: String, userAuthToken: UserToken, hashedPassword: String, salt: String): UserID?
+    fun addUser(user: UserDTO): UserID?
 
     /**
      * Verifies whether the given name is already in use by another user.

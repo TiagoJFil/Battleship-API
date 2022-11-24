@@ -1,7 +1,6 @@
-package pt.isel.daw.battleship.controller.exceptions
+package pt.isel.daw.battleship.controller.exception
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.TypeMismatchException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

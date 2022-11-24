@@ -1,6 +1,7 @@
 package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Service
+import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
@@ -32,10 +33,12 @@ class UserService(
             val hashedPassword = hashPassword(userValidation.password, salt)
 
             val userID = userRepository.addUser(
-                userValidation.username,
-                generatedToken,
-                hashedPassword,
-                salt
+                UserDTO(
+                    name = userValidation.username,
+                    token = generatedToken,
+                    hashedPassword = hashedPassword,
+                    salt = salt
+                )
             ) ?: throw InternalErrorAppException()
 
             AuthInformation(userID, generatedToken)
@@ -51,8 +54,8 @@ class UserService(
      */
     fun authenticate(userValidation: UserValidation): AuthInformation =
         transactionFactory.execute {
-            if(!userRepository.hasUser(userValidation.username))
-                    throw UserNotFoundException(userValidation.username)
+            if (!userRepository.hasUser(userValidation.username))
+                throw UserNotFoundException(userValidation.username)
 
             val salt = userRepository.getUserSalt(userValidation.username)
 

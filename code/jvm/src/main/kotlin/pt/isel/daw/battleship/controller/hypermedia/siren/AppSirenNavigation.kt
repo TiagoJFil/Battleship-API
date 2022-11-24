@@ -1,22 +1,19 @@
 package pt.isel.daw.battleship.controller.hypermedia.siren
 
+import pt.isel.daw.battleship.controller.EndpointKeys.CANCEL_QUEUE_KEY
+import pt.isel.daw.battleship.controller.EndpointKeys.LOGIN_KEY
+import pt.isel.daw.battleship.controller.EndpointKeys.MY_FLEET_KEY
+import pt.isel.daw.battleship.controller.EndpointKeys.OPPONENT_FLEET_KEY
+import pt.isel.daw.battleship.controller.EndpointKeys.QUEUE_KEY
+import pt.isel.daw.battleship.controller.EndpointKeys.REGISTER_KEY
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.Uris.Game.WHICH_FLEET_PLACEHOLDER
 import pt.isel.daw.battleship.controller.dto.BoardDTO
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.CANCEL_QUEUE_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.LAYOUT_DEFINITION_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.LOGIN_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.MY_FLEET_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.OPPONENT_FLEET_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.QUEUE_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.REGISTER_KEY
-import pt.isel.daw.battleship.controller.endpoints_meta.AppEndpointsMetaData.SHOTS_DEFINITION_KEY
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNodeID
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.buildSirenGraph
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
 import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.services.entities.*
-import siren_navigation.SirenNodeID
-import siren_navigation.buildSirenGraph
-import siren_navigation.builders.NoEntitySiren
-import toSiren
 
 inline fun <reified T : Any> T.appToSiren(
     nodeID: SirenNodeID,
@@ -88,13 +85,13 @@ object AppSirenNavigation {
         node<GameStateInfo>(GAME_STATE_NODE_KEY) {
             self(Uris.Game.STATE)
             action(
-                name = SHOTS_DEFINITION_KEY,
+                name = SHOTS_DEFINITION_NODE_KEY,
                 href = Uris.Game.SHOTS_DEFINITION,
                 "POST",
                 title = "Make Play"
             ) showWhen { it.state == Game.State.PLAYING }
             action(
-                name = LAYOUT_DEFINITION_KEY,
+                name = DEFINE_LAYOUT_NODE_ID,
                 href = Uris.Game.LAYOUT_DEFINITION,
                 "POST",
                 title = "Place Ships"

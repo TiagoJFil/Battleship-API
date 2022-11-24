@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.services.transactions.jdbi
+package pt.isel.daw.battleship.repository.jdbi
 
 import org.jdbi.v3.core.Jdbi
 import org.springframework.stereotype.Component

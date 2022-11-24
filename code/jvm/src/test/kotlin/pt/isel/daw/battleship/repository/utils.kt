@@ -3,13 +3,13 @@ package pt.isel.daw.battleship.repository
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
+import pt.isel.daw.battleship.repository.jdbi.JdbiTransaction
+import pt.isel.daw.battleship.repository.jdbi.JdbiTransactionFactory
 import pt.isel.daw.battleship.repository.jdbi.configure
 import pt.isel.daw.battleship.services.exception.AppException
 import pt.isel.daw.battleship.services.exception.InternalErrorAppException
 import pt.isel.daw.battleship.services.transactions.Transaction
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
-import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransaction
-import pt.isel.daw.battleship.services.transactions.jdbi.JdbiTransactionFactory
 
 private val jdbi = Jdbi.create(
     PGSimpleDataSource().apply {

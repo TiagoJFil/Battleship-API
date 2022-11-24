@@ -1,6 +1,6 @@
-package siren_navigation
+package pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation
 
-import siren_navigation.builders.SirenGraphBuilder
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.SirenGraphBuilder
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.SirenNode
 
 
@@ -18,7 +18,7 @@ inline fun buildSirenGraph(builderScope: SirenGraphBuilder.() -> Unit): SirenNav
  *
  * Serves as a meta-data container for an API.
  *
- * Used along with [toSiren] to generate a Siren representation of an object.
+ * Used along with toSiren function to generate a Siren representation of an object.
  */
 class SirenNavGraph(private val nodes: Map<SirenNodeID, SirenNode<*>>) {
 

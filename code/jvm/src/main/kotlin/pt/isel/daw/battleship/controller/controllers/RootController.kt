@@ -1,10 +1,12 @@
 package pt.isel.daw.battleship.controller.controllers
 
-import noEntitySiren
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.battleship.controller.Uris
-import pt.isel.daw.battleship.controller.hypermedia.siren.*
+import pt.isel.daw.battleship.controller.hypermedia.siren.AppSirenNavigation
+import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
+import pt.isel.daw.battleship.controller.hypermedia.siren.appToSiren
+import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
 import pt.isel.daw.battleship.services.GeneralService
 import pt.isel.daw.battleship.services.entities.GameStatistics
 import pt.isel.daw.battleship.services.entities.SystemInfo

@@ -3,8 +3,7 @@ package pt.isel.daw.battleship.siren_navigation
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import pt.isel.daw.battleship.controller.hypermedia.siren.*
-import siren_navigation.SirenNavGraph
-import toSiren
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNavGraph
 
 class SirenGraphUnitTests {
 

@@ -2,6 +2,7 @@ package pt.isel.daw.battleship.repository.jdbi
 
 import org.jdbi.v3.core.Handle
 import pt.isel.daw.battleship.repository.UserRepository
+import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
@@ -12,16 +13,14 @@ class JdbiUsersRepository(val handle: Handle) : UserRepository {
 
     /**
      * Creates a new user with the given name and password and token.
-     * @param userName the name of the user
-     * @param userAuthToken the token of the user
-     * @param hashedPassword the hashed password of the user
+     * @param user the user to be created
      * @return the [ID] of the new user or null if the user already exists
      */
-    override fun addUser(userName: String, userAuthToken: UserToken, hashedPassword: String, salt: String): UserID? {
+    override fun addUser(user: UserDTO): UserID? {
         val uid = handle.createUpdate("insert into \"User\" (name, password,salt) values (:userName,:password,:salt) returning id")
-            .bind("userName", userName)
-            .bind("password", hashedPassword)
-            .bind("salt", salt)
+            .bind("userName", user.name)
+            .bind("password", user.hashedPassword)
+            .bind("salt", user.salt)
             .executeAndReturnGeneratedKeys("id")
             .mapTo(Int::class.java)
             .first()
@@ -29,9 +28,9 @@ class JdbiUsersRepository(val handle: Handle) : UserRepository {
         uid?.run {
             handle.createUpdate("insert into token (userid, token) values (:id, :token)")
                 .bind("id", uid)
-                .bind("token", userAuthToken)
+                .bind("token", user.token)
                 .execute()
-            userAuthToken
+            user.token
         }
 
         return uid
@@ -64,7 +63,7 @@ class JdbiUsersRepository(val handle: Handle) : UserRepository {
             .firstOrNull()
     }
     /**
-     * Gets a [User]'s salt.
+     * Gets a user's salt.
      * @param userName the name of the user
      * @return the salt of the user if the user exists, null otherwise
      */
