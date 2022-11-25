@@ -37,7 +37,7 @@ object AppSirenNavigation {
     val graph = buildSirenGraph {
 
         node<NoEntitySiren>(ROOT_NODE_KEY) {
-            self(Uris.Home.ROOT)
+            self(Uris.User.REGISTER)
             link(listOf(STATISTICS_NODE_KEY), Uris.Home.STATISTICS)
 
             action(LOGIN_KEY, Uris.User.LOGIN, "POST") {

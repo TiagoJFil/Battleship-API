@@ -18,7 +18,7 @@ private val jdbi = Jdbi.create(
     }
 ).configure()
 
-fun JdbiTransactionFactoryTestDB() = object : JdbiTransactionFactory(jdbi) {
+fun jdbiTransactionFactoryTestDB() = object : JdbiTransactionFactory(jdbi) {
     override fun <R> execute(block: Transaction.() -> R): R {
         return jdbi.inTransaction<R,Exception> {handle ->
             try{

@@ -14,7 +14,7 @@ import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.hypermedia.ProblemContentType
 import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
-import pt.isel.daw.battleship.repository.JdbiTransactionFactoryTestDB
+import pt.isel.daw.battleship.repository.jdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.clear
 import pt.isel.daw.battleship.repository.executeWithHandle
 import pt.isel.daw.battleship.services.entities.GameStatistics
@@ -29,7 +29,7 @@ class RootControllerTests {
     class Config{
         @Bean
         @Primary
-        fun getTransactionFactory() = JdbiTransactionFactoryTestDB()
+        fun getTransactionFactory() = jdbiTransactionFactoryTestDB()
     }
 
 

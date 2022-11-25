@@ -3,10 +3,17 @@ package pt.isel.daw.battleship.domain.game
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import pt.isel.daw.battleship.controller.dto.toDTO
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.Board
 import pt.isel.daw.battleship.domain.board.ShipInfo
+import pt.isel.daw.battleship.repository.dto.GameDTO
+import pt.isel.daw.battleship.repository.dto.toDTO
+import pt.isel.daw.battleship.services.exception.TimeoutExceededAppException
 import pt.isel.daw.battleship.services.secondsToMillis
+import pt.isel.daw.battleship.utils.UserID
+import java.lang.System.currentTimeMillis
+import java.sql.Timestamp
 
 
 class GameTests {
@@ -32,6 +39,14 @@ class GameTests {
                              "####" +
                              "####"
 
+
+    @Test
+    fun `Trying to make a shot before the game begins throws IllegalStateException`(){
+        val testBoard = Board.fromLayout(emptyBoard)
+        val game = Game(0, Game.State.PLACING_SHIPS, testGameRules, mapOf(0 to testBoard, 1 to testBoard), 0)
+
+        assertThrows<IllegalStateException> { game.oppositeTurnBoard }
+    }
 
     @Test
     fun `Make play with number of shots different from the rules`(){
@@ -166,7 +181,7 @@ class GameTests {
     }
 
     @Test
-    fun `taking too much time to placeships cancels the game`(){
+    fun `taking too much time to place ships cancels the game`(){
 
         val specificGameRules = GameRules(
             shotsPerTurn = 1,
@@ -179,7 +194,7 @@ class GameTests {
         )
 
         val testBoard = Board.fromLayout(emptyBoard)
-        val lastUpdated = System.currentTimeMillis() - secondsToMillis(1000)
+        val lastUpdated = currentTimeMillis() - secondsToMillis(1000)
 
         val game = Game.new(1 to 2, specificGameRules)
             .copy(id=0, lastUpdated = lastUpdated)
@@ -217,7 +232,7 @@ class GameTests {
                 "####"
 
         val testBoard = Board.fromLayout(validBoardLayout)
-        val lastUpdated = System.currentTimeMillis() - secondsToMillis(1000)
+        val lastUpdated = currentTimeMillis() - secondsToMillis(1000)
 
         val game = Game(
             id=0,
@@ -261,6 +276,25 @@ class GameTests {
                 .placeShips(listOf(ShipInfo(Square(1,1), 1, Orientation.Vertical)), 1)
         }
 
+    }
+
+    @Test
+    fun `Converting a GameDTO to Game uses an empty map in case that at least one of the players or boards are null`(){
+        val gameDTO = GameDTO(
+            id = 0,
+            state = Game.State.PLACING_SHIPS.toString(),
+            rules = testGameRules.toDTO(),
+            turn = 1,
+            player1 = 1,
+            player2 = 2,
+            boardP1 = null,
+            boardP2 = emptyBoard,
+            lastUpdated = Timestamp(currentTimeMillis())
+        )
+
+        // playerBoards is an empty map, so it throws when the game is created.
+        // Can´t have a game without players or boards
+        assertThrows<IllegalArgumentException> { gameDTO.toGame() }
     }
 
     @Test

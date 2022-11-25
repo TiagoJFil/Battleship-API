@@ -23,7 +23,7 @@ import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.Orientation
 import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.domain.Square
-import pt.isel.daw.battleship.repository.JdbiTransactionFactoryTestDB
+import pt.isel.daw.battleship.repository.jdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.clear
 import pt.isel.daw.battleship.repository.executeWithHandle
 import pt.isel.daw.battleship.services.entities.AuthInformation
@@ -40,7 +40,7 @@ class GameControllerTests {
     class Config {
         @Bean
         @Primary
-        fun getTransactionFactory() = JdbiTransactionFactoryTestDB()
+        fun getTransactionFactory() = jdbiTransactionFactoryTestDB()
     }
 
     @BeforeEach

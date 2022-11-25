@@ -71,7 +71,6 @@ class GameService(
         }
     }
 
-
     /**
      * Leaves the lobby
      * @param userID the user that is leaving the lobby

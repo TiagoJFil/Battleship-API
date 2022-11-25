@@ -21,7 +21,7 @@ class UserControllerTests {
     class Config {
         @Bean
         @Primary
-        fun getTransactionFactory() = JdbiTransactionFactoryTestDB()
+        fun getTransactionFactory() = jdbiTransactionFactoryTestDB()
     }
 
     @BeforeEach
@@ -128,6 +128,17 @@ class UserControllerTests {
             .assertContentTypeProblem()
     }
 
+    @Test
+    fun `get user home`(){
+        val auth = client.createUser("user1","12345678")
 
+        client.get().uri(Uris.User.HOME)
+            .header("Authorization", auth.token)
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader()
+            .assertContentTypeSiren()
+            .expectBody()
+    }
 
 }

@@ -58,8 +58,9 @@ fun noEntitySiren(
     navGraph: SirenNavGraph,
     nodeID: SirenNodeID,
     placeholders: Map<String, String?> = emptyMap()
-): SirenEntity<NoEntitySiren>{
+): SirenEntity<NoEntitySiren> {
     val node = (navGraph[nodeID] as SirenNode<NoEntitySiren>)
+
     return node.toEntity(NoEntitySiren, placeholders)
 }
 
@@ -68,14 +69,15 @@ fun noEntitySiren(
  * Replaces all the empty collections in this SirenEntity object with null.
  */
 private fun <T> SirenEntity<T>.nullifyEmptyCollections() = copy(
-    links = links?.ifEmpty { null },
-    actions = actions
-        ?.ifEmpty { null }
-        ?.map {
-            it.copy(fields= it.fields?.ifEmpty{null})
-        },
-    entities = entities?.ifEmpty { null }
-)
+        links = links?.ifEmpty { null },
+        actions = actions
+            ?.ifEmpty { null }
+            ?.map {
+                it.copy(fields = it.fields?.ifEmpty { null })
+            },
+        entities = entities?.ifEmpty { null }
+    )
+
 
 
 /**
@@ -132,7 +134,6 @@ private fun <T : Any> SirenEntity<T>.tryExpandHrefs(placeholders: Map<String, St
  * @return The string with all placeholders replaced with the values from the map.
  */
 private fun String.replacePlaceholders(placeholders: Map<String, String?>): String? {
-    if (placeholders.isEmpty()) return null
     if (!this.contains("{")) return this
 
     val placeholderStrings = placeholders
@@ -142,11 +143,11 @@ private fun String.replacePlaceholders(placeholders: Map<String, String?>): Stri
     if (placeholderStrings.none { this.contains(it) }) return null
 
     return placeholders.entries
-        .filter{it.value != null}
-        .fold(this){ accHref, entry ->
+        .filter { it.value != null }
+        .fold(this) { accHref, entry ->
             val (key, value) = entry
             val placeholder = "{$key}"
-            if(value != null)
+            if (value != null)
                 accHref.replace(placeholder, value)
             else
                 accHref
@@ -156,7 +157,7 @@ private fun String.replacePlaceholders(placeholders: Map<String, String?>): Stri
 /**
  * Filters all the relationships that don't satisfy their respective showWhen predicates.
  */
-private fun <T: Any> SirenNode<T>.filterRelationshipsByPredicate(instance: T): SirenNode<T> {
+private fun <T : Any> SirenNode<T>.filterRelationshipsByPredicate(instance: T): SirenNode<T> {
 
     val callPredicate: (Relationship<T>) -> Boolean = { it ->
         it.predicate?.invoke(instance) ?: true // if no predicate, always show
@@ -180,14 +181,18 @@ private fun <T: Any> SirenNode<T>.filterRelationshipsByPredicate(instance: T): S
  * @param placeholders A map of placeholders to expand the hrefs of the relationships.
  * @return A SirenEntity with the properties and relationships of the SirenNode.
  */
-private fun <T : Any> SirenNode<T>.toEntity(instance: T, placeholders: Map<String, String?> = emptyMap()): SirenEntity<T>{
+private fun <T : Any> SirenNode<T>.toEntity(
+    instance: T,
+    placeholders: Map<String, String?> = emptyMap()
+): SirenEntity<T> {
     val newNode = this.filterRelationshipsByPredicate(instance)
+
     return SirenEntity(
         clazz = newNode.clazz,
         properties = instance,
         links = newNode.links?.map(LinkRelationship<T>::link),
         actions = newNode.actions?.map(ActionRelationship<T>::action),
-        entities = newNode.entities?.map{it.link}
+        entities = newNode.entities?.map { it.link }
     ).tryExpandHrefs(placeholders)
         .nullifyEmptyCollections()
 
