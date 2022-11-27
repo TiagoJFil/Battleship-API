@@ -74,10 +74,11 @@ class GameService(
     /**
      * Leaves the lobby
      * @param userID the user that is leaving the lobby
+     * @param lobbyID the id of the lobby
      */
-    fun leaveLobby(userID: UserID) =
+    fun leaveLobby(lobbyID: ID, userID: UserID) =
         transactionFactory.execute {
-            if(!lobbyRepository.removePlayerFromLobby(userID))
+            if(!lobbyRepository.removePlayerFromLobby(lobbyID, userID))
                 throw ForbiddenAccessAppException("User $userID is not in the lobby")
         }
 

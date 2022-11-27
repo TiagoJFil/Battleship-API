@@ -51,7 +51,7 @@ class LobbyControllerTests {
         val authInfo = client.createUser("user1", "pass1")
         val lobbyInfo = client.joinQueue(authInfo.token) ?: fail()
 
-        assertEquals(lobbyInfo?.gameID, null)
+        assertEquals(lobbyInfo?.gameId, null)
     }
 
     @Test
@@ -61,8 +61,8 @@ class LobbyControllerTests {
         val res1 = client.joinQueue(authInfo1.token) ?: fail()
         val res2 = client.joinQueue(authInfo2.token) ?: fail()
 
-        assert(res1.gameID == null)
-        assert(res2.gameID != null)
+        assert(res1.gameId == null)
+        assert(res2.gameId != null)
     }
 
     @Test
@@ -123,13 +123,13 @@ class LobbyControllerTests {
 
         val lobbyInfoPlayer1 = client.joinQueue(player1Info.token) ?: fail()
 
-        assertEquals(null, lobbyInfoPlayer1.gameID)
+        assertEquals(null, lobbyInfoPlayer1.gameId)
 
         val lobbyInfoPlayer2 = client.joinQueue(player2Info.token)
 
         assert(lobbyInfoPlayer2 != null)
 
-        val lobbyInfo = client.get().uri("/lobby/${lobbyInfoPlayer1.id}")
+        val lobbyInfo = client.get().uri("/lobby/${lobbyInfoPlayer1.lobbyId}")
             .setAuthToken(player1Info.token)
             .exchange()
             .expectStatus().isOk
@@ -138,7 +138,7 @@ class LobbyControllerTests {
             .responseBody?.properties
 
         assert(lobbyInfo != null)
-        assertEquals(lobbyInfoPlayer2!!.gameID, lobbyInfo!!.gameID)
+        assertEquals(lobbyInfoPlayer2!!.gameId, lobbyInfo!!.gameId)
 
     }
 
@@ -149,7 +149,7 @@ class LobbyControllerTests {
 
         val lobbyInfoPlayer1 = client.joinQueue(player1Info.token) ?: fail()
 
-        client.get().uri(Uris.Lobby.STATE, lobbyInfoPlayer1.id)
+        client.get().uri(Uris.Lobby.STATE, lobbyInfoPlayer1.lobbyId)
             .setAuthToken(player2Info.token)
             .exchange()
             .expectStatus().isForbidden

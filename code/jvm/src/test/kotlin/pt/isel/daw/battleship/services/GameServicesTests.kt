@@ -5,13 +5,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.ShipInfo
-import pt.isel.daw.battleship.repository.LobbyRepository
 import pt.isel.daw.battleship.repository.dto.toDTO
-import pt.isel.daw.battleship.repository.jdbi.JdbiLobbyRepository
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.entities.GameStateInfo
-import pt.isel.daw.battleship.services.entities.LobbyInformation
 import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
@@ -243,9 +240,9 @@ class GameServicesTests {
 
             val res = gameService.enqueue(user.uid)
 
-            val queue = gameService.getMyLobbyState(user.uid, res.id)
+            val queue = gameService.getMyLobbyState(user.uid, res.lobbyId)
 
-            assertEquals(null, queue.gameID)
+            assertEquals(null, queue.gameId)
         }
     }
 
@@ -260,13 +257,13 @@ class GameServicesTests {
             val res = gameService.enqueue(user.uid)
             val res2 = gameService.enqueue(user2.uid)
 
-            val queue = gameService.getMyLobbyState(user.uid, res.id)
-            val queue2 = gameService.getMyLobbyState(user2.uid, res2.id)
+            val queue = gameService.getMyLobbyState(user.uid, res.lobbyId)
+            val queue2 = gameService.getMyLobbyState(user2.uid, res2.lobbyId)
 
-            assert(queue.gameID != null)
-            assert(queue2.gameID != null)
+            assert(queue.gameId != null)
+            assert(queue2.gameId != null)
 
-            assertEquals(queue.gameID, queue2.gameID)
+            assertEquals(queue.gameId, queue2.gameId)
         }
     }
 
@@ -279,9 +276,9 @@ class GameServicesTests {
 
             val res1 = gameService.enqueue(user.uid)
             val res2 = gameService.enqueue(user.uid)
-            assert(res1.id != res2.id)
-            assert(res1.gameID == null)
-            assert(res2.gameID == null)
+            assert(res1.lobbyId != res2.lobbyId)
+            assert(res1.gameId == null)
+            assert(res2.gameId == null)
         }
     }
 

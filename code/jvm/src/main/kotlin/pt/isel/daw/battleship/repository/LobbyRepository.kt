@@ -21,9 +21,10 @@ interface LobbyRepository {
     /**
      * Removes a player from the waiting lobby.
      * @param userID The player's ID.
+     * @param lobbyID The lobby's ID.
      * @return [Boolean]
      */
-    fun removePlayerFromLobby(userID: UserID): Boolean
+    fun removePlayerFromLobby(lobbyID: ID, userID: UserID): Boolean
 
 
     /**
