@@ -42,7 +42,7 @@ class JdbiLobbyRepository(
      */
     override fun removePlayerFromLobby(lobbyID: ID, userID: UserID): Boolean {
         return handle.createUpdate("DELETE FROM waitinglobby WHERE id = " +
-                ":lobbyID and player1 = :userID)")
+                ":lobbyID and player1 = :userID")
             .bind("lobbyID", lobbyID)
             .bind("userID", userID)
             .execute() == 1

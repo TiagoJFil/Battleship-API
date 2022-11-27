@@ -18,6 +18,7 @@ import pt.isel.daw.battleship.repository.jdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.clear
 import pt.isel.daw.battleship.repository.executeWithHandle
 import pt.isel.daw.battleship.services.entities.LobbyInformation
+import java.net.URI
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class LobbyControllerTests {
@@ -80,7 +81,9 @@ class LobbyControllerTests {
 
     @Test
     fun `Trying to cancel queue with an invalid token`() {
-        client.post().uri(Uris.Lobby.CANCEL_QUEUE)
+        val authInfo = client.createUser("user1", "pass1")
+        val lobbyInfo = client.joinQueue(authInfo.token)
+        client.delete().uri("${Uris.Lobby.ROOT}/${lobbyInfo?.lobbyId}/cancel")
             .setAuthToken("authTokeninvalid")
             .exchange()
             .expectStatus().isUnauthorized
@@ -92,24 +95,10 @@ class LobbyControllerTests {
     }
 
     @Test
-    fun `Trying to cancel queue without joining the queue first`() {
+    fun `Trying to cancel queue successfully after joining`() {
         val authInfo = client.createUser("user1", "pass1")
-        client.post().uri(Uris.Lobby.CANCEL_QUEUE)
-            .setAuthToken(authInfo.token)
-            .exchange()
-            .expectStatus().isForbidden
-            .expectHeader()
-            .assertContentTypeProblem()
-            .expectBody<Problem>()
-            .returnResult()
-            .responseBody!!
-    }
-
-    @Test
-    fun `Trying to cancel queue sucessfully after joining`() {
-        val authInfo = client.createUser("user1", "pass1")
-        client.joinQueue(authInfo.token)
-        client.post().uri(Uris.Lobby.CANCEL_QUEUE)
+        val lobbyInfo = client.joinQueue(authInfo.token)
+        client.delete().uri("${Uris.Lobby.ROOT}/${lobbyInfo?.lobbyId}/cancel")
             .setAuthToken(authInfo.token)
             .exchange()
             .expectStatus().isOk

@@ -220,18 +220,6 @@ class GameServicesTests {
     }
 
     @Test
-    fun `Cant leave the queue if user did not join`() {
-        assertThrows<ForbiddenAccessAppException> {
-            testWithTransactionManagerAndRollback {
-                val gameService = GameService(this)
-                val user = createUser("abasdd")
-
-                gameService.leaveLobby(user.uid)
-            }
-        }
-    }
-
-    @Test
     fun `Get into the queue successfully`() {
         testWithTransactionManagerAndRollback {
             val gameService = GameService(this)

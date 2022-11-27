@@ -18,7 +18,7 @@ object Uris {
     }
 
     object Lobby {
-        private const val ROOT = "/lobby"
+        const val ROOT = "/lobby"
         const val QUEUE = ROOT
         const val CANCEL_QUEUE = "$ROOT/{lobbyId}/cancel"
         const val STATE = "$ROOT/{lobbyId}"
