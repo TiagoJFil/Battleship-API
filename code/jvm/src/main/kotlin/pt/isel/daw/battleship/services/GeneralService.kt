@@ -1,9 +1,9 @@
 package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Service
-import pt.isel.daw.battleship.services.entities.GameStatistics
-import pt.isel.daw.battleship.services.entities.PlayerStatistics
+import pt.isel.daw.battleship.services.entities.Statistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
+import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 
 @Service
@@ -22,12 +22,18 @@ class GeneralService (
     /**
      * Gets the game statistics
      */
-    fun getStatistics(): GameStatistics {
+    fun getStatistics(embedded: Boolean = false): EmbeddableStatistics {
         return transactionFactory.execute {
-            generalRepository.getStatistics()
+            val statistics = generalRepository.getStatistics()
+            val users = statistics.ranking.mapNotNull { userRepository.getUser(it.playerId) }
+            EmbeddableStatistics(statistics,users)
         }
     }
 
 
+    data class EmbeddableStatistics(
+        val statistics: Statistics,
+        val users: List<User>
+    )
 
 }

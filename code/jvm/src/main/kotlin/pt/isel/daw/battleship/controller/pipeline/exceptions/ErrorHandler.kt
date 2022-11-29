@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.controller.exception
+package pt.isel.daw.battleship.controller.pipeline.exceptions
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -23,7 +23,6 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(AppException::class)
     fun handleAppException(ex: AppException, servletRequest: ServletWebRequest): ResponseEntity<Problem> {
-
         val problem = Problem(
             ex.type?.let { URI(it) },
             ex.message,
@@ -31,7 +30,7 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
         )
 
         ex.printStackTrace()
-        logger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
+        errorLogger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
         return ResponseEntity.status(errorToStatusMap[ex::class] ?: HttpStatus.INTERNAL_SERVER_ERROR)
             .setProblemHeader()
             .body(problem)
@@ -39,7 +38,6 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception, servletRequest: ServletWebRequest): ResponseEntity<Problem> {
-
         val problem = Problem(
             URI(ErrorTypes.General.INTERNAL_ERROR),
             ex.message,
@@ -47,7 +45,7 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
         )
 
         ex.printStackTrace()
-        logger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
+        errorLogger.error(" $ex : ${problem.title} on ${servletRequest.contextPath}")
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .setProblemHeader()
             .body(problem)
@@ -61,9 +59,7 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
         headers: HttpHeaders,
         status: HttpStatus,
         request: WebRequest
-    ): ResponseEntity<Any> {
-
-        return ResponseEntity
+    ): ResponseEntity<Any> = ResponseEntity
             .status(404)
             .setProblemHeader()
             .body(Problem(
@@ -71,15 +67,13 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
                 ex.message,
                 instance = (request as ServletWebRequest).request.requestURI.toString()
             ))
-    }
 
     override fun handleHttpRequestMethodNotSupported(
         ex: HttpRequestMethodNotSupportedException,
         headers: HttpHeaders,
         status: HttpStatus,
         request: WebRequest
-    ): ResponseEntity<Any> {
-        return ResponseEntity
+    ): ResponseEntity<Any> = ResponseEntity
             .status(405)
             .setProblemHeader()
             .body(Problem(
@@ -87,12 +81,9 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
                 ex.message,
                 instance = (request as ServletWebRequest).request.requestURI.toString()
             ))
-    }
-
-
 
     companion object{
-        private val logger =  LoggerFactory.getLogger(ErrorHandler::class.java)
+        private val errorLogger =  LoggerFactory.getLogger(ErrorHandler::class.java)
     }
 
 }

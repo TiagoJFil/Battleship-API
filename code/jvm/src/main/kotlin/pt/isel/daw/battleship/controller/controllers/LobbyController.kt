@@ -8,7 +8,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.siren.appToSiren
 import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
-import pt.isel.daw.battleship.controller.interceptors.authentication.Authentication
+import pt.isel.daw.battleship.controller.pipeline.authentication.Authentication
 import pt.isel.daw.battleship.services.GameService
 import pt.isel.daw.battleship.services.entities.LobbyInformation
 import pt.isel.daw.battleship.utils.ID

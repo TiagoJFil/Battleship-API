@@ -17,7 +17,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.build
 import pt.isel.daw.battleship.repository.jdbiTransactionFactoryTestDB
 import pt.isel.daw.battleship.repository.clear
 import pt.isel.daw.battleship.repository.executeWithHandle
-import pt.isel.daw.battleship.services.entities.GameStatistics
+import pt.isel.daw.battleship.services.entities.Statistics
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RootControllerTests {
@@ -88,7 +88,7 @@ class RootControllerTests {
             .expectStatus().isOk
             .expectHeader()
             .assertContentTypeSiren()
-            .expectBody<SirenEntity<GameStatistics>>()
+            .expectBody<SirenEntity<Statistics>>()
             .returnResult()
             .responseBody
     }

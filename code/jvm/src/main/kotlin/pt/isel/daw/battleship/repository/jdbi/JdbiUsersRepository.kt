@@ -4,6 +4,7 @@ import org.jdbi.v3.core.Handle
 import pt.isel.daw.battleship.repository.UserRepository
 import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
+import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 import pt.isel.daw.battleship.utils.UserToken
@@ -84,6 +85,18 @@ class JdbiUsersRepository(val handle: Handle) : UserRepository {
             select userid from token where token = :token    
         """).bind("token", token)
             .mapTo(Int::class.java)
+            .firstOrNull()
+    }
+    /**
+     * Gets the user information.
+     * @param userID The user ID to get.
+     * @return [User] with the user information.
+     */
+    override fun getUser(userID: ID): User? {
+        return handle.createQuery("""
+            select name from "User" where id = :id
+        """).bind("id", userID)
+            .mapTo(User::class.java)
             .firstOrNull()
     }
 }

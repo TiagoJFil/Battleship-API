@@ -4,7 +4,7 @@ import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import pt.isel.daw.battleship.repository.GeneralRepository
 import pt.isel.daw.battleship.repository.dto.PlayerStatisticDTO
-import pt.isel.daw.battleship.services.entities.GameStatistics
+import pt.isel.daw.battleship.services.entities.Statistics
 import pt.isel.daw.battleship.services.entities.PlayerStatistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
 
@@ -30,7 +30,7 @@ class JdbiGeneralRepository(
     /**
      * Gets the game statistics
      */
-    override fun getStatistics(): GameStatistics {
+    override fun getStatistics(): Statistics {
 
         val numGames = handle.createQuery("SELECT COUNT(*) FROM game")
             .mapTo<Int>()
@@ -44,7 +44,7 @@ class JdbiGeneralRepository(
             PlayerStatistics(index+1, dto.playerId, dto.totalGames, dto.wins)
         }
 
-        return GameStatistics(numGames, ranking)
+        return Statistics(numGames, ranking)
     }
 
 }

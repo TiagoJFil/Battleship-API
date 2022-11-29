@@ -14,6 +14,7 @@ class JdbiLobbyRepository(
     /**
      * Adds a player to the waiting lobby.
      * @param userID The player's ID.
+     * @return [Boolean] true if the player was added to the waiting lobby, false otherwise.
      */
     override fun createLobby(userID: UserID): ID {
         return handle.createUpdate("INSERT INTO waitinglobby(player1) VALUES (:userID)")
@@ -24,7 +25,11 @@ class JdbiLobbyRepository(
     }
 
     /**
-     *
+     * Sets the second joining player and the game ID to the waiting lobby with the given lobbyID.
+     * @param lobbyID The lobby's ID.
+     * @param player2 The second player's ID.
+     * @param gameID The game's ID.
+     * @return [Boolean] true if the update was successful, false otherwise.
      */
     override fun completeLobby(lobbyID: ID, player2: UserID, gameID: ID): Boolean {
         return handle.createUpdate("UPDATE waitinglobby SET player2 = :player2, gameID = :gameid WHERE id = :lobbyID")
@@ -37,7 +42,7 @@ class JdbiLobbyRepository(
     /**
      * Removes a player from the waiting lobby.
      * @param userID The player's ID.
-     * @return [Boolean]
+     * @return [Boolean] true if the update was successful, false otherwise.
      */
     override fun removePlayerFromLobby(userID: UserID): Boolean {
         return handle.createUpdate("DELETE FROM waitinglobby WHERE id = " +
@@ -59,9 +64,14 @@ class JdbiLobbyRepository(
             .orElse(null)
     }
 
-    override fun get(lobbyId: ID): LobbyDTO? {
+    /**
+     * Gets the [LobbyDTO] with the given [ID].
+     * @param lobbyID The lobby's ID.
+     * @return [LobbyDTO]
+     */
+    override fun get(lobbyID: ID): LobbyDTO? {
         return handle.createQuery("SELECT * FROM waitinglobby WHERE id = :lobbyId")
-            .bind("lobbyId", lobbyId)
+            .bind("lobbyId", lobbyID)
             .mapTo(LobbyDTO::class.java)
             .findFirst()
             .orElse(null)

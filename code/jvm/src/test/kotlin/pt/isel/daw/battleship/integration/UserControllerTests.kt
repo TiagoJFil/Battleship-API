@@ -61,6 +61,20 @@ class UserControllerTests {
             .assertContentTypeProblem()
     }
 
+    @Test
+    fun `get a created user sucessfully`(){
+        val auth = client.createUser("test1","testad1")
+
+        client.get().uri(Uris.User.GET_USER, auth.uid)
+            .header("Authorization", auth.token)
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader()
+            .assertContentTypeSiren()
+            .expectBody()
+            .jsonPath("\$.properties.name").isEqualTo("test1")
+    }
+
 
     @Test
     fun `creating a user with a repeated username returns 409`(){

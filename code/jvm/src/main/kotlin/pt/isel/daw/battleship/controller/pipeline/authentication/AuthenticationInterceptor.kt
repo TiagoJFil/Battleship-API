@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.controller.interceptors.authentication
+package pt.isel.daw.battleship.controller.pipeline.authentication
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -32,6 +32,7 @@ class AuthenticationInterceptor(
         }
         return true
     }
+
 
     companion object {
         private val logger = LoggerFactory.getLogger(AuthenticationInterceptor::class.java)

@@ -6,6 +6,63 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.build
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
+//TODO : remove this
+data class EmbeddedEntityInfo<E>(
+    val nodeID : String,
+    val entity : E,
+)
+
+/**
+ * Other interface to the [appendEmbedded] function. Using reified type parameters.
+ * @see appendEmbedded
+ */
+inline fun <reified T: Any,reified E: Any> SirenEntity<T>.appendEmbedded(
+    sirenGraph: SirenNavGraph,
+    embeddedNodeID : String,
+    entity : E,
+    originalNodeID : SirenNodeID,
+    extraPlaceholders: Map<String, String?>?
+) : SirenEntity<T> =
+    this.appendEmbedded(sirenGraph,embeddedNodeID,entity,T::class,E::class,originalNodeID,extraPlaceholders)
+
+/**
+ * Appends an embedded [E] entity to the current [T] entity.
+ *
+ * @param sirenGraph The [SirenNavGraph] to use to build the embedded entity.
+ * @param embeddedNodeID The node ID of the embedded entity.
+ * @param entity The entity to embed.
+ * @param kClassE The [KClass] of the entity to embed.
+ * @param kClassT The [KClass] of the current entity.
+ * @param originalNodeID The [SirenNodeID] of the current entity.
+ * @param extraPlaceholders The extra placeholders to use when building the embedded entity.
+ *
+ * @return the current [SirenEntity<T>] entity with the embedded [E] entity appended.
+ */
+fun <T : Any ,E : Any> SirenEntity<T>.appendEmbedded(
+    sirenGraph: SirenNavGraph,
+    embeddedNodeID : String,
+    entity : E,
+    kClassT: KClass<T>,
+    kClassE: KClass<E>,
+    originalNodeID : SirenNodeID,
+    extraPlaceholders: Map<String, String?>? = null
+) : SirenEntity<T> {
+    val embeddedNode = sirenGraph[embeddedNodeID] as SirenNode<E>
+
+    val placeholdersT =this.properties?.getPlaceholders(kClassT) ?: emptyMap()
+    val placeholdersE = entity.getPlaceholders(kClassE)
+    val placeholders = placeholdersT + placeholdersE + (extraPlaceholders ?: emptyMap())
+
+    val originalNode = sirenGraph[originalNodeID] as SirenNode<T>  // use this or use originalNodeID on the argument
+
+    val rel = originalNode.embeddedEntitiesRel?.firstOrNull { it.kClass == kClassE }?.entity?.rel ?: throw  NoSuchElementException("No relation found between ${kClassE.simpleName} and ${kClassT.simpleName}")
+
+    val embeddedEntity = embeddedNode.toSirenEmbeddedEntity(entity,rel, placeholders)
+
+    return this.copy(
+        entities = this.entities?.plus(embeddedEntity)  ?: listOf(embeddedEntity)
+    )
+}
 
 /**
  * Other interface to the [toSirenEntity] function. Using reified type parameters.
@@ -43,8 +100,7 @@ fun <T : Any> T.toSirenEntity(
 
     val node = sirenGraph[nodeID] as SirenNode<T>
 
-    val placeholders = kClass.memberProperties
-        .associate { prop -> prop.name to prop.getter.call(this)?.toString() }
+    val placeholders = this.getPlaceholders(kClass)
 
     // Remove duplicate keys prioritizing the placeholders from the object properties
     val remainingPlaceholders = extraPlaceholders?.filter { !placeholders.containsKey(it.key) }
@@ -77,8 +133,6 @@ private fun <T> SirenEntity<T>.nullifyEmptyCollections() = copy(
             },
         entities = entities?.ifEmpty { null }
     )
-
-
 
 /**
  * Tries to fill the URI placeholders with the properties of the object.
@@ -155,6 +209,16 @@ private fun String.replacePlaceholders(placeholders: Map<String, String?>): Stri
 }
 
 /**
+ * Given an object and kClass, returns a map of the object's properties and their values.
+ * The map is used to replace the placeholders in the hrefs of the relations.
+ * @param T the object
+ * @param kClass[T] class information
+ */
+fun <R : Any> R.getPlaceholders(kClass : KClass<R>) =
+    kClass.memberProperties
+        .associate { prop -> prop.name to prop.getter.call(this)?.toString() }
+
+/**
  * Filters all the relationships that don't satisfy their respective showWhen predicates.
  */
 private fun <T : Any> SirenNode<T>.filterRelationshipsByPredicate(instance: T): SirenNode<T> {
@@ -195,6 +259,30 @@ private fun <T : Any> SirenNode<T>.toEntity(
         entities = newNode.entities?.map { it.link }
     ).tryExpandHrefs(placeholders)
         .nullifyEmptyCollections()
-
 }
 
+/**
+ * Transforms a SirenNode into a SirenEntity.
+ *
+ * @param instance The object that will be used to fill the entity's properties.
+ * @param placeholders A map of placeholders to expand the hrefs of the relationships.
+ * @param rel The relation of the embedded entity.
+ * @return A SirenEntity with the properties and relationships of the SirenNode.
+ */
+private fun <E: Any> SirenNode<E>.toSirenEmbeddedEntity(
+    instance: E,
+    rel : List<String>,
+    placeholders: Map<String, String?>
+) : EmbeddedEntity<E> {
+    val sirenEntity = this.toEntity(instance,placeholders)
+
+    return EmbeddedEntity<E>(
+        rel = rel,
+        clazz = sirenEntity.clazz,
+        properties = sirenEntity.properties,
+        entities  = sirenEntity.entities,
+        links  = sirenEntity.links,
+        actions  = sirenEntity.actions,
+        title = sirenEntity.title
+    )
+}

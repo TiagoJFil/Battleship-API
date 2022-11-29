@@ -1,16 +1,12 @@
 package pt.isel.daw.battleship.services
 
-import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.postgresql.ds.PGSimpleDataSource
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.repository.dto.toDTO
-import pt.isel.daw.battleship.repository.jdbi.configure
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.entities.AuthInformation
-import pt.isel.daw.battleship.services.exception.InternalErrorAppException
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
 import pt.isel.daw.battleship.utils.ID
@@ -75,10 +71,10 @@ class GeneralServicesTest {
         testWithTransactionManagerAndRollback {
             val generalService = GeneralService(this)
 
-            val statistics = generalService.getStatistics()
+            val embeddableStatistics = generalService.getStatistics()
 
-            assertEquals(statistics.nGames, 0)
-            assertEquals(statistics.ranking.size, 0)
+            assertEquals(embeddableStatistics.statistics.nGames, 0)
+            assertEquals(embeddableStatistics.statistics.ranking.size, 0)
         }
     }
 
@@ -89,13 +85,13 @@ class GeneralServicesTest {
 
             createFinishedGame()
 
-            val statistics = generalService.getStatistics()
+            val embeddableStatistics = generalService.getStatistics()
 
-            assertEquals(statistics.nGames, 1)
-            assertEquals(statistics.ranking.size, 2)
+            assertEquals(embeddableStatistics.statistics.nGames, 1)
+            assertEquals(embeddableStatistics.statistics.ranking.size, 2)
 
-            val player1Stats = statistics.ranking[0]
-            val player2Stats = statistics.ranking[1]
+            val player1Stats = embeddableStatistics.statistics.ranking[0]
+            val player2Stats = embeddableStatistics.statistics.ranking[1]
 
             assertEquals(player1Stats.rank, 1)
             assertEquals(player2Stats.rank, 2)
