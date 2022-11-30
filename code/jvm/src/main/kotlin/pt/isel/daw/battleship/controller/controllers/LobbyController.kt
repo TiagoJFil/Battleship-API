@@ -37,9 +37,9 @@ class LobbyController(
     }
 
     @Authentication
-    @PostMapping(Uris.Lobby.CANCEL_QUEUE)
-    fun cancelQueue(userID: UserID) : SirenEntity<NoEntitySiren> {
-        gameService.leaveLobby(userID)
+    @DeleteMapping(Uris.Lobby.CANCEL_QUEUE)
+    fun cancelQueue(@PathVariable("lobbyId") lobbyId: ID, userID: UserID) : SirenEntity<NoEntitySiren> {
+        gameService.leaveLobby(lobbyId, userID)
         return noEntitySiren(AppSirenNavigation.graph, AppSirenNavigation.USER_HOME_NODE_KEY)
     }
 

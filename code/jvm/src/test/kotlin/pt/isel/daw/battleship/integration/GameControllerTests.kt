@@ -381,7 +381,7 @@ class GameControllerTests {
             assert(false)
             null
         } else {
-            lobbyInfo.gameID
+            lobbyInfo.gameId
         }
     }
 

@@ -32,7 +32,7 @@ class JdbiLobbyRepository(
      * @return [Boolean] true if the update was successful, false otherwise.
      */
     override fun completeLobby(lobbyID: ID, player2: UserID, gameID: ID): Boolean {
-        return handle.createUpdate("UPDATE waitinglobby SET player2 = :player2, gameID = :gameid WHERE id = :lobbyID")
+        return handle.createUpdate("UPDATE waitinglobby SET player2 = :player2, gameId = :gameid WHERE id = :lobbyID")
             .bind("player2", player2)
             .bind("gameid", gameID)
             .bind("lobbyID", lobbyID)
@@ -42,11 +42,13 @@ class JdbiLobbyRepository(
     /**
      * Removes a player from the waiting lobby.
      * @param userID The player's ID.
+     * @param lobbyID The lobby's ID.
      * @return [Boolean] true if the update was successful, false otherwise.
      */
-    override fun removePlayerFromLobby(userID: UserID): Boolean {
+    override fun removePlayerFromLobby(lobbyID: ID, userID: UserID): Boolean {
         return handle.createUpdate("DELETE FROM waitinglobby WHERE id = " +
-                "(SELECT min(id) FROM waitinglobby WHERE player1 = :userID)")
+                ":lobbyID and player1 = :userID")
+            .bind("lobbyID", lobbyID)
             .bind("userID", userID)
             .execute() == 1
     }
