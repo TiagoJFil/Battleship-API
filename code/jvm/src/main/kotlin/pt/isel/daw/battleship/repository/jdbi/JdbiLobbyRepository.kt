@@ -46,7 +46,7 @@ class JdbiLobbyRepository(
      * @return [Boolean] true if the update was successful, false otherwise.
      */
     override fun removePlayerFromLobby(lobbyID: ID, userID: UserID): Boolean {
-        return handle.createUpdate("DELETE FROM waitinglobby WHERE id = " +
+        return handle.createUpdate("UPDATE waitinglobby SET cancelled = true WHERE id = " +
                 ":lobbyID and player1 = :userID")
             .bind("lobbyID", lobbyID)
             .bind("userID", userID)
@@ -59,7 +59,7 @@ class JdbiLobbyRepository(
      * @return [LobbyDTO]
      */
     override fun findWaitingLobby(userID: UserID): LobbyDTO? {
-        return handle.createQuery("SELECT * FROM waitinglobby WHERE player2 IS NULL and player1 <> :userID")
+        return handle.createQuery("SELECT * FROM waitinglobby WHERE player2 IS NULL and player1 <> :userID and cancelled = false")
             .bind("userID", userID)
             .mapTo(LobbyDTO::class.java)
             .findFirst()
@@ -72,7 +72,7 @@ class JdbiLobbyRepository(
      * @return [LobbyDTO]
      */
     override fun get(lobbyID: ID): LobbyDTO? {
-        return handle.createQuery("SELECT * FROM waitinglobby WHERE id = :lobbyId")
+        return handle.createQuery("SELECT * FROM waitinglobby WHERE id = :lobbyId and cancelled = false")
             .bind("lobbyId", lobbyID)
             .mapTo(LobbyDTO::class.java)
             .findFirst()
