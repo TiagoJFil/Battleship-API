@@ -9,12 +9,16 @@ interface LobbyRepository {
     /**
      * Adds a player to the waiting lobby.
      * @param userID The player's ID.
-     * @return [Boolean]
+     * @return [Boolean] true if the update was successful, false otherwise.
      */
     fun createLobby(userID: UserID): ID
 
     /**
-     *
+     * Sets the second joining player and the game ID to the waiting lobby with the given lobbyID.
+     * @param lobbyID The lobby's ID.
+     * @param player2 The second player's ID.
+     * @param gameID The game's ID.
+     * @return [Boolean] true if the update was successful, false otherwise.
      */
     fun completeLobby(lobbyID: ID, player2: UserID, gameID: ID): Boolean
 
@@ -22,7 +26,7 @@ interface LobbyRepository {
      * Removes a player from the waiting lobby.
      * @param userID The player's ID.
      * @param lobbyID The lobby's ID.
-     * @return [Boolean]
+     * @return [Boolean] true if the update was successful, false otherwise.
      */
     fun removePlayerFromLobby(lobbyID: ID, userID: UserID): Boolean
 
@@ -35,5 +39,10 @@ interface LobbyRepository {
     fun findWaitingLobby(userID: UserID): LobbyDTO?
 
 
-    fun get(lobbyId: ID): LobbyDTO?
+    /**
+     * Gets the [LobbyDTO] with the given [ID].
+     * @param lobbyID The lobby's ID.
+     * @return [LobbyDTO]
+     */
+    fun get(lobbyID: ID): LobbyDTO?
 }

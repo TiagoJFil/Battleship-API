@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.controller.interceptors.authentication
+package pt.isel.daw.battleship.controller.pipeline.authentication
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.services.UserService

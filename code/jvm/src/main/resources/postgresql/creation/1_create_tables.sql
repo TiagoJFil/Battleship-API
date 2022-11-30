@@ -53,7 +53,8 @@ create table if not exists WaitingLobby(
    id serial primary key,
    player1 int, foreign key(player1) references "User"(id),
    player2 int, foreign key(player2) references "User"(id),
-   gameid int, foreign key(gameid) references Game(id)
+   gameid int, foreign key(gameid) references Game(id),
+   cancelled boolean not null default false
 );
 
 create table if not exists Board (

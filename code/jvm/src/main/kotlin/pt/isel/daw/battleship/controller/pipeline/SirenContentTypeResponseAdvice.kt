@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.controller.interceptors
+package pt.isel.daw.battleship.controller.pipeline
 
 import org.springframework.core.MethodParameter
 import org.springframework.http.MediaType
@@ -12,7 +12,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 
 
 @ControllerAdvice
-class ContentTypeResponseAdvice : ResponseBodyAdvice<Any> {
+class SirenContentTypeResponseAdvice : ResponseBodyAdvice<Any> {
     override fun supports(returnType: MethodParameter, converterType: Class<out HttpMessageConverter<*>>): Boolean {
         val handlerReturnType = returnType.parameterType
         return SirenEntity::class.java == handlerReturnType

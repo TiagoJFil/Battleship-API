@@ -14,6 +14,7 @@ object Uris {
         const val HOME = "/my"
         const val LOGIN = "$ROOT/login"
         const val REGISTER = ROOT
+        const val GET_USER = "$ROOT/{id}"
     }
 
     object Lobby {

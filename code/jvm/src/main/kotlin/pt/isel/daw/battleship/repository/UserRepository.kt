@@ -1,9 +1,9 @@
 package pt.isel.daw.battleship.repository
 
 
-import org.apache.catalina.User
 import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
+import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.UserID
 import pt.isel.daw.battleship.utils.UserToken
@@ -46,5 +46,13 @@ interface UserRepository {
      * @return the [ID] of the user with the given token or null if the user does not exist
      */
     fun getUserIDByToken(token: UserToken): ID?
+
+    /**
+     * Gets the [User].
+     * @param userID the [ID] of the user
+     * @return the [User] with the given [ID] or null if the user does not exist
+     */
+    fun getUser(userID: ID): User?
+
 
 }

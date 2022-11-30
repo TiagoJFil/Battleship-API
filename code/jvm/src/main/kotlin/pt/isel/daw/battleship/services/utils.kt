@@ -9,6 +9,9 @@ import java.util.*
 
 private val digest = MessageDigest.getInstance("SHA-512") // "SHA-512"
 
+/**
+ * Converts the given [ByteArray] into a [String] with the hexadecimal representation.
+ */
 fun ByteArray.toHex(): String = joinToString("") { "%02x".format(it) }
 
 /**
@@ -59,6 +62,12 @@ fun requireParameter(parameter: String?, parameterName: String): String {
     return parameter
 }
 
+/**
+ * @param value to assert as true.
+ * @param message to show on the exception.
+ *
+ * @throws [InvalidParameterException] if the value is false.
+ */
 fun requireParameter( value : Boolean , message: () -> Any){
     if(!value) throw InvalidParameterException(message().toString())
 }

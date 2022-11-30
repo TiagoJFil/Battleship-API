@@ -20,6 +20,12 @@ inline fun <reified T : Any> T.appToSiren(
     extraPlaceholders: Map<String, String?>? = null
 ): SirenEntity<T> = this.toSiren(AppSirenNavigation.graph, nodeID, extraPlaceholders)
 
+inline fun <reified T  : Any,reified E : Any> SirenEntity<T>.appAppendEmbedded(
+    embeddedNodeID: SirenNodeID,
+    entity: E,
+    originalNodeID : SirenNodeID,
+    extraPlaceholders: Map<String, String?>? = null
+): SirenEntity<T> = this.appendEmbedded(AppSirenNavigation.graph,embeddedNodeID, entity,originalNodeID,extraPlaceholders)
 
 object AppSirenNavigation {
 
@@ -27,6 +33,7 @@ object AppSirenNavigation {
     const val LOBBY_STATE_NODE_KEY = "lobby-state"
     const val AUTH_INFO_NODE_KEY = "auth-info"
     const val USER_HOME_NODE_KEY = "user-home"
+    const val USER_NODE_KEY = "user"
     const val FLEET_NODE_KEY = "fleet"
     const val DEFINE_LAYOUT_NODE_ID = "layout-definition"
     const val SHOTS_DEFINITION_NODE_KEY = "shots-definition"
@@ -51,9 +58,18 @@ object AppSirenNavigation {
             }
         }
 
-        node<GameStatistics>(STATISTICS_NODE_KEY) {
+        node<Statistics>(STATISTICS_NODE_KEY) {
             self(Uris.Home.STATISTICS)
             link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
+            link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
+            embeddedEntity<User>(
+                rel = listOf("user associated to id"),
+            )
+        }
+
+        node<User>(USER_NODE_KEY) {
+            self(Uris.User.GET_USER)
+
         }
 
         node<SystemInfo>(SYSTEM_INFO_NODE_KEY) {
@@ -80,6 +96,8 @@ object AppSirenNavigation {
             link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
             action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "DELETE", title = "Cancel")
+            link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
+            action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "POST", title = "Cancel")
         }
 
         node<GameStateInfo>(GAME_STATE_NODE_KEY) {

@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.controller.interceptors
+package pt.isel.daw.battleship.controller.pipeline
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

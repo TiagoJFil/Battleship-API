@@ -3,6 +3,7 @@ package pt.isel.daw.battleship.services
 import org.springframework.stereotype.Service
 import pt.isel.daw.battleship.repository.dto.UserDTO
 import pt.isel.daw.battleship.services.entities.AuthInformation
+import pt.isel.daw.battleship.services.entities.User
 import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
@@ -82,6 +83,18 @@ class UserService(
         return transactionFactory.execute {
             userRepository.getUserIDByToken(userToken)
                 ?: throw UnauthenticatedAppException()
+        }
+    }
+
+    /**
+     * Gets the user information.
+     * @param userID The user ID to get.
+     * @return [User] with the user information.
+     */
+    fun getUser(userID: UserID): User {
+        return transactionFactory.execute {
+            userRepository.getUser(userID)
+                ?: throw NotFoundAppException("User with ID $userID")
         }
     }
 

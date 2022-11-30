@@ -99,6 +99,7 @@ class GameService(
             if (userID != currentGameState.turnID)
                 throw ForbiddenAccessAppException("Not your turn!")
 
+
             val newGameState = currentGameState.makePlay(shots)
             gamesRepository.persist(newGameState.toDTO())
 
@@ -118,7 +119,7 @@ class GameService(
      * @throws ForbiddenAccessAppException if the user is not in the game
      */
     fun defineFleetLayout(userID: UserID, gameId: ID, ships: List<ShipInfo>) {
-        transactionFactory.execute {
+        val newGameState = transactionFactory.execute {
             val currentState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in currentState.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
@@ -126,9 +127,11 @@ class GameService(
             val newGameState = currentState.placeShips(ships, userID)
             gamesRepository.persist(newGameState.toDTO())
 
-            if (newGameState.state == Game.State.CANCELLED) {
-                throw TimeoutExceededAppException(TOOK_TOO_LONG_PLACING_SHIPS)
-            }
+            newGameState
+        }
+
+        if (newGameState.state == Game.State.CANCELLED) {
+            throw TimeoutExceededAppException(TOOK_TOO_LONG_PLACING_SHIPS)
         }
     }
 
@@ -164,6 +167,9 @@ class GameService(
 
     /**
      * Gets the lobby state of the lobby identified by the given [lobbyId]
+     * @param userID the user that is getting the lobby state
+     * @param lobbyId the [ID] of the lobby
+     *
      */
     fun getMyLobbyState(userID: UserID, lobbyId: ID): LobbyInformation {
         return transactionFactory.execute {

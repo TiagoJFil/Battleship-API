@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pt.isel.daw.battleship.repository.testWithTransactionManagerAndRollback
 import pt.isel.daw.battleship.services.exception.InvalidParameterException
+import pt.isel.daw.battleship.services.exception.NotFoundAppException
 import pt.isel.daw.battleship.services.exception.UnauthenticatedAppException
 import pt.isel.daw.battleship.services.exception.UserAlreadyExistsException
 import pt.isel.daw.battleship.services.validationEntities.UserValidation
@@ -60,6 +61,27 @@ class UserServicesTests {
             }
         }
     }
+
+    @Test
+    fun `Getting a user sucessfully`(){
+        testWithTransactionManagerAndRollback {
+            val userService = UserService(this)
+            val (uid, token) = userService.createUser(UserValidation("user_test", "password1"))
+            val user = userService.getUser(uid)
+            assertEquals(user.name, "user_test")
+        }
+    }
+
+    @Test
+    fun `Throws NotFound when user does not exist`(){
+        testWithTransactionManagerAndRollback {
+            val userService = UserService(this)
+            assertThrows<NotFoundAppException> {
+                userService.getUser(53)
+            }
+        }
+    }
+
 
     @Test
     fun `create a user with less than 3 characters throws InvalidParameterException`(){
