@@ -46,6 +46,7 @@ object AppSirenNavigation {
         node<NoEntitySiren>(ROOT_NODE_KEY) {
             self(Uris.User.REGISTER)
             link(listOf(STATISTICS_NODE_KEY), Uris.Home.STATISTICS)
+            link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
 
             action(LOGIN_KEY, Uris.User.LOGIN, "POST") {
                 field("username", type = "text")
