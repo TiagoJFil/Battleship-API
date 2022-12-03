@@ -228,9 +228,9 @@ class GameServicesTests {
 
             val res = gameService.enqueue(user.uid)
 
-            val queue = gameService.getMyLobbyState(user.uid, res.lobbyId)
+            val queue = gameService.getMyLobbyState(user.uid, res.lobbyID)
 
-            assertEquals(null, queue.gameId)
+            assertEquals(null, queue.gameID)
         }
     }
 
@@ -245,13 +245,13 @@ class GameServicesTests {
             val res = gameService.enqueue(user.uid)
             val res2 = gameService.enqueue(user2.uid)
 
-            val queue = gameService.getMyLobbyState(user.uid, res.lobbyId)
-            val queue2 = gameService.getMyLobbyState(user2.uid, res2.lobbyId)
+            val queue = gameService.getMyLobbyState(user.uid, res.lobbyID)
+            val queue2 = gameService.getMyLobbyState(user2.uid, res2.lobbyID)
 
-            assert(queue.gameId != null)
-            assert(queue2.gameId != null)
+            assert(queue.gameID != null)
+            assert(queue2.gameID != null)
 
-            assertEquals(queue.gameId, queue2.gameId)
+            assertEquals(queue.gameID, queue2.gameID)
         }
     }
 
@@ -264,9 +264,9 @@ class GameServicesTests {
 
             val res1 = gameService.enqueue(user.uid)
             val res2 = gameService.enqueue(user.uid)
-            assert(res1.lobbyId != res2.lobbyId)
-            assert(res1.gameId == null)
-            assert(res2.gameId == null)
+            assert(res1.lobbyID != res2.lobbyID)
+            assert(res1.gameID == null)
+            assert(res2.gameID == null)
         }
     }
 

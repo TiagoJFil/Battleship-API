@@ -78,6 +78,9 @@ class GameService(
      */
     fun leaveLobby(lobbyID: ID, userID: UserID) =
         transactionFactory.execute {
+            if(lobbyRepository.get(lobbyID)?.gameID != null)
+                throw ForbiddenAccessAppException("You can't leave a lobby that is already in a game")
+
             if(!lobbyRepository.removePlayerFromLobby(lobbyID, userID))
                 throw ForbiddenAccessAppException("User $userID is not in the lobby")
         }
