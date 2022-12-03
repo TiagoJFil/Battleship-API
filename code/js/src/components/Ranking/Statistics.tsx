@@ -1,5 +1,7 @@
 import * as React from 'react';
-import {Statistics, PlayerStatistics, getStatistics} from './api/statistics';
+import { getStatistics } from '../../api/api';
+import {Statistics, PlayerStatistics} from '../../entities/statistics';
+import { SirenEntity } from '../../hypermedia/siren';
 
 
 
@@ -10,7 +12,7 @@ export function Statistics() {
     const [statistics, setStatistics] = React.useState<Statistics | null>(null);
 
     React.useEffect(() => {
-        getStatistics().then(setStatistics);
+        getStatistics().then( (res : SirenEntity<Statistics>) => setStatistics(res.properties));
     }, []);
 
     if (statistics === null) {
@@ -20,7 +22,7 @@ export function Statistics() {
     return (
         <div>
             <h1>Statistics</h1>
-            <p>Number of games: {statistics.nGames}</p>
+            <p>Number of games: {statistics.ngames}</p>
             <table>
                 <thead>
                     <tr>
@@ -28,6 +30,7 @@ export function Statistics() {
                         <th>Player ID</th>
                         <th>Total Games</th>
                         <th>Wins</th>
+
                     </tr>
                 </thead>
                 <tbody>
