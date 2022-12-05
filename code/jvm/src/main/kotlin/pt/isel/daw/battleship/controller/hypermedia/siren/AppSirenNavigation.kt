@@ -38,6 +38,7 @@ object AppSirenNavigation {
     const val DEFINE_LAYOUT_NODE_ID = "layout-definition"
     const val SHOTS_DEFINITION_NODE_KEY = "shots-definition"
     const val GAME_STATE_NODE_KEY = "game-state"
+    const val GAME_RULES_NODE_KEY = "game-rules"
     const val STATISTICS_NODE_KEY = "statistics"
     const val SYSTEM_INFO_NODE_KEY = "system-info"
 
@@ -70,7 +71,6 @@ object AppSirenNavigation {
 
         node<User>(USER_NODE_KEY) {
             self(Uris.User.GET_USER)
-
         }
 
         node<SystemInfo>(SYSTEM_INFO_NODE_KEY) {
@@ -98,6 +98,7 @@ object AppSirenNavigation {
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
             action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "DELETE", title = "Cancel")
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
+            link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES) showWhen { it.gameID != null }
         }
 
         node<GameStateInfo>(GAME_STATE_NODE_KEY) {
@@ -126,10 +127,13 @@ object AppSirenNavigation {
                 rel = listOf(OPPONENT_FLEET_KEY),
                 title = "Opponent's Fleet"
             ) showWhen { it.state == Game.State.PLAYING || it.state == Game.State.FINISHED }
+            link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
         }
 
 
-        node<NoEntitySiren>(nodeID = DEFINE_LAYOUT_NODE_ID)
+        node<NoEntitySiren>(nodeID = DEFINE_LAYOUT_NODE_ID){
+            link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
+        }
         node<NoEntitySiren>(nodeID = SHOTS_DEFINITION_NODE_KEY)
 
         node<BoardDTO>(FLEET_NODE_KEY) {

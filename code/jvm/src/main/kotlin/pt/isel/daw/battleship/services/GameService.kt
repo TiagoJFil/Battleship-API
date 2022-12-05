@@ -7,8 +7,10 @@ import pt.isel.daw.battleship.controller.dto.toDTO
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.repository.dto.toDTO
+import pt.isel.daw.battleship.services.entities.GameRulesDTO
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.services.entities.LobbyInformation
+import pt.isel.daw.battleship.services.entities.toDTO
 import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.utils.ID
@@ -184,6 +186,16 @@ class GameService(
                 lobbyId,
                 lobbyDto.gameID
             )
+        }
+    }
+
+    fun getGameRules(gameID: ID, userID: UserID) : GameRulesDTO {
+        return transactionFactory.execute {
+            val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
+            if(userID !in game.playerBoards.keys)
+                throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
+
+            game.rules.toDTO()
         }
     }
 

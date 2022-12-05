@@ -3,8 +3,6 @@ import { logout } from '../../../api/session'
 
 export function Logout(){
 
-    const [isLogged, setIsLogged] = React.useState(false)
-    const [isLoggedOut, setIsLoggedOut] = React.useState(false)
 
     const onlogout = () => {
         logout()

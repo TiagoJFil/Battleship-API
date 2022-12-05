@@ -125,7 +125,7 @@ class JdbiGamesRepository(
      * @param rules the game rules to be bound
      * @return the [Update] object with the parameters bound
      */
-    private fun Update.bindGameRules(rules: GameRulesDTO): Update {
+    private fun Update.bindGameRules(rules: GameRules): Update {
         return bindMultiple(
             listOf<Pair<String, Any?>>(
                 GameView.SHOTS_PER_TURN.columnName to rules.shotsPerTurn,

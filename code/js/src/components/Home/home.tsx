@@ -1,8 +1,15 @@
 import * as React from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { isLoggedIn } from '../../api/session'
+import { BottomNav } from '../bottomNav'
+import { styles } from '../../styles'
+import { IconButton } from '../icons'
+
+import "./home.css"
 
 export function Home(){
+    const navigate = useNavigate();
+
     return(
     
         <div>
@@ -10,11 +17,15 @@ export function Home(){
         <nav>
             <li><Link to="/statistics">Statistics</Link></li>
             <li><Link to="/system-info">System Information</Link></li>
-            <li><Link to="/login">Login</Link></li>
             <li><Link to="/logout">Logout</Link></li>
-            <li><Link to="/register">Register</Link></li>
             <li><Link to="/lobby">Join Queue</Link></li>
-            </nav>
+        </nav>
+
+        <div className="play-button-container">
+            <IconButton iconClass={styles.PLAY_ICON} onClick={() => navigate("/lobby") } />
+        </div>
         <Outlet/>
+        <BottomNav />
     </div>)
 }
+

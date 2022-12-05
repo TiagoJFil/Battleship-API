@@ -30,6 +30,7 @@ object Uris {
         private const val RESOURCE = "$ROOT$GAME_ID_PLACEHOLDER"
         const val FLEET = "$RESOURCE/fleet/{whichFleet}"
         const val STATE = "$RESOURCE/state"
+        const val RULES = "$RESOURCE/rules"
         const val LAYOUT_DEFINITION = "$RESOURCE/layout-definition"
         const val SHOTS_DEFINITION = "$RESOURCE/shots-definition"
         const val WHICH_FLEET_PLACEHOLDER = "{whichFleet}"

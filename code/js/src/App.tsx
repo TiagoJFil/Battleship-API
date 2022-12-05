@@ -11,10 +11,7 @@ import { Game } from './components/Game/game'
 
 
 export function App() {
-
-
     return (
-        
         <BrowserRouter>
         <Routes>
             <Route path='/' element={<Home/>}>

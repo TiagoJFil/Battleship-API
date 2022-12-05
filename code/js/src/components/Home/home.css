@@ -1,0 +1,28 @@
+
+
+
+ .play-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: normal;
+    width: 100%;
+}
+ 
+.play-button-container .icon-button:hover {
+    background-color: #bd0820
+}
+
+ 
+ .play-button-container .icon-button {
+    width: 200px;
+    height: 200px;
+    font-size: 150px;
+    border-radius: 50%;
+    position: absolute;
+    border: 1px solid #e6e6e6;
+    background-color: #e60e2a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}

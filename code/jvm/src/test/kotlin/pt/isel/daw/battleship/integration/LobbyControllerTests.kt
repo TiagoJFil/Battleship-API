@@ -82,7 +82,7 @@ class LobbyControllerTests {
     fun `Trying to cancel queue with an invalid token`() {
         val authInfo = client.createUser("user1", "pass1")
         val lobbyInfo = client.joinQueue(authInfo.token)
-        client.delete().uri("${Uris.Lobby.ROOT}/${lobbyInfo?.lobbyID}/cancel")
+        client.delete().uri("${Uris.Lobby.ROOT}/${lobbyInfo?.lobbyID}")
             .setAuthToken("authTokeninvalid")
             .exchange()
             .expectStatus().isUnauthorized
@@ -97,7 +97,7 @@ class LobbyControllerTests {
     fun `Trying to cancel queue successfully after joining`() {
         val authInfo = client.createUser("user1", "pass1")
         val lobbyInfo = client.joinQueue(authInfo.token)
-        client.delete().uri("${Uris.Lobby.ROOT}/${lobbyInfo?.lobbyID}/cancel")
+        client.delete().uri("${Uris.Lobby.ROOT}/${lobbyInfo?.lobbyID}")
             .setAuthToken(authInfo.token)
             .exchange()
             .expectStatus().isOk

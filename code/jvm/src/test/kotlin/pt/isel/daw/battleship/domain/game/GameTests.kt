@@ -283,7 +283,7 @@ class GameTests {
         val gameDTO = GameDTO(
             id = 0,
             state = Game.State.PLACING_SHIPS.toString(),
-            rules = testGameRules.toDTO(),
+            rules = testGameRules,
             turn = 1,
             player1 = 1,
             player2 = 2,

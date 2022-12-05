@@ -1,53 +1,37 @@
 import * as React from 'react'
 import { fetchLogin } from '../../../api/api'
 import { setAuthInfo } from '../../../api/session';
+import { validateAuth } from '../../../AuthValidation';
+import { AuthForm } from '../authForm';
+import { ErrorToast } from '../../../toasts';
+import { BottomNav } from '../../bottomNav';
+import { Link } from 'react-router-dom'
+
 
 export function Login() {
 
-    const [username, setUsername] = React.useState<string>('');
-    const [password, setPassword] = React.useState<string>('');
-    const [error, setError] = React.useState<string | null>(null);
+    const onLoginClick = async (username : string,password : string) => {
+        try {
+            validateAuth(username,password)
 
-    return StatelessLogin(
-        async () => {
-            try {
-                const authInformation = await fetchLogin(username, password);
-                console.log(authInformation)
-    
-                setAuthInfo(authInformation.properties);
-            } catch (e ) {
-                console.log(e)
-                setError(e.title);
-            }
-        },
-        setUsername,
-        setPassword,
-        error
-    )
+            const authInformation = await fetchLogin(username, password);
+            console.log(authInformation)
 
-}
+            setAuthInfo(authInformation.properties);
+        } catch (e) {
+            console.log(e)
+            ErrorToast(e.title).showToast();
+        }
+    }
 
-
-function StatelessLogin(
-    onLoginClick: () => void,
-    setUsername = (_username: string) => {},
-    setPassword = (_password: string) => {},
-    error?: string | null
-    ) {
 
     return (
         <div>
+            <BottomNav/>
             <h1>Login</h1>
-            <div>
-                <label>Username</label>
-                <input type="text" onChange={e => setUsername(e.target.value)} />
-            </div>
-            <div>
-                <label>Password</label>
-                <input type="password" onChange={e => setPassword(e.target.value)} />
-            </div>
-            <button onClick={onLoginClick}>Login</button>
-            {error && <div>{error}</div>}
+            <AuthForm confirmPrompt="Login" onSubmit={(username,password) => {onLoginClick(username,password)} } />   
+            Dont have an account? <Link to="/register">Register</Link>
         </div>
     )
-}
+
+} 

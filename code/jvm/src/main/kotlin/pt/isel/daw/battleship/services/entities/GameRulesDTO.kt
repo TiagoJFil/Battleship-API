@@ -1,4 +1,4 @@
-package pt.isel.daw.battleship.repository.dto
+package pt.isel.daw.battleship.services.entities
 
 import pt.isel.daw.battleship.domain.GameRules
 import pt.isel.daw.battleship.utils.TimeoutTime

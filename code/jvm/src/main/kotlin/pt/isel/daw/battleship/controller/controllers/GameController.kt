@@ -12,6 +12,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
 import pt.isel.daw.battleship.controller.pipeline.authentication.Authentication
 import pt.isel.daw.battleship.services.GameService
+import pt.isel.daw.battleship.services.entities.GameRulesDTO
 import pt.isel.daw.battleship.services.entities.GameStateInfo
 import pt.isel.daw.battleship.utils.UserID
 
@@ -68,4 +69,12 @@ class GameController(
         val state = gameService.getGameState(gameID, userID)
         return state.appToSiren(AppSirenNavigation.GAME_STATE_NODE_KEY)
     }
+
+    @Authentication
+    @GetMapping(Uris.Game.RULES)
+    fun getGameRules(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<GameRulesDTO> {
+        val rules = gameService.getGameRules(gameID, userID)
+        return rules.appToSiren(AppSirenNavigation.GAME_RULES_NODE_KEY)
+    }
+
 }

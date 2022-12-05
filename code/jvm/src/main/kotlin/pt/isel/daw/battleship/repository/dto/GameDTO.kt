@@ -3,6 +3,7 @@ package pt.isel.daw.battleship.repository.dto
 
 import org.jdbi.v3.core.mapper.Nested
 import pt.isel.daw.battleship.domain.Game
+import pt.isel.daw.battleship.domain.GameRules
 import pt.isel.daw.battleship.domain.board.Board
 import pt.isel.daw.battleship.domain.board.toLayout
 import pt.isel.daw.battleship.utils.ID
@@ -15,7 +16,7 @@ import java.sql.Timestamp
 data class GameDTO(
     val id: ID?,
     val state: String,
-    @Nested val rules: GameRulesDTO,
+    @Nested val rules: GameRules,
     val turn: UserID,
     val player1: UserID?,
     val player2: UserID?,
@@ -26,7 +27,7 @@ data class GameDTO(
     fun toGame() = Game(
         id= id,
         state= Game.State.valueOf(state.uppercase()),
-        rules= rules.toGameRules(),
+        rules= rules,
         playerBoards= if(player1 == null || player2 == null || boardP1 == null || boardP2 == null)
             emptyMap()
         else mapOf(
@@ -45,7 +46,7 @@ data class GameDTO(
 fun Game.toDTO() = GameDTO(
     id = id,
     state = state.toString().lowercase(),
-    rules = rules.toDTO(),
+    rules = rules,
     turn = turnID,
     player1 = playerBoards.keys.firstOrNull(),
     player2 = playerBoards.keys.lastOrNull(),
