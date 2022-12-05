@@ -30,7 +30,7 @@ fun Square.getAxisNeighbours(): List<Square> {
     val left = Square(row.ordinal, (column.ordinal - 1))
     val right = Square(row.ordinal, (column.ordinal + 1))
 
-    return listOfNotNull(
+    return listOf(
         top, bottom, left, right
     )
 }

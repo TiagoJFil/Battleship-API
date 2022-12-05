@@ -1,0 +1,57 @@
+@import './open-color.css';
+
+:root{
+  --board-width: 500px;
+  --board-height: 500px;
+  --board-div-width-rel: calc(var(--board-width) / var( --num-tiles));
+  --board-div-height-rel: calc(var(--board-width) / var( --num-tiles));
+  --num-tiles: 8;
+}
+
+/*-*-*-*-*-*- BOARD -*-*-*-*-*-*/
+
+.board {
+  width: var(--board-width);
+  height: var(--board-height);
+  border: 2px solid var(--oc-black);
+  margin: 1em 2em 2em 1em;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.board div {
+  width:  var(--board-div-width-rel);
+  height: var(--board-div-height-rel);
+  box-sizing: border-box;
+  background: var(--oc-gray-4);
+  border: 1px solid var(--oc-black);
+  cursor: crosshair;
+  transition: background-color 100ms ease-in-out;
+}
+
+/*-*-*-*-*-*- SHIP -*-*-*-*-*-*/
+
+.board .water:hover {
+  background-color: var(--oc-gray-6);
+}
+
+.board .forbidden {
+  background-color: var(--oc-red-5);
+  border: 1px solid var(--oc-gray-8);
+}
+
+.board .ship-part {
+  background-color: var(--oc-indigo-7);
+  border: 1px solid var(--oc-gray-8);
+}
+
+.board .forbidden:hover {
+  background-color: var(--oc-red-6);
+}
+
+.board .ship-part:hover {
+  background-color: var(--oc-indigo-9);
+}
+
+

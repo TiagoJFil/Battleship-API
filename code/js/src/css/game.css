@@ -1,0 +1,28 @@
+:root{
+    --board-width: 500px;
+    --board-height: 500px;
+}
+
+.game-view-space {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.fleet-space {
+    width:  var(--board-width);
+    height: var(--board-height);
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.timer-space {
+    width:  var(--board-width);
+    height: var(--board-height);
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}

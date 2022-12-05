@@ -3,10 +3,6 @@ import { getStatistics } from '../../api/api';
 import {Statistics, PlayerStatistics} from '../../entities/statistics';
 import { SirenEntity } from '../../hypermedia/siren';
 
-
-
-
-
 export function Statistics() {
 
     const [statistics, setStatistics] = React.useState<Statistics | null>(null);
