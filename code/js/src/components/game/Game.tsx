@@ -1,24 +1,9 @@
 import * as React from 'react'
 import { useParams } from "react-router-dom";
+import { Orientation } from '../utils/Orientation';
+import { Ship } from '../utils/Ship';
+import { GameView } from './GameView';
 
-
-export function Game(){
-    let { gameID } = useParams();
-
-    return (
-        <div>
-            <h1>Game</h1>
-            <p id="gameID">{gameID}</p>
-        </div>
-    )
-
-}
-
-/**
-import * as React from "react";
-import { Orientation } from "../utils/Orientation";
-import { Ship } from "../utils/Ship";
-import { GameView } from "./GameView";
 
 const RIGHT_MOUSE_CLICK_EVENT = 2
 
@@ -46,7 +31,8 @@ const fleetComposition = new Map<number, number>([
 ])
 
 export function Game(){
-    /**Change with api call to get the initial board*/
+    let { gameID } = useParams();
+
     let tiles = Array<SquareType>(64);
     tiles = tiles.fill(SquareType.water);
 
@@ -112,4 +98,4 @@ export function Game(){
             />
         </div>
     )
-}*/
+}

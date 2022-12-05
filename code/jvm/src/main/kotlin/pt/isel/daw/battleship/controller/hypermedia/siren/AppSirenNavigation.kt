@@ -13,6 +13,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.Siren
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.buildSirenGraph
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
 import pt.isel.daw.battleship.domain.Game
+import pt.isel.daw.battleship.domain.GameRules
 import pt.isel.daw.battleship.services.entities.*
 
 inline fun <reified T : Any> T.appToSiren(
@@ -140,6 +141,7 @@ object AppSirenNavigation {
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
         }
 
+        node<GameRules>(GAME_RULES_NODE_KEY)
     }
 }
 
