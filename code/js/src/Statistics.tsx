@@ -1,10 +1,6 @@
 import * as React from 'react';
 import {Statistics, PlayerStatistics, getStatistics} from './api/statistics';
 
-
-
-
-
 export function Statistics() {
 
     const [statistics, setStatistics] = React.useState<Statistics | null>(null);

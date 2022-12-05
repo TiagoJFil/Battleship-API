@@ -1,5 +1,4 @@
 
-
 export interface Statistics {
     nGames: number,
     ranking: Array<PlayerStatistics>

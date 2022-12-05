@@ -8,6 +8,7 @@ export function App() {
             <nav>
                 <li><Link to="/statistics">Statistics</Link></li>
                 <li><Link to="/system-info">System Information</Link></li>
+                <li><Link to="/place-ships">Place Ships</Link></li>
             </nav>
             <Outlet/>
         </div>

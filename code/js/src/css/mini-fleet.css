@@ -1,0 +1,71 @@
+@import './open-color.css';
+
+:root {
+  --micro-space: 0.3em;
+  --small-space: 1em;
+  --medium-space: 2em;
+}
+
+#fleet {
+  padding: var(--small-space);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#fleet > * + * {
+  margin-top: var(--small-space);
+}
+
+.mini-ship,
+.mini-ship-squares {
+  display: flex;
+  flex-direction: row;
+}
+
+.mini-ship {
+  width: 180px;
+  height: 35px;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 3px;
+  padding: 5px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px hsla(0, 0%, 0.2);
+}
+
+.ship-square {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--oc-black);
+  background-color: var(--oc-indigo-7);
+}
+
+.fleet-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.remaining-ships {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+
+
