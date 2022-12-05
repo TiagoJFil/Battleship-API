@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { useParams } from "react-router-dom";
-import { Orientation } from '../utils/Orientation';
-import { Ship } from '../utils/Ship';
-import { GameView } from './GameView';
+import { getGameRules } from '../../api/api';
+import { Orientation } from '../utils/orientation';
+import { Ship } from '../utils/ship';
+import { GameView } from './game-view';
 
 
 const RIGHT_MOUSE_CLICK_EVENT = 2
@@ -32,6 +33,7 @@ const fleetComposition = new Map<number, number>([
 
 export function Game(){
     let { gameID } = useParams();
+
 
     let tiles = Array<SquareType>(64);
     tiles = tiles.fill(SquareType.water);

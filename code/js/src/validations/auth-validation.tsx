@@ -1,4 +1,3 @@
-
 const passwordRules = [
     {
         message: "Password must be at least 5 characters long",
@@ -21,10 +20,9 @@ const usernameRules = [
     },
 ]
 
-
-export function validateAuth( username: string, password: string) : boolean {
+export function validateAuth(username: string, password: string) : boolean {
     usernameRules.forEach( rule => {
-        if( !rule.validate(username) ){
+        if(!rule.validate(username) ){
             throw {
                 title: rule.message
             }
@@ -40,5 +38,4 @@ export function validateAuth( username: string, password: string) : boolean {
     })
 
     return true
-
 }

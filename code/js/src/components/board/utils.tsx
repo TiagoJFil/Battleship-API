@@ -1,7 +1,7 @@
-import { SquareType } from "../game/Game"
-import { Orientation } from "../utils/Orientation"
-import { Ship } from "../utils/Ship"
-import { Position } from "../utils/Position"
+import { SquareType } from "../game/game"
+import { Orientation } from "../utils/orientation"
+import { Ship } from "../utils/ship"
+import { Position } from "../utils/position"
 
 export const typeToClass = {
     ["#"]: "water",
@@ -235,7 +235,7 @@ export function canBePlaced(
  */
 export function calculateOverhang(ship: Ship, boardSide:number): number{
   return Math.max(
-    ship.orientation === 'vertical'
+    ship.orientation === 'Vertical'
       ? ship.position.y + ship.size - boardSide
       : ship.position.x + ship.size - boardSide,
     0

@@ -1,5 +1,5 @@
-import { Orientation } from "./Orientation"
-import { Position } from "./Position"
+import { Orientation } from "./orientation"
+import { Position } from "./position"
 
 export class Ship{
     size: number

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../../css/board.css';
-import { SquareType } from '../game/Game';
-import { Ship } from '../utils/Ship';
+import { SquareType } from '../game/game';
+import { Ship } from '../utils/ship';
 import * as BoardUtils from './utils';
 
 interface Props{

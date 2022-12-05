@@ -1,6 +1,6 @@
 import * as React from 'react'
 import '../../css/mini-fleet.css'
-import { Ship } from '../utils/Ship'
+import { Ship } from '../utils/ship'
 
 interface Props{
     shipSize: number,

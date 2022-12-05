@@ -1,7 +1,7 @@
 import * as React from "react"
-import { MiniShip } from "../mini-fleet/MiniShip"
+import { MiniShip } from "../mini-fleet/mini-ship"
 import '../../css/mini-fleet.css'
-import { Ship } from "../utils/Ship"
+import { Ship } from "../utils/ship"
 
 
 interface Props{

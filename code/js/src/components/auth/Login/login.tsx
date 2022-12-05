@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { fetchLogin } from '../../../api/api'
 import { setAuthInfo } from '../../../api/session';
-import { validateAuth } from '../../../AuthValidation';
-import { AuthForm } from '../authForm';
-import { ErrorToast } from '../../../toasts';
-import { BottomNav } from '../../bottomNav';
+import { validateAuth } from '../../../validations/auth-validation';
+import { AuthForm } from '../auth-form';
+import { ErrorToast } from '../../../core-ui/toasts';
+import { BottomNav } from '../../bottom-nav';
 import { Link } from 'react-router-dom'
 
 

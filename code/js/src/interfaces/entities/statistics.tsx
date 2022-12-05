@@ -1,5 +1,3 @@
-
-
 export interface Statistics {
     ngames: number,
     ranking: Array<PlayerStatistics>

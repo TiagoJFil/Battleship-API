@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { getStatistics } from '../../api/api';
-import {Statistics, PlayerStatistics} from '../../entities/statistics';
-import { SirenEntity } from '../../hypermedia/siren';
+import {Statistics, PlayerStatistics} from '../../interfaces/entities/statistics';
+import { SirenEntity } from '../../interfaces/hypermedia/siren';
 
 export function Statistics() {
 

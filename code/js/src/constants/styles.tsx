@@ -1,4 +1,3 @@
-
 /**
  * Contains the styles names for the css.
  */

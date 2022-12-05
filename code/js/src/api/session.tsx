@@ -1,4 +1,4 @@
-import { AuthInformation } from "../entities/user";
+import { AuthInformation } from "../interfaces/entities/user";
 
 
 //temporarly using session but will be replaced by cookies

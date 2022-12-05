@@ -1,7 +1,7 @@
 import * as React from "react"
-import { PlayerBoard } from "../board/PlayerBoard"
-import { Fleet } from "../fleet/Fleet"
-import { Ship } from "../utils/Ship"
+import { PlayerBoard } from "../board/player-board"
+import { Fleet } from "../fleet/fleet"
+import { Ship } from "../utils/ship"
 import { SquareType } from "./Game"
 import '../../css/game.css'
 
