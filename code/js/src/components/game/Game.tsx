@@ -1,3 +1,20 @@
+import * as React from 'react'
+import { useParams } from "react-router-dom";
+
+
+export function Game(){
+    let { gameID } = useParams();
+
+    return (
+        <div>
+            <h1>Game</h1>
+            <p id="gameID">{gameID}</p>
+        </div>
+    )
+
+}
+
+/**
 import * as React from "react";
 import { Orientation } from "../utils/Orientation";
 import { Ship } from "../utils/Ship";
@@ -32,12 +49,12 @@ export function Game(){
     /**Change with api call to get the initial board*/
     let tiles = Array<SquareType>(64);
     tiles = tiles.fill(SquareType.water);
-    
+
     const shipSizes = Array.from(fleetComposition.keys());
     const ships = shipSizes.map((size) => {
         return new Ship(size, Orientation.horizontal, null, false);
     })
-   
+
     const [currentlyPlacing, setCurrentlyPlacing] = React.useState(null);
     const [placedShips, setPlacedShips] = React.useState([]);
     const [availableShips, setAvailableShips] = React.useState(ships);
@@ -55,7 +72,7 @@ export function Game(){
             ...placedShips,
             new  Ship(currentlyPlacing.size, currentlyPlacing.orientation, currentlyPlacing.position, true)
         ])
-        setAvailableShips((previousShips: Ship[]): Ship[] => 
+        setAvailableShips((previousShips: Ship[]): Ship[] =>
             previousShips.filter((ship) => ship.size !== currentlyPlacing.size && ship.placed === false)
         )
         setCurrentlyPlacing(null);
@@ -95,4 +112,4 @@ export function Game(){
             />
         </div>
     )
-}
+}*/
