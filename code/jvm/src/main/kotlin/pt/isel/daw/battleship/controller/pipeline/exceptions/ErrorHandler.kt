@@ -59,7 +59,11 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
         headers: HttpHeaders,
         status: HttpStatus,
         request: WebRequest
-    ): ResponseEntity<Any> = ResponseEntity
+    ): ResponseEntity<Any> {
+
+        errorLogger.warn("No handler found for ${ex.httpMethod} ${ex.requestURL}")
+
+        return ResponseEntity
             .status(404)
             .setProblemHeader()
             .body(Problem(
@@ -67,6 +71,7 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
                 ex.message,
                 instance = (request as ServletWebRequest).request.requestURI.toString()
             ))
+}
 
     override fun handleHttpRequestMethodNotSupported(
         ex: HttpRequestMethodNotSupportedException,

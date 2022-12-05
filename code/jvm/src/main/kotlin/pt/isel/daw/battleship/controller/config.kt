@@ -1,7 +1,6 @@
 package pt.isel.daw.battleship.controller
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.CorsRegistry
@@ -32,7 +31,6 @@ class AppConfig : WebMvcConfigurer {
 
     //temporary needed for development on the frontend
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**").allowedOrigins("http://localhost:8080");
-
+        registry.addMapping("/**").allowedOrigins("http://localhost:8080").allowedMethods("*")
     }
 }

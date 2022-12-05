@@ -98,7 +98,6 @@ object AppSirenNavigation {
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
             action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "DELETE", title = "Cancel")
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
-            action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "POST", title = "Cancel")
         }
 
         node<GameStateInfo>(GAME_STATE_NODE_KEY) {
