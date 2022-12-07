@@ -1,17 +1,24 @@
 import * as React from "react"
-import '../../css/game.css'
-import { Board, BoardView, Square } from "../board/place-ship-board"
-import { Fleet } from "../fleet/fleet"
-import { Ship } from "../utils/ship"
+import '../css/game.css'
+import { Board } from "../components/entities/board"
+import { BoardView } from "../components/board/board-view"
+import { Fleet } from "../components/fleet/fleet-view"
+import { Ship } from "../components/entities/ship"
+import { Square } from "../components/entities/square"
+import { TimeoutBar } from "../components/progress-bar"
 
 interface PlaceShipViewProps{
     board: Board
     availableShips: Ship[]
     shipSelected: Ship
+    timeoutBarPercentage: number
     onBoardSquareClick: (square: Square) => void
     onBoardSquareHover: (square: Square) => void
+    onBoardSquareLeave: (square: Square) => void
     onShipClick: (shipID: number) => void
     onFleetResetRequested: () => void
+    onFleetSubmitRequested: () => void
+    onBoardMouseDown: (event: React.MouseEvent, square: Square) => void
 }
 
 export function PlaceShipView(
@@ -19,10 +26,14 @@ export function PlaceShipView(
         board, 
         onBoardSquareClick,
         onBoardSquareHover, 
+        onBoardSquareLeave,
         availableShips,
         onShipClick,
         shipSelected,
-        onFleetResetRequested
+        onFleetResetRequested,
+        onFleetSubmitRequested,
+        onBoardMouseDown,
+        timeoutBarPercentage,
     }: PlaceShipViewProps
 ){
     return(
@@ -34,6 +45,7 @@ export function PlaceShipView(
                         availableShips={availableShips}
                         onClick={onShipClick}
                         onResetRequested={onFleetResetRequested}
+                        onSubmitRequested={onFleetSubmitRequested}
                     />
                 </div>
                 <div className="boards-space">
@@ -41,10 +53,14 @@ export function PlaceShipView(
                         board={board}
                         onSquareClick={onBoardSquareClick}
                         onSquareHover={onBoardSquareHover}
+                        onSquareLeave={onBoardSquareLeave}
+                        onMouseDown={onBoardMouseDown}
                     />
                 </div>
                 <div className="timer-space">
-
+                    <TimeoutBar
+                        barPercentage={timeoutBarPercentage}
+                    /> 
                 </div>
             </div>  
     </section>

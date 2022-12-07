@@ -1,0 +1,17 @@
+.timer-space {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1em 0;
+}
+
+
+.timeout-bar-container {
+    height: 20px;
+    width: 100%;
+    background-color: var(--oc-gray-3);
+    border: 3px solid var(--oc-black);
+    border-radius: 50px;
+    margin: 50px;
+}
+

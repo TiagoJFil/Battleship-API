@@ -1,12 +1,13 @@
 import { SirenEntity } from '../interfaces/hypermedia/siren';
-import { AuthInformation } from '../interfaces/entities/user';
+import { AuthInformation } from '../interfaces/dto/user';
 import { Problem } from '../interfaces/hypermedia/problem';
 import { getAuthInfo } from './session';
-import { LobbyInformation } from '../interfaces/entities/lobby-info';
-import { Statistics } from '../interfaces/entities/statistics';
+import { LobbyInformationDTO } from '../interfaces/dto/lobby-info';
+import { StatisticsDTO } from '../interfaces/dto/statistics';
 import axios from 'axios';
-import { ShipInfo } from '../interfaces/entities/ships-info';
-import { GameRules } from '../interfaces/entities/game-rules';
+import { ShipInfoDTO } from '../interfaces/dto/ships-info';
+import { GameRulesDTO } from '../interfaces/dto/game-rules';
+import { GameStateInfoDTO } from '../interfaces/dto/game-state';
 
 const hostname = "localhost"
 const port = 8090
@@ -72,7 +73,7 @@ export async function getLobby(id:number) : Promise< SirenEntity<any>> {
     return response.data
 }
     
-export async function joinQueue() : Promise< SirenEntity<LobbyInformation>> {
+export async function joinQueue() : Promise< SirenEntity<LobbyInformationDTO>> {
     const response = await axios({
         url: `${baseUrl}lobby/`,
         method: 'POST',
@@ -105,7 +106,7 @@ export async function leavelobby(lobbyID : number) : Promise< SirenEntity<any>> 
     return response.data
 }
 
-export async function getStatistics(): Promise<SirenEntity<Statistics>> {
+export async function getStatistics(): Promise<SirenEntity<StatisticsDTO>> {
     const response = await axios({
         url: `${baseUrl}statistics/`,
         method: 'GET',
@@ -117,7 +118,7 @@ export async function getStatistics(): Promise<SirenEntity<Statistics>> {
     return response.data
 }
 
-export async function placeShips(gameID: number, ships: ShipInfo[]): Promise<SirenEntity<undefined>> {
+export async function placeShips(gameID: number, ships: ShipInfoDTO[]): Promise<SirenEntity<undefined>> {
     const response = await axios({
         url: `${baseUrl}game/${gameID}/placeShips`,
         method: 'POST',
@@ -135,7 +136,7 @@ export async function placeShips(gameID: number, ships: ShipInfo[]): Promise<Sir
     return response.data
 }
 
-export async function getGameRules(gameID: number): Promise<SirenEntity<GameRules>> {
+export async function getGameRules(gameID: number): Promise<SirenEntity<GameRulesDTO>> {
     console.log('here')
     const response = await axios({
         url: `${baseUrl}game/${gameID}/rules`,
@@ -147,5 +148,20 @@ export async function getGameRules(gameID: number): Promise<SirenEntity<GameRule
     }).catch((e) => {
         throw e.response.data as Problem
     })
+    return response.data
+}
+
+export async function getGameState(gameID: number): Promise<SirenEntity<GameStateInfoDTO>> {
+    const response = await axios({
+        url: `${baseUrl}game/${gameID}/state`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthInfo().token}`
+        }
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
     return response.data
 }

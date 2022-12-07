@@ -36,7 +36,7 @@
   background-color: var(--oc-gray-6);
 }
 
-.board .forbidden {
+.board .invalid {
   background-color: var(--oc-red-5);
   border: 1px solid var(--oc-gray-8);
 }
@@ -46,7 +46,7 @@
   border: 1px solid var(--oc-gray-8);
 }
 
-.board .forbidden:hover {
+.board .invalid:hover {
   background-color: var(--oc-red-6);
 }
 

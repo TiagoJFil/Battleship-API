@@ -1,5 +1,5 @@
-import { Square } from "../board/place-ship-board"
 import { Orientation } from "./orientation"
+import { Square } from "./square"
 
 export class Ship{
     id: number
@@ -22,5 +22,13 @@ export class Ship{
             }
         }
         return squares
+    }
+
+    rotate(): Ship{
+        return new Ship(
+            this.id, 
+            this.size, 
+            this.orientation === Orientation.horizontal ? Orientation.vertical : Orientation.horizontal
+        )
     }
 }

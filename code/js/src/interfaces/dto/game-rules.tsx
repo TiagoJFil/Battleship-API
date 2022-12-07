@@ -1,9 +1,9 @@
-import { ShipRules } from "./ship-rules";
+import { ShipRulesDTO } from "./ship-rules";
 
-export interface GameRules{
+export interface GameRulesDTO{
     boardSide: number,
     shotsPerTurn: number,
     layoutDefinitionTimeout: number,
     playTimeout: number,
-    shipRules: ShipRules
+    shipRules: ShipRulesDTO
 }

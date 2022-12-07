@@ -1,10 +1,8 @@
 import * as React from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { BottomNav } from '../bottom-nav'
-import { styles } from '../../constants/styles'
-import { IconButton } from '../icons'
+import { BottomNav } from '../components/bottom-nav'
 
-import "./home.css"
+import "../css/home.css"
 
 export function Home(){
     const navigate = useNavigate();
