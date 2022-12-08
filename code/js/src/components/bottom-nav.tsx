@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../api/session';
-import { styles } from '../styles';
-import './bottomNav.css'
+import { styles } from '../constants/styles';
+import './bottom-nav.css'
 import { IconButton } from './icons';
 
 

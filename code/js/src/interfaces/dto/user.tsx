@@ -1,6 +1,6 @@
 //data class User(val name : String)
 
-export interface User {
+export interface UserDTO {
     name: string
 }
 

@@ -1,5 +1,5 @@
 
-export interface LobbyInformation {
+export interface LobbyInformationDTO {
     lobbyID: number,
     gameID?: number
 }

@@ -1,13 +1,12 @@
 import * as React from 'react'
-import { Link, Outlet } from 'react-router-dom'
 import { BrowserRouter, Route, Routes, } from 'react-router-dom'
-import { Statistics } from './components/Ranking/Statistics'
-import { Home } from './components/Home/home'
-import { Login } from './components/auth/Login/login'
-import { Logout } from './components/auth/Logout/logout'
+import { Statistics } from './pages/statistics-view'
+import { Home } from './pages/home-view'
+import { Login } from './components/auth/login/login'
+import { Logout } from './components/auth/logout/logout'
 import { Register } from './components/auth/register'
-import { Lobby } from './components/auth/Lobby/lobby'
-import { Game } from './components/Game/game'
+import { Lobby } from './components/auth/lobby/lobby'
+import { PlaceShips } from './core-ui/place-ships'
 
 
 export function App() {
@@ -20,7 +19,7 @@ export function App() {
                 <Route path='logout' element={<Logout/>}/>
                 <Route path='register' element={<Register/>}/>
                 <Route path='lobby' element={<Lobby/>}/>
-                <Route path='game/:gameID' element={<Game/>}/>
+                <Route path='game/:gameID/' element={<PlaceShips/>}/>
                 </Route>
         </Routes>
     </BrowserRouter> 

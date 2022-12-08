@@ -1,12 +1,13 @@
 import * as React from 'react' 
 import { useNavigate } from 'react-router-dom';
-import { getLobby, joinQueue, leavelobby } from '../../../api/api';
+import { getGameRules, getLobby, joinQueue, leavelobby } from '../../../api/api';
 
 
 export function Lobby() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [gameID  , setGameID] = React.useState<number | null>(null);
-    const [lobbyID, setLobbyID] = React.useState<number | null>(null);   
+    const [lobbyID, setLobbyID] = React.useState<number | null>(null); 
+    const [gameRules, setGameRules] = React.useState(null);  
     const hasJoinedGame = React.useRef(false);
     const cancelled = React.useRef(false); // this cancelled could be a variable inside the useEffect
 
@@ -34,14 +35,23 @@ export function Lobby() {
                   1500
               );
         }
-        if(gameID != null){
-            console.log("gameID is not null")
 
+        if(gameID != null && gameRules == null){
+            getGameRules(gameID).then((gameRules) => {
+                setGameRules(gameRules);
+            })
+        }
+
+        if(gameRules != null){
             const intervalID = setInterval(() => {
-                console.log("gameID is", gameID)
-                navigate(`/game/${gameID}`)
-                clearInterval(intervalID);
-            }, 4500)
+                    console.log("gameID is not null")
+                    console.log("gameID is", gameID)
+                    navigate(`/game/${gameID}`, {state: gameRules})
+                    clearInterval(intervalID);
+                },
+                3000
+            )
+            
         }
 
         const verifyIfOtherPlayerJoined = async (lobbyID : number) => {
@@ -83,7 +93,7 @@ export function Lobby() {
             }
             // cleanup
         }
-    }, [lobbyID,gameID]); 
+    }, [lobbyID,gameID, gameRules]); 
 
     return (
         <div>
