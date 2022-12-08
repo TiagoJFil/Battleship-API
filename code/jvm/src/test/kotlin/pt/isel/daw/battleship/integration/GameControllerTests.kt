@@ -89,8 +89,8 @@ class GameControllerTests {
         val usersCreation = createPlayers("player1", "player2") ?: return
 
         client.get().uri(Uris.Game.FLEET, 0, "my")
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer ${usersCreation.player1.token}")
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
             .exchange()
             .expectStatus().isNotFound
             .expectHeader()
@@ -104,8 +104,8 @@ class GameControllerTests {
         val gameID = enterLobby(usersCreation) ?: return
 
         client.get().uri(Uris.Game.FLEET, gameID, "my")
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer 0invalid0?!xd«?")
+            .setContentTypeJson()
+            .setAuthToken("0invalid0?!xd?")
             .exchange()
             .expectStatus().isUnauthorized
             .expectHeader()
@@ -122,8 +122,8 @@ class GameControllerTests {
         val gameID2 = enterLobby(usersCreation2) ?: return
 
         client.get().uri(Uris.Game.FLEET, gameID2, "my")
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer ${usersCreation.player1.token}")
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
             .exchange()
             .expectStatus().isForbidden
             .expectHeader()
@@ -191,8 +191,8 @@ class GameControllerTests {
 
         client.post().uri(Uris.Game.LAYOUT_DEFINITION, 0)
             .bodyValue(fleetJson)
-            .header("Content-Type", "application/json")
-            .bearerToken(usersCreation.player1.token)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
             .exchange()
             .expectStatus().isNotFound
             .expectHeader()
@@ -217,8 +217,8 @@ class GameControllerTests {
 
         client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID2)
             .bodyValue(fleetJson)
-            .header("Content-Type", "application/json")
-            .bearerToken("0invalid0?!xd«?")
+            .setContentTypeJson()
+            .setAuthToken("0invalid0?!xd?")
             .exchange()
             .expectStatus().isUnauthorized
             .expectHeader()
@@ -244,8 +244,8 @@ class GameControllerTests {
 
         client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
             .bodyValue(fleetJson)
-            .header("Content-Type", "application/json")
-            .bearerToken(usersCreation.player1.token)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
             .exchange()
             .expectStatus().isForbidden
             .expectHeader()
@@ -272,8 +272,8 @@ class GameControllerTests {
         val shotsJson = objectMapper.writeValueAsString(shots)
         client.post().uri(Uris.Game.SHOTS_DEFINITION, gameID)
             .bodyValue(shotsJson)
-            .header("Content-Type", "application/json")
-            .bearerToken(usersCreation.player1.token)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
             .exchange()
             .expectBody<SirenEntity<Nothing>>()
 
@@ -333,8 +333,8 @@ class GameControllerTests {
         val gameID = enterLobby(usersCreation) ?: return
 
         val gameInfo = client.get().uri(Uris.Game.STATE, gameID)
-            .header("Content-Type", "application/json")
-            .bearerToken(usersCreation.player1.token)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
             .exchange()
             .expectHeader()
             .assertContentTypeSiren()
@@ -387,7 +387,7 @@ class GameControllerTests {
 
     private fun WebTestClient.RequestHeadersSpec<*>.assertAndGetBoard(userToken: String): BoardDTO? =
         header("Content-Type", "application/json")
-            .header("Authorization", "Bearer $userToken")
+            .setAuthToken(userToken)
             .exchange()
             .expectStatus().isOk
             .expectHeader()
@@ -397,7 +397,7 @@ class GameControllerTests {
 
     private fun WebTestClient.RequestHeadersSpec<*>.assertAndEnterLobby(userToken: String): LobbyInformation? {
         return header("Content-Type", "application/json")
-            .bearerToken(userToken)
+            .setAuthToken(userToken)
             .exchange()
             .expectHeader()
             .assertContentTypeSiren()
@@ -414,7 +414,7 @@ class GameControllerTests {
                 }
             """
         )
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isCreated
             .expectBody<SirenEntity<AuthInformation>>()
@@ -423,8 +423,8 @@ class GameControllerTests {
 
     private fun WebTestClient.RequestBodySpec.assertAndDefineFleet(fleetJson: String, userToken: String){
         bodyValue(fleetJson)
-            .header("Content-Type", "application/json")
-            .bearerToken(userToken)
+            .setContentTypeJson()
+            .setAuthToken(userToken)
             .exchange()
             .expectBody<SirenEntity<Nothing>>()
     }

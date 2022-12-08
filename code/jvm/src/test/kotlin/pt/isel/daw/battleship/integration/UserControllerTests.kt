@@ -41,7 +41,7 @@ class UserControllerTests {
     fun `create a user returns 201`(){
         client.post().uri(Uris.User.REGISTER)
             .bodyValue("""{"username":"test1","password":"testad1"}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isCreated
             .expectHeader()
@@ -54,7 +54,7 @@ class UserControllerTests {
     fun `invalid params on body returns 400`(){
         client.post().uri(Uris.User.REGISTER)
             .bodyValue("""{"username":"abc","password":""}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isBadRequest
             .expectHeader()
@@ -82,7 +82,7 @@ class UserControllerTests {
 
         client.post().uri(Uris.User.REGISTER)
             .bodyValue("""{"username":"test1","password":"testad1"}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isConflict
             .expectHeader()
@@ -95,7 +95,7 @@ class UserControllerTests {
 
         client.post().uri(Uris.User.LOGIN)
             .bodyValue("""{"username":"test1","password":"testad1"}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isOk
             .expectHeader()
@@ -111,7 +111,7 @@ class UserControllerTests {
 
         client.post().uri(Uris.User.LOGIN)
             .bodyValue("""{"username":"test1","password":"testad2"}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isBadRequest
             .expectHeader()
@@ -124,7 +124,7 @@ class UserControllerTests {
 
         client.post().uri(Uris.User.LOGIN)
             .bodyValue("""{"username":"test2","password":"testad1"}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isNotFound
             .expectHeader()
@@ -135,7 +135,7 @@ class UserControllerTests {
     fun `missing parameter on register`(){
         client.post().uri(Uris.User.REGISTER)
             .bodyValue("""{"username":"test1"}""")
-            .header("Content-Type", "application/json")
+            .setContentTypeJson()
             .exchange()
             .expectStatus().isBadRequest
             .expectHeader()

@@ -31,6 +31,11 @@ class AppConfig : WebMvcConfigurer {
 
     //temporary needed for development on the frontend
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**").allowedOrigins("http://localhost:8080").allowedMethods("*")
+        registry
+            .addMapping("/**")
+            .allowedOrigins( "http://localhost:8080")
+            .allowedMethods("GET", "POST", "OPTIONS", "PUT", "DELETE")
+            .allowedHeaders("*")
+            .allowCredentials(true)
     }
 }

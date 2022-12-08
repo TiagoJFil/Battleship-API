@@ -46,8 +46,6 @@ fun WebTestClient.joinQueue(authToken: String): LobbyInformation? {
 }
 
 
-fun  WebTestClient.RequestHeadersSpec<*>.bearerToken(token: String) = header("Authorization", "Bearer $token")
-
 /**
  * Asserts that the response has the Siren content type.
  */
@@ -64,9 +62,12 @@ fun HeaderAssertions.assertContentTypeProblem()  =
         Assertions.assertTrue(it.equals(ProblemContentType))
     }
 
+fun WebTestClient.RequestHeadersSpec<*>.setContentTypeJson() =
+    header("Content-Type", "application/json")
 
 val StatusAssertions.isConflict
     get() = isEqualTo(HttpStatus.CONFLICT)
 
 
-fun WebTestClient.RequestHeadersSpec<*>.setAuthToken(token: String) = header("Authorization", "Bearer $token")
+fun WebTestClient.RequestHeadersSpec<*>.setAuthToken(token: String): WebTestClient.RequestHeadersSpec<*> =
+    cookie("Authorization",token)

@@ -11,20 +11,19 @@ import javax.servlet.http.HttpServletResponse
 /**
  * Intercepts the request and checks if the handler requires authentication.
  *
- * If it does then it will check if the request has a valid Authorization header,
+ * If it does then it will check if the request has a valid Authorization Cookie,
  * parse it and inject the user id into the handler arguments.
  */
 @Component
 class AuthenticationInterceptor(
-    private val authorizationHeaderProcessor: AuthorizationHeaderProcessor
+    private val cookieAuthorizationProcessor: CookieAuthorizationProcessor
 ) : HandlerInterceptor {
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.hasMethodAnnotation(Authentication::class.java)) {
+            val cookies = request.cookies ?: null
+            val userID = cookieAuthorizationProcessor.process(cookies)
 
-            val authHeader = request.getHeader(AUTHORIZATION_HEADER)
-
-            val userID = authorizationHeaderProcessor.process(authHeader)
             logger.info("${request.method} on ${request.contextPath} authorized by user $userID")
 
             UserIDArgumentResolver.addUserIDTo(userID, request)
@@ -36,6 +35,5 @@ class AuthenticationInterceptor(
 
     companion object {
         private val logger = LoggerFactory.getLogger(AuthenticationInterceptor::class.java)
-        private const val AUTHORIZATION_HEADER = "Authorization"
     }
 }

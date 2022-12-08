@@ -25,6 +25,7 @@ class GameService(
     companion object {
         private const val TOOK_TOO_LONG_PLACING_SHIPS = "You took too long to place your ships"
         private const val TOOK_TOO_LONG_MAKING_SHOTS = "You took too long to make your shots"
+        private const val THIS_GAME_HAS_BEEN_CANCELLED = "This game has been cancelled"
         private const val MUST_BE_PARTICIPANT = "You must be a participant of the game to perform this action"
         private const val NOT_ALLOWED = "You are not allowed to access this resource"
     }
@@ -96,21 +97,26 @@ class GameService(
      * @param shots the shots to be made
      */
     fun makeShots(userID: UserID, gameId: ID, shots: List<Square>) {
-        transactionFactory.execute {
+        val gameState= transactionFactory.execute {
             val currentGameState =
                 gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
             if (userID !in currentGameState.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
+
+            if (currentGameState.state == Game.State.CANCELLED) {
+                throw TimeoutExceededAppException(THIS_GAME_HAS_BEEN_CANCELLED)
+            }
+
             if (userID != currentGameState.turnID)
                 throw ForbiddenAccessAppException("Not your turn!")
-
 
             val newGameState = currentGameState.makePlay(shots)
             gamesRepository.persist(newGameState.toDTO())
 
-            if (newGameState.state == Game.State.CANCELLED) {
-                throw TimeoutExceededAppException(TOOK_TOO_LONG_MAKING_SHOTS)
-            }
+            newGameState.state
+        }
+        if (gameState == Game.State.CANCELLED) {
+            throw TimeoutExceededAppException(TOOK_TOO_LONG_MAKING_SHOTS)
         }
     }
 
@@ -124,18 +130,22 @@ class GameService(
      * @throws ForbiddenAccessAppException if the user is not in the game
      */
     fun defineFleetLayout(userID: UserID, gameId: ID, ships: List<ShipInfo>) {
-        val newGameState = transactionFactory.execute {
-            val currentState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
-            if (userID !in currentState.playerBoards.keys)
+        val gameState = transactionFactory.execute {
+            val currentGameState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            if (userID !in currentGameState.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
 
-            val newGameState = currentState.placeShips(ships, userID)
+            if (currentGameState.state == Game.State.CANCELLED) {
+                throw TimeoutExceededAppException(THIS_GAME_HAS_BEEN_CANCELLED)
+            }
+
+            val newGameState = currentGameState.placeShips(ships, userID)
             gamesRepository.persist(newGameState.toDTO())
 
-            newGameState
+            newGameState.state
         }
 
-        if (newGameState.state == Game.State.CANCELLED) {
+        if (gameState == Game.State.CANCELLED) {
             throw TimeoutExceededAppException(TOOK_TOO_LONG_PLACING_SHIPS)
         }
     }
