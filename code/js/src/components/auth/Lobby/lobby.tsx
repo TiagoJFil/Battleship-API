@@ -44,9 +44,7 @@ export function Lobby() {
 
         if(gameRules != null){
             const intervalID = setInterval(() => {
-                    console.log("gameID is not null")
-                    console.log("gameID is", gameID)
-                    navigate(`/game/${gameID}`, {state: gameRules})
+                    navigate(`/game/${gameID}/layout-definition`, {state: gameRules.properties})
                     clearInterval(intervalID);
                 },
                 3000

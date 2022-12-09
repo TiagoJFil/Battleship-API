@@ -7,6 +7,7 @@ import { Logout } from './components/auth/logout/logout'
 import { Register } from './components/auth/register'
 import { Lobby } from './components/auth/lobby/lobby'
 import { PlaceShips } from './core-ui/place-ships'
+import { Game } from './core-ui/game'
 
 
 export function App() {
@@ -19,7 +20,8 @@ export function App() {
                 <Route path='logout' element={<Logout/>}/>
                 <Route path='register' element={<Register/>}/>
                 <Route path='lobby' element={<Lobby/>}/>
-                <Route path='game/:gameID/' element={<PlaceShips/>}/>
+                <Route path='game/:gameID/layout-definition' element={<PlaceShips/>}/>
+                <Route path='game/:gameID' element={<Game/>}/>
                 </Route>
         </Routes>
     </BrowserRouter> 

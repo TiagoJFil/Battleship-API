@@ -3,7 +3,7 @@
     --board-height: 500px;
 }
 
-.game-view-space {
+.layout-definition-view-space, .game-view-space {
     width: 100%;
     height: 100%;
     display: flex;

@@ -21,6 +21,7 @@ export class Board{
 
     asMap(): Map<string, SquareType>{
         const map = new Map<string, SquareType>()
+        
         this.shipParts.forEach((square) => map.set(square.toID(), SquareType.SHIP_PART))
         this.shots.forEach((square) => map.set(square.toID(), SquareType.SHOT))
         this.hits.forEach((square) => map.set(square.toID(), SquareType.HIT))

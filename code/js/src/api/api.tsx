@@ -1,26 +1,27 @@
 import { SirenEntity } from '../interfaces/hypermedia/siren';
 import { AuthInformation } from '../interfaces/dto/user';
 import { Problem } from '../interfaces/hypermedia/problem';
-import { getAuthInfo } from './session';
 import { LobbyInformationDTO } from '../interfaces/dto/lobby-info';
 import { StatisticsDTO } from '../interfaces/dto/statistics';
 import axios from 'axios';
 import { ShipInfoDTO } from '../interfaces/dto/ships-info';
 import { GameRulesDTO } from '../interfaces/dto/game-rules';
 import { GameStateInfoDTO } from '../interfaces/dto/game-state';
+import { ShipInfo } from '../components/entities/ship-info';
+import { Board } from '../components/entities/board';
 
 const hostname = "localhost"
 const port = 8090
 const basePath = "/api/"
 
 const baseUrl = `http://${hostname}:${port}${basePath}`
+axios.defaults.withCredentials = true
 
 export async function fetchLogin (username: string, password: string) : Promise< SirenEntity<AuthInformation>> {
     const response = await axios({
         url :`${baseUrl}user/login`, 
         method: 'POST',
         headers: {
-            
             'Content-Type': 'application/json'
         },
         data: JSON.stringify(
@@ -32,7 +33,6 @@ export async function fetchLogin (username: string, password: string) : Promise<
     }).catch((e) => {
         throw e.response.data as Problem
     })
-
     return response.data    
 }
 
@@ -63,7 +63,6 @@ export async function getLobby(id:number) : Promise< SirenEntity<any>> {
         url: `${baseUrl}lobby/${id}`,
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthInfo().token}`
         }
     })
     .catch((e) => {
@@ -79,7 +78,6 @@ export async function joinQueue() : Promise< SirenEntity<LobbyInformationDTO>> {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthInfo().token}`
         }
           
     })
@@ -96,7 +94,6 @@ export async function leavelobby(lobbyID : number) : Promise< SirenEntity<any>> 
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthInfo().token}`
         }
     })
     .catch((e) => {
@@ -124,7 +121,6 @@ export async function placeShips(gameID: number, ships: ShipInfoDTO[]): Promise<
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthInfo().token}`
         },
         data: JSON.stringify({
             "shipInfo": [...ships]
@@ -143,7 +139,6 @@ export async function getGameRules(gameID: number): Promise<SirenEntity<GameRule
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthInfo().token}`
         }
     }).catch((e) => {
         throw e.response.data as Problem
@@ -157,7 +152,38 @@ export async function getGameState(gameID: number): Promise<SirenEntity<GameStat
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthInfo().token}`
+        }
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Promise<SirenEntity<undefined>> {
+    console.log(shipInfo)
+    const response = await axios({
+        url: `${baseUrl}game/${gameID}/layout-definition`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({
+            "shipsInfo": shipInfo
+        })
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+export async function getBoard(gameID: number, whichFleet: string): Promise<SirenEntity<Board>> {
+    const response = await axios({
+        url: `${baseUrl}game/${gameID}/fleet/${whichFleet}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
         }
     }).catch((e) => {
         throw e.response.data as Problem

@@ -10,10 +10,10 @@ import { IconButton } from './icons';
 export function BottomNav() {
     const navigate = useNavigate();
 
-    const authButton = isLoggedIn() ? {
+    const authButton = /*isLoggedIn() ? {
         icon: styles.LOGOUT_ICON,
         link: '/logout',
-    } :
+    } :*/
     {
         icon: styles.LOGIN_ICON,
         link: '/login',

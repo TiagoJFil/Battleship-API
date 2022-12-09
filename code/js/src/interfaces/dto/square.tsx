@@ -3,10 +3,20 @@ export interface SquareDTO{
     column: Column
 }
 
-export interface Row{
+export class Row{
     ordinal: number
+    
+    constructor(ordinal: number){
+        this.ordinal = ordinal
+    }
 }
 
-export interface Column{
+
+
+export class Column{
     ordinal: number
+
+    constructor(ordinal: number){
+        this.ordinal = ordinal
+    }
 }

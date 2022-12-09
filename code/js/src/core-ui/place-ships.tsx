@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { GameRulesDTO } from '../interfaces/dto/game-rules';
 import { emptyBoard, Board } from '../components/entities/board';
 import { Orientation } from '../components/entities/orientation';
@@ -7,13 +7,15 @@ import { Ship } from '../components/entities/ship';
 import { Square } from '../components/entities/square';
 import { PlaceShipView } from '../pages/place-ships-view';
 import { GameState } from '../components/entities/game-state';
-import { getGameState } from '../api/api';
+import { defineShipLayout, getGameState } from '../api/api';
+import { ShipInfo } from '../components/entities/ship-info';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 
 export function PlaceShips(){
+    const navigate = useNavigate();
     let { gameID } = useParams()
-    const gameRules: GameRulesDTO = useLocation().state.properties;
+    const gameRules: GameRulesDTO = useLocation().state;
     const fleetComposition: Map<string, number> = gameRules.shipRules.fleetComposition;
     const fleetCompositionKeys = Object.keys(fleetComposition).map(
         (key) => parseInt(key)
@@ -29,10 +31,8 @@ export function PlaceShips(){
     const [shipSelected, setShipSelected] = React.useState(null)
     const [availableShips, setAvailableShips] = React.useState(ships)
     const [gameState, setGameState] = React.useState(GameState.PLACING_SHIPS)
+    const [placedShips, setPlacedShips] = React.useState([])
     
-    React.useEffect(() => {
-
-    })
     const onShipClicked = (shipID: number) => {
         const ship = availableShips.find((ship) => ship.id === shipID)
         setShipSelected(ship)
@@ -47,6 +47,11 @@ export function PlaceShips(){
         setAvailableShips((previousShips: Ship[]): Ship[] =>
             previousShips.filter((ship) => ship.id !== shipSelected.id)
         )
+
+        setPlacedShips([
+            ...placedShips,
+            new ShipInfo(squareClicked.toDTO(), shipSelected.size, shipSelected.orientation)
+        ])
 
         setShipSelected(null);
         boardSnapshot.current = visibleBoard
@@ -92,33 +97,56 @@ export function PlaceShips(){
 
     const submitPlacement = () => {
         if(availableShips.length > 0) return
-        setGameState(GameState.PLAYING)
+        defineShipLayout(parseInt(gameID), placedShips).then()
+        .catch((error) => {
+            console.log(error)
+        })
     }
 
     const timeoutSeconds = gameRules.layoutDefinitionTimeout / 1000
 
     const [percentage, setPercentage] = React.useState(100)
     const [timeout, setTimeout] = React.useState(timeoutSeconds)
+    const [intervalId, setIntervalId] = React.useState(null);
 
-    //TODO change, renders the ship view every second when only the timeout bar should be updated
-    //TODO handle the case when the timeout is 0, when a player has requested to confirm its layout the progress bar stops moving
-    //but internally the timeout is still counting down, so when the timeout is 0 both players will check the gameState and see if it is cancelled, 
-    //meaning that the player has not confirmed its layout in time
     React.useEffect(() => {
-        const intervalID = setInterval(async () => {      
+        const intervalID = setInterval(() => {  
             setTimeout((prev) => {
                 if(prev == 0){
-                    clearInterval(intervalID);
+                    const stateValue = GameState[gameState]
+                    if(stateValue === GameState.PLACING_SHIPS){   
+                        //TIMEOUT 
+                        navigate('/')
+                    }         
+                    clearInterval(intervalID)
+                    return
                 }
                 return prev - 1
             })
             
             setPercentage((prev) => {
-              return prev > 0 ? prev - 100/timeoutSeconds : 0
+                return prev > 0 ? prev - 100/timeoutSeconds : 0
             })
-            
+
+            getGameState(parseInt(gameID)).then((gameInfo) => {
+                const currentGameState = gameInfo.properties.state
+                const stateValue = GameState[currentGameState]
+                setGameState(currentGameState)
+                if(stateValue === GameState.PLAYING){
+                    navigate(`/game/{gameID}`, {state: {'playerBoard': boardSnapshot.current, 'gameRules': gameRules}})
+                    clearInterval(intervalID);
+                }
+            })  
+
+            setIntervalId(intervalID);
         }, 1000)
-    }, [])
+    }, [gameState])
+
+    React.useEffect(() => {
+        return () => {
+          clearInterval(intervalId);
+        }
+      }, [intervalId]);
 
     return(
         <div>

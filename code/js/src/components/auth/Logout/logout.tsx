@@ -2,12 +2,10 @@ import * as React from 'react'
 import { logout } from '../../../api/session'
 
 export function Logout(){
-
-
+    
     const onlogout = () => {
         logout()
     }
-
 
     return(
 

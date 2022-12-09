@@ -23,8 +23,10 @@ export function BoardView(
         onMouseDown
     }: BoardViewProp
 ){
-    console.log('CALLED-------------')
+
+    
     const boardRepresentation = board.asMap()
+    
     const squaresViews: React.ReactElement[] = []
 
     for(let row = 0; row < board.side; row++){

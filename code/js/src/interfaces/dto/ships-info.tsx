@@ -3,6 +3,6 @@ import { SquareDTO } from "./square";
 
 export interface ShipInfoDTO {
     initialSquare: SquareDTO,
-    size: number,
-    orientation: Orientation
+    orientation: Orientation,
+    size: number
 }

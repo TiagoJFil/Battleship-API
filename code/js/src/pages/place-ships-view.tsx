@@ -37,8 +37,8 @@ export function PlaceShipView(
     }: PlaceShipViewProps
 ){
     return(
-        <section id="game-view">
-            <div className="game-view-space">
+        <section id="layout-definition-view">
+            <div className="layout-definition-view-space">
                 <div className="fleet-space">
                     <Fleet
                         shipSelected={shipSelected}
