@@ -5,10 +5,7 @@ import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.BoardDTO
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
-import pt.isel.daw.battleship.controller.hypermedia.siren.AppSirenNavigation
-import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
-import pt.isel.daw.battleship.controller.hypermedia.siren.appToSiren
-import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
+import pt.isel.daw.battleship.controller.hypermedia.siren.*
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
 import pt.isel.daw.battleship.controller.pipeline.authentication.Authentication
 import pt.isel.daw.battleship.services.GameService
@@ -35,17 +32,29 @@ class GameController(
     @Authentication
     @PostMapping(Uris.Game.SHOTS_DEFINITION)
     fun defineShots(
+        @RequestParam(required = false) embedded : Boolean,
         @PathVariable("gameId") gameID: Int,
         userID: UserID,
         @RequestBody input: ShotsInfoInputModel
     ): SirenEntity<NoEntitySiren> {
         gameService.makeShots(userID, gameID, input.shots)
 
-        return noEntitySiren(
+        val siren = noEntitySiren(
             AppSirenNavigation.graph,
             AppSirenNavigation.SHOTS_DEFINITION_NODE_KEY
         )
 
+        return if(embedded){
+            val embeddableBoard = gameService.getFleetState(userID, gameID, whichFleet = "opponent")
+
+            siren.appAppendEmbedded(
+                AppSirenNavigation.FLEET_NODE_KEY,
+                embeddableBoard,
+                AppSirenNavigation.SHOTS_DEFINITION_NODE_KEY
+            )
+        }else{
+            siren
+        }
     }
 
     @Authentication

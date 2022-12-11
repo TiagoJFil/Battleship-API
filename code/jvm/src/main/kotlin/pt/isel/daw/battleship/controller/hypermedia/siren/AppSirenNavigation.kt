@@ -133,9 +133,16 @@ object AppSirenNavigation {
 
 
         node<NoEntitySiren>(nodeID = DEFINE_LAYOUT_NODE_ID){
+            self(Uris.Game.LAYOUT_DEFINITION)
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
         }
-        node<NoEntitySiren>(nodeID = SHOTS_DEFINITION_NODE_KEY)
+        node<NoEntitySiren>(nodeID = SHOTS_DEFINITION_NODE_KEY){
+            self(Uris.Game.SHOTS_DEFINITION)
+
+            embeddedEntity<BoardDTO>(
+                rel = listOf("board"),
+            )
+        }
 
         node<BoardDTO>(FLEET_NODE_KEY) {
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
