@@ -8,7 +8,8 @@ import { ShipInfoDTO } from '../interfaces/dto/ships-info';
 import { GameRulesDTO } from '../interfaces/dto/game-rules';
 import { GameStateInfoDTO } from '../interfaces/dto/game-state';
 import { ShipInfo } from '../components/entities/ship-info';
-import { Board } from '../components/entities/board';
+import { Board, BoardDTO } from '../components/entities/board';
+import { SquareDTO } from '../interfaces/dto/square';
 
 const hostname = "localhost"
 const port = 8090
@@ -161,7 +162,6 @@ export async function getGameState(gameID: number): Promise<SirenEntity<GameStat
 }
 
 export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Promise<SirenEntity<undefined>> {
-    console.log(shipInfo)
     const response = await axios({
         url: `${baseUrl}game/${gameID}/layout-definition`,
         method: 'POST',
@@ -178,13 +178,30 @@ export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Pr
     return response.data
 }
 
-export async function getBoard(gameID: number, whichFleet: string): Promise<SirenEntity<Board>> {
+export async function getBoard(gameID: number, whichFleet: string): Promise<SirenEntity<BoardDTO>> {
     const response = await axios({
         url: `${baseUrl}game/${gameID}/fleet/${whichFleet}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+export async function defineShot(gameID: number, shotsInfo: SquareDTO[]): Promise<SirenEntity<undefined>> {
+    const response = await axios({
+        url: `${baseUrl}game/${gameID}/shots-definition?embedded=true`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({
+            shots: shotsInfo
+        })
     }).catch((e) => {
         throw e.response.data as Problem
     })

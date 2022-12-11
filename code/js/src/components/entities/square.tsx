@@ -4,9 +4,9 @@ export class Square{
     row: number
     column: number
 
-    constructor(x: number, y: number){
-        this.row = x
-        this.column = y
+    constructor(row: number, column: number){
+        this.row = row
+        this.column = column
     }
 
     toID(): string{

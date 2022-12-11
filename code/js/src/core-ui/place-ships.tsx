@@ -7,8 +7,9 @@ import { Ship } from '../components/entities/ship';
 import { Square } from '../components/entities/square';
 import { PlaceShipView } from '../pages/place-ships-view';
 import { GameState } from '../components/entities/game-state';
-import { defineShipLayout, getGameState } from '../api/api';
+import { defineShipLayout, getBoard, getGameState } from '../api/api';
 import { ShipInfo } from '../components/entities/ship-info';
+import { Fleet } from '../components/entities/fleet';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 
@@ -133,8 +134,11 @@ export function PlaceShips(){
                 const stateValue = GameState[currentGameState]
                 setGameState(currentGameState)
                 if(stateValue === GameState.PLAYING){
-                    navigate(`/game/{gameID}`, {state: {'playerBoard': boardSnapshot.current, 'gameRules': gameRules}})
-                    clearInterval(intervalID);
+                    
+                    getBoard(parseInt(gameID), Fleet.OPPONENT).then((siren) =>{
+                        navigate(`/game/${gameID}`, {state: {'playerBoard': boardSnapshot.current, 'opponentBoard': siren.properties}})
+                        clearInterval(intervalID);
+                    })         
                 }
             })  
 

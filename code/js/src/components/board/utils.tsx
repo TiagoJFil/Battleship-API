@@ -10,7 +10,7 @@ const BreakError = {}
 /**
  * 
  */
- function getDiagonals(square: Square): Square[]{
+ export function getDiagonals(square: Square): Square[]{
     const topLeft = new Square(square.row - 1, square.column - 1)
     const topRight = new Square(square.row - 1, square.column + 1)
     const bottomLeft = new Square(square.row + 1, square.column - 1)

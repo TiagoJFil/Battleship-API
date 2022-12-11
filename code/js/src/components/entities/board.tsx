@@ -3,6 +3,7 @@ import { Square } from "./square"
 import { SquareType } from "./square-type"
 
 import { hasAdjacentShips, isPlaceFree, isWithinBounds } from "../board/utils"
+import { SquareDTO } from "../../interfaces/dto/square"
 
 export class Board{
     side: number
@@ -77,3 +78,16 @@ export function emptyBoard(side: number): Board{
     return new Board(side, [], [], [], [])
 }
 
+export class BoardDTO{
+    side: number
+    shipParts: SquareDTO[]
+    shots: SquareDTO[]
+    hits: SquareDTO[]
+
+    constructor(side: number, shipParts: SquareDTO[], shots: SquareDTO[], hits: SquareDTO[]){
+        this.side = side
+        this.shipParts = shipParts
+        this.shots = shots
+        this.hits = hits
+    }
+}

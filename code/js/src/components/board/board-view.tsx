@@ -23,16 +23,16 @@ export function BoardView(
         onMouseDown
     }: BoardViewProp
 ){
-
-    
     const boardRepresentation = board.asMap()
-    
-    const squaresViews: React.ReactElement[] = []
 
+    const squaresViews: React.ReactElement[] = []
+    
     for(let row = 0; row < board.side; row++){
         for(let col = 0; col < board.side; col++){
             const square = new Square(row, col)
+            
             const type = boardRepresentation.get(square.toID()) ?? SquareType.WATER
+            
             squaresViews.push(
                 <div
                     className={`square ${type}`} 
@@ -43,6 +43,7 @@ export function BoardView(
                     onMouseDown={(event) => onMouseDown(event, square)}
                 />
             )
+
         }
     }
 
@@ -51,6 +52,7 @@ export function BoardView(
 
     }
 
+   
     return (
         <div className={styles.BOARD} onContextMenu= {disableContextMenu}>
             {squaresViews}
