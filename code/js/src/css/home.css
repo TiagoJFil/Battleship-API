@@ -1,10 +1,18 @@
+ .icon-list {
+     display: flex;
+     flex-direction: row;
+     height: 100%;
+     align-items: center;
+ }
+
  .play-button-container {
-    display: flex;
-    justify-content: center;
-    align-items: normal;
-    width: 100%;
-}
- 
+     display: flex;
+     justify-content: center;
+     align-items: normal;
+     width: 200px;
+     height: 200px;
+ }
+
 .play-button-container .icon-button:hover {
     background-color: #bd0820
 }
@@ -22,4 +30,70 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+}
+
+.statistics-button-container{
+    width: 150px;
+    height: 150px;
+}
+
+.statistics-button-container .icon-button:hover {
+    background-color: #bd0820
+}
+
+.statistics-button-container .icon-button{
+    width: 150px;
+    height: 150px;
+    font-size: 90px;
+    border-radius: 50%;
+    position: absolute;
+    border: 1px solid #e6e6e6;
+    background-color: #bd1e33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+
+ .play-button-container .icon-button:hover .icon {
+    color: #fff;
+}
+
+ .play-button-container .icon-button .icon {
+    color: #fff;
+    transition: color 0.3s;
+}
+
+.auth-button-container{
+    width: 150px;
+    height: 150px;
+}
+
+.auth-button-container .icon-button:hover {
+    background-color: #bd0820
+}
+
+.auth-button-container .icon-button{
+    width: 150px;
+    height: 150px;
+    font-size: 90px;
+    border-radius: 50%;
+    position: absolute;
+    border: 1px solid #e6e6e6;
+    background-color: #bd1e33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+
+ .play-button-container .icon-button:hover .icon {
+    color: #fff;
+}
+
+ .play-button-container .icon-button .icon {
+    color: #fff;
+    transition: color 0.3s;
 }

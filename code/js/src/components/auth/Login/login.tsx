@@ -1,29 +1,25 @@
 import * as React from 'react'
 import { fetchLogin } from '../../../api/api'
-import { setAuthInfo } from '../../../api/session';
 import { validateAuth } from '../../../validations/auth-validation';
 import { AuthForm } from '../auth-form';
 import { ErrorToast } from '../../../core-ui/toasts';
 import { BottomNav } from '../../bottom-nav';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 
 export function Login() {
+    const navigate = useNavigate()
 
     const onLoginClick = async (username : string,password : string) => {
         try {
             validateAuth(username,password)
-
-            const authInformation = await fetchLogin(username, password);
-            console.log(authInformation)
-
-            setAuthInfo(authInformation.properties);
+            await fetchLogin(username, password);
+            navigate('/')
         } catch (e) {
             console.log(e)
             ErrorToast(e.title).showToast();
         }
     }
-
 
     return (
         <div>

@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
+import { useNavigate, useParams } from "react-router-dom";
 import { emptyBoard, Board } from '../components/entities/board';
 import { Orientation } from '../components/entities/orientation';
 import { Ship } from '../components/entities/ship';
@@ -117,15 +116,14 @@ export function PlaceShips(){
         boardSnapshot.current = emptyBoard(initialBoardSide.current)
         setVisibleBoard(boardSnapshot.current)
         setShipSelected(null);
+        setPlacedShips([])
         setAvailableShips(initialShips.current);
     }
 
-    const submitPlacement = () => {
-        if(availableShips.length > 0) return
-        defineShipLayout(validatedGameID, placedShips).then()
-        .catch((error) => {
-            console.log(error) //TODO handle error
-        })
+    const submitPlacement = async () => {
+        console.log("placed ships: ", placedShips)
+        await defineShipLayout(validatedGameID, placedShips)
+        //TODO: handle error
     }
 
     const timeoutSeconds = layoutDefinitionTimeout / 1000

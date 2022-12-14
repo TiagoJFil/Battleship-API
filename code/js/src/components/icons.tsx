@@ -3,7 +3,7 @@ import { styles } from '../constants/styles';
 import { useNavigate } from 'react-router-dom'
 
 
-export function IconButton(prop){
+export function IconButton(prop : {id?: string, title?: string, iconClass: string, onClick: () => void}){
     return (
         <button id={prop.id} title={prop.title} className="icon-button" onClick={prop.onClick}>
             <BoxIcon className ={prop.iconClass}/>
@@ -11,7 +11,7 @@ export function IconButton(prop){
     )
 }
 
-export function BoxIcon(prop){
+export function BoxIcon(prop : {className: string}){
     const className = styles.BX_CLASS + ' ' + prop.className;
     return ( <i className={className}/>)
 }
@@ -21,22 +21,26 @@ export interface IconLinkInfo {
     title: string;
     iconClass: string;
     link: string;
+    cssTag: string;
 }
 
 
-function IconLinkButtonList(...icons : IconLinkInfo[]){
+export function IconLinkButtonList(prop : {icons: IconLinkInfo[]}){
     const navigate = useNavigate();
+    const icons : IconLinkInfo[] = prop.icons
 
     return (
-        <div className="icon-list">
-            {icons.map((icon, index) => {
-                const containerClassName = `${icon.title}-button-container`;
-                return (
-                <div className={containerClassName} > 
-                    <IconButton key={index} title={icon.title} iconClass={icon.iconClass} onClick={() => navigate(icon.link) } />~
-                </div>
-                )
-            })}
+        <div className="icon-list-container">
+            <div className="icon-list">
+                {icons.map((icon, index) => {
+                    const containerClassName = `${icon.cssTag}-button-container`;
+                    return (
+                    <div key={index} className={containerClassName} >
+                        <IconButton key={index} title={icon.title} iconClass={icon.iconClass} onClick={() => navigate(icon.link) } />
+                    </div>
+                    )
+                })}
+            </div>
         </div>
     )
 

@@ -97,7 +97,6 @@ class JdbiGamesRepository(
     private fun Update.bindMultiple(values: List<Pair<String, Any?>>): Update =
         values.fold(this) { acc, pair ->
             acc.bind(pair.first, pair.second)
-
         }
 
     /**

@@ -6,7 +6,6 @@ import { Fleet } from "../components/fleet/fleet-view"
 import { Ship } from "../components/entities/ship"
 import { Square } from "../components/entities/square"
 import { TimeoutBar } from "../components/progress-bar"
-import { IGameRulesDTO } from "../interfaces/dto/game-rules-dto"
 
 interface PlaceShipViewProps{
     board: Board

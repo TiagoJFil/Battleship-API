@@ -1,10 +1,14 @@
 import * as React from 'react'
-import { logout } from '../../../api/session'
+import { useNavigate } from 'react-router-dom'
+import { authServices } from '../../../api/auth'
+
 
 export function Logout(){
-    
+    const navigate = useNavigate()
+
     const onlogout = () => {
-        logout()
+        authServices.logout()
+        navigate('/')
     }
 
     return(

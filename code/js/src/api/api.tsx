@@ -10,21 +10,22 @@ import { IGameStateInfoDTO } from '../interfaces/dto/game-state-dto';
 import { ShipInfo } from '../components/entities/ship-info';
 import { ISquareDTO } from '../interfaces/dto/square-dto';
 import { IBoardDTO } from '../interfaces/dto/board-dto';
+import { ISystemInfoDTO } from '../interfaces/dto/system-info-dto';
 
 const hostname = "localhost"
 const port = 8090
 const basePath = "/api/"
 
 const baseUrl = `http://${hostname}:${port}${basePath}`
+
+axios.defaults.baseURL = baseUrl
 axios.defaults.withCredentials = true
+axios.defaults.headers['Content-Type'] = 'application/json'
 
 export async function fetchLogin (username: string, password: string) : Promise< SirenEntity<IAuthInformation>> {
     const response = await axios({
-        url :`${baseUrl}user/login`, 
+        url :`user/login`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         data: JSON.stringify(
             {
                 "username": username,
@@ -34,16 +35,14 @@ export async function fetchLogin (username: string, password: string) : Promise<
     }).catch((e) => {
         throw e.response.data as Problem
     })
-    return response.data    
+
+    return response.data
 }
 
 export async function fetchRegister (username: string, password: string) : Promise<SirenEntity<IAuthInformation>> {
     const response = await axios({
-        url: `${baseUrl}user/`, 
+        url: `user/`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         data: JSON.stringify(
             {
                 "username": username,
@@ -61,10 +60,7 @@ export async function fetchRegister (username: string, password: string) : Promi
 export async function getLobby(id:number) : Promise< SirenEntity<any>> {
     const response = await axios({
         method: 'GET',
-        url: `${baseUrl}lobby/${id}`,
-        headers: {
-            'Content-Type': 'application/json',
-        }
+        url: `lobby/${id}`,
     })
     .catch((e) => {
         throw e.response.data as Problem
@@ -75,12 +71,8 @@ export async function getLobby(id:number) : Promise< SirenEntity<any>> {
     
 export async function joinQueue() : Promise< SirenEntity<ILobbyInformationDTO>> {
     const response = await axios({
-        url: `${baseUrl}lobby/`,
+        url: `lobby/`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-          
     })
     .catch((e) => {
         throw e.response.data as Problem
@@ -91,11 +83,8 @@ export async function joinQueue() : Promise< SirenEntity<ILobbyInformationDTO>> 
 
 export async function leavelobby(lobbyID : number) : Promise< SirenEntity<any>> {
     const response = await axios({
-        url: `${baseUrl}lobby/${lobbyID}`,
+        url: `lobby/${lobbyID}`,
         method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        }
     })
     .catch((e) => {
         throw e.response.data as Problem
@@ -106,9 +95,19 @@ export async function leavelobby(lobbyID : number) : Promise< SirenEntity<any>> 
 
 export async function getStatistics(): Promise<SirenEntity<IStatisticsDTO>> {
     const response = await axios({
-        url: `${baseUrl}statistics/`,
+        url: `statistics/`,
         method: 'GET',
-        
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+export async function getSystemInfo() : Promise< SirenEntity<ISystemInfoDTO>> {
+    const response = await axios({
+        url: `systemInfo/`,
+        method: 'GET',
     }).catch((e) => {
         throw e.response.data as Problem
     })
@@ -118,11 +117,8 @@ export async function getStatistics(): Promise<SirenEntity<IStatisticsDTO>> {
 
 export async function placeShips(gameID: number, ships: IShipInfoDTO[]): Promise<SirenEntity<undefined>> {
     const response = await axios({
-        url: `${baseUrl}game/${gameID}/placeShips`,
+        url: `game/${gameID}/placeShips`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         data: JSON.stringify({
             "shipInfo": [...ships]
         })
@@ -135,11 +131,8 @@ export async function placeShips(gameID: number, ships: IShipInfoDTO[]): Promise
 
 export async function getGameRules(gameID: number): Promise<SirenEntity<IGameRulesDTO>> {
     const response = await axios({
-        url: `${baseUrl}game/${gameID}/rules`,
+        url: `game/${gameID}/rules`,
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
     }).catch((e) => {
         throw e.response.data as Problem
     })
@@ -148,11 +141,8 @@ export async function getGameRules(gameID: number): Promise<SirenEntity<IGameRul
 
 export async function getGameState(gameID: number): Promise<SirenEntity<IGameStateInfoDTO>> {
     const response = await axios({
-        url: `${baseUrl}game/${gameID}/state`,
+        url: `game/${gameID}/state`,
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
     }).catch((e) => {
         throw e.response.data as Problem
     })
@@ -162,11 +152,8 @@ export async function getGameState(gameID: number): Promise<SirenEntity<IGameSta
 
 export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Promise<SirenEntity<undefined>> {
     const response = await axios({
-        url: `${baseUrl}game/${gameID}/layout-definition`,
+        url: `game/${gameID}/layout-definition`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         data: JSON.stringify({
             "shipsInfo": shipInfo
         })
@@ -179,11 +166,8 @@ export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Pr
 
 export async function getBoard(gameID: number, whichFleet: string): Promise<SirenEntity<IBoardDTO>> {
     const response = await axios({
-        url: `${baseUrl}game/${gameID}/fleet/${whichFleet}`,
+        url: `game/${gameID}/fleet/${whichFleet}`,
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
     }).catch((e) => {
         throw e.response.data as Problem
     })
@@ -193,11 +177,8 @@ export async function getBoard(gameID: number, whichFleet: string): Promise<Sire
 
 export async function defineShot(gameID: number, shotsInfo: ISquareDTO[]): Promise<SirenEntity<undefined>> {
     const response = await axios({
-        url: `${baseUrl}game/${gameID}/shots-definition?embedded=true`,
+        url: `game/${gameID}/shots-definition?embedded=true`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         data: JSON.stringify({
             shots: shotsInfo
         })

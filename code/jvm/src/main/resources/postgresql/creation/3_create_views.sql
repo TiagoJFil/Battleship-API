@@ -64,10 +64,15 @@ begin
 
     if(select not gameRulesExists(new.boardside, new.shotsperturn, new.layoutdefinitiontimeout, new.playTimeout, shipRulesId)) then
         insert into GameRules(boardSide, shotsPerTurn, layoutDefinitionTimeout, playTimeout, shiprules)
-        values (new.boardSide, new.shotsPerTurn, new.layoutDefinitionTimeout, new.playTimeout, shipRulesId);
+        values (new.boardSide, new.shotsPerTurn, new.layoutDefinitionTimeout, new.playTimeout, shipRulesId) returning id into gameRulesId;
+    else
+        select id from GameRules
+                  where boardSide = new.boardSide and shotsperturn = new.shotsPerTurn
+                    and layoutdefinitiontimeout = new.layoutDefinitionTimeout
+                    and playtimeout = new.playTimeout into gameRulesId;
+
     end if;
 
-    select id from GameRules where boardSide = new.boardSide into gameRulesId;
     insert into Game(id, rules, state, turn, player1, player2, lastUpdated)
     values (newGameId, gameRulesId, new.state, new.turn, new.player1, new.player2, new.lastUpdated);
 
@@ -100,7 +105,7 @@ begin
        update Board
        set layout = new.boardP2
        where gameId = new.id and userId = old.player2;
-       end if;
+    end if;
 
     update Game set state = new.state, turn= new.turn, player1 = new.player1, player2 = new.player2, lastUpdated = new.lastUpdated where id = old.id;
 
@@ -114,7 +119,7 @@ begin
     shotsPerTurn                   = new.shotsPerTurn,
     layoutDefinitionTimeout        = new.layoutDefinitionTimeout,
     playTimeout                    = new.playTimeout,
-    shiprules                       = shipRulesId
+    shiprules                      = shipRulesId
     where id = gameRulesId;
     return new;
 end;

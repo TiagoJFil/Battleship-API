@@ -1,23 +1,21 @@
 import * as React from 'react';
 import { validateAuth } from '../../validations/auth-validation';
 import { fetchRegister } from '../../api/api'
-import { setAuthInfo } from '../../api/session';
 import { AuthForm } from './auth-form';
+import { useNavigate } from 'react-router-dom';
+import { ErrorToast } from './../../core-ui/toasts';
 
 export function Register(){
-    const [error, setError] = React.useState<string | null>(null);
-
+    const navigate = useNavigate()
 
     const onRegisterClick = async (username,password) => {
         try {
             validateAuth(username,password)
-            const authInformation = await fetchRegister(username, password);
-            console.log(authInformation)
-            setAuthInfo(authInformation.properties);
-
+            await fetchRegister(username, password);
+            navigate('/')
         } catch (e ) {
             console.log(e)
-            setError(e.title);
+            ErrorToast(e.title).showToast();
         }
     }
 
@@ -25,7 +23,6 @@ export function Register(){
         <div>
             <h1>Register</h1>
             <AuthForm confirmPrompt="Register" onSubmit={(username,password) => {onRegisterClick(username,password)} }/>
-            {error && <div>{error}</div>}
         </div>
     )
 }

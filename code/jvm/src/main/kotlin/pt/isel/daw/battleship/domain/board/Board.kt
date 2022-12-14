@@ -56,8 +56,10 @@ data class Board(val linearMatrix: List<SquareType>) {
             }
         }
 
-        ships.groupingBy { it.size }
+        val a =ships.groupingBy { it.size }
             .eachCount()
+
+        a
     }
 
     enum class SquareType(val representation: Char) {
@@ -104,10 +106,10 @@ data class Board(val linearMatrix: List<SquareType>) {
         val squares = when (searchResult) {
             is ClearSurroundingWaterSquares ->
                 searchResult.shipSquares
-                    .flatMap { it.getSurrounding().filterInBounds(this) }
+                    .flatMap  {getSurroundingSquares(it)}
                     .distinct()
                     .filter { get(it) == SquareType.Water }
-            is ClearDiagonals -> square.getDiagonals()
+            is ClearDiagonals -> getSquareDiagonals(square)
             else -> emptyList()
         }
         val knownWaterSquaresIdx = squares.map { getIndexFrom(it) }.toSet()
@@ -136,7 +138,7 @@ data class Board(val linearMatrix: List<SquareType>) {
 
         while (unchecked.isNotEmpty()) {
             val square = unchecked.removeFirst()
-            val neighbours = square.getSurrounding().filterInBounds(this)
+            val neighbours = getSurroundingSquares(square)
             neighbours.forEach {
                 if (it !in seen) {
                     if (get(it) == SquareType.ShipPart) {
@@ -160,7 +162,7 @@ data class Board(val linearMatrix: List<SquareType>) {
 
         while (frontier.isNotEmpty()) {
             val square = frontier.removeFirst()
-            val neighbours = square.getAxisNeighbours().filterInBounds(this)
+            val neighbours = getAxisNeighboursSquares(square)
              neighbours.filter { sqr ->
                 val squareType = linearMatrix[getIndexFrom(sqr)]
                 (squareType == SquareType.ShipPart || squareType == SquareType.Hit) && sqr !in seen
@@ -248,6 +250,24 @@ data class Board(val linearMatrix: List<SquareType>) {
 
 
 }
+
+/**
+ * Gets the surrounding squares of the given square taking into account the board bounds
+ * @param square the square to get the surrounding squares
+ */
+fun Board.getSurroundingSquares(square: Square): List<Square> = square.getSurrounding().filterInBounds(this)
+
+/**
+ * Gets the axis neighbours of the given square taking into account the board bounds
+ * @param square the square to get the axis neighbours
+ */
+fun Board.getSquareDiagonals(square: Square) : List<Square> = square.getDiagonals().filterInBounds(this)
+
+/**
+ * Gets the axis neighbours of the given square taking into account the board bounds
+ * @param square the square to get the axis neighbours
+ */
+fun Board.getAxisNeighboursSquares(square: Square) : List<Square> = square.getAxisNeighbours().filterInBounds(this)
 
 
 /**
