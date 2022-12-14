@@ -6,12 +6,14 @@ import { Fleet } from "../components/fleet/fleet-view"
 import { Ship } from "../components/entities/ship"
 import { Square } from "../components/entities/square"
 import { TimeoutBar } from "../components/progress-bar"
+import { IGameRulesDTO } from "../interfaces/dto/game-rules-dto"
 
 interface PlaceShipViewProps{
     board: Board
     availableShips: Ship[]
     shipSelected: Ship
     timeoutBarPercentage: number
+    loading: boolean
     onBoardSquareClick: (square: Square) => void
     onBoardSquareHover: (square: Square) => void
     onBoardSquareLeave: (square: Square) => void
@@ -24,6 +26,7 @@ interface PlaceShipViewProps{
 export function PlaceShipView(
     {
         board, 
+        loading,
         onBoardSquareClick,
         onBoardSquareHover, 
         onBoardSquareLeave,
@@ -36,7 +39,7 @@ export function PlaceShipView(
         timeoutBarPercentage,
     }: PlaceShipViewProps
 ){
-    return(
+    return !loading ? (
         <section id="layout-definition-view">
             <div className="layout-definition-view-space">
                 <div className="fleet-space">
@@ -64,5 +67,5 @@ export function PlaceShipView(
                 </div>
             </div>  
     </section>
-    )
+    ) :  <div> Loading...</div>
 }

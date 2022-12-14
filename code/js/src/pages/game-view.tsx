@@ -20,7 +20,7 @@ export function GameView(
        timeoutBarPercentage,
     }: GameViewProps
 ){
-    return(
+    return playerBoard !== null && opponentBoard !== null ? (
         <section id="game-view">
             <div className="game-view-space">
                 <div className="boards-space">
@@ -48,5 +48,5 @@ export function GameView(
                 </div>
             </div>  
     </section>
-    )
+    ) : <div> Loading...</div>
 }

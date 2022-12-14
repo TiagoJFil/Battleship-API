@@ -1,4 +1,4 @@
-import { SquareDTO, Row, Column } from "../../interfaces/dto/square"
+import { ISquareDTO, IRow, IColumn } from "../../interfaces/dto/square-dto"
 
 export class Square{
     row: number
@@ -13,10 +13,14 @@ export class Square{
         return `${this.row}-${this.column}`
     }
 
-    toDTO(): SquareDTO{
+    toDTO(): ISquareDTO{
         return {
-            row: new Row(this.row),
-            column: new Column(this.column)
+            row: new IRow(this.row),
+            column: new IColumn(this.column)
         }
     }
+}
+
+export function toSquaresFromObject(array: {row: number, column: number}[]): Square[] {
+    return array.map((square) => new Square(square.row, square.column))
 }

@@ -7,13 +7,16 @@ export function Lobby() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [gameID  , setGameID] = React.useState<number | null>(null);
     const [lobbyID, setLobbyID] = React.useState<number | null>(null); 
-    const [gameRules, setGameRules] = React.useState(null);  
     const hasJoinedGame = React.useRef(false);
     const cancelled = React.useRef(false); // this cancelled could be a variable inside the useEffect
 
     const navigate = useNavigate();
 
     React.useEffect(() => {
+        if(gameID != null) {
+            navigate(`/game/${gameID}/layout-definition`)
+        }
+
         if(lobbyID != null){
             console.log("lobbyID is not null")
 
@@ -34,22 +37,6 @@ export function Lobby() {
                 },
                   1500
               );
-        }
-
-        if(gameID != null && gameRules == null){
-            getGameRules(gameID).then((gameRules) => {
-                setGameRules(gameRules);
-            })
-        }
-
-        if(gameRules != null){
-            const intervalID = setInterval(() => {
-                    navigate(`/game/${gameID}/layout-definition`, {state: gameRules.properties})
-                    clearInterval(intervalID);
-                },
-                3000
-            )
-            
         }
 
         const verifyIfOtherPlayerJoined = async (lobbyID : number) => {
@@ -91,7 +78,7 @@ export function Lobby() {
             }
             // cleanup
         }
-    }, [lobbyID,gameID, gameRules]); 
+    }, [lobbyID,gameID]); 
 
     return (
         <div>

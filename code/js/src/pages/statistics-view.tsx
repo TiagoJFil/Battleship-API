@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { getStatistics } from '../api/api';
-import {StatisticsDTO, PlayerStatisticsDTO} from '../interfaces/dto/statistics';
+import {IStatisticsDTO, IPlayerStatisticsDTO} from '../interfaces/dto/statistics-dto';
 import { SirenEntity } from '../interfaces/hypermedia/siren';
 
 export function Statistics() {
 
-    const [statistics, setStatistics] = React.useState<StatisticsDTO | null>(null);
+    const [statistics, setStatistics] = React.useState<IStatisticsDTO | null>(null);
 
     React.useEffect(() => {
-        getStatistics().then( (res : SirenEntity<StatisticsDTO>) => setStatistics(res.properties));
+        getStatistics().then( (res : SirenEntity<IStatisticsDTO>) => setStatistics(res.properties));
     }, []);
 
     if (statistics === null) {
@@ -30,7 +30,7 @@ export function Statistics() {
                     </tr>
                 </thead>
                 <tbody>
-                    {statistics.ranking.map((playerStatistics: PlayerStatisticsDTO) => (
+                    {statistics.ranking.map((playerStatistics: IPlayerStatisticsDTO) => (
                         <tr key={playerStatistics.playerID}>
                             <td>{playerStatistics.rank}</td>
                             <td>{playerStatistics.playerID}</td>

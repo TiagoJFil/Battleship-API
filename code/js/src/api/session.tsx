@@ -1,14 +1,14 @@
-import { AuthInformation } from "../interfaces/dto/user";
+import { IAuthInformation } from "../interfaces/dto/user-dto";
 
 
 //temporarly using session but will be replaced by cookies
 
 
-export function setAuthInfo(authInfo: AuthInformation) {
+export function setAuthInfo(authInfo: IAuthInformation) {
     sessionStorage.setItem('authInfo', JSON.stringify(authInfo))
 }
 
-export function getAuthInfo(): AuthInformation | null {
+export function getAuthInfo(): IAuthInformation | null {
     const authInfo = sessionStorage.getItem('authInfo')
     return fakeAuth
     if (authInfo) {

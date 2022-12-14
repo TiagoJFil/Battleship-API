@@ -24,7 +24,6 @@ export function BoardView(
     }: BoardViewProp
 ){
     const boardRepresentation = board.asMap()
-
     const squaresViews: React.ReactElement[] = []
     
     for(let row = 0; row < board.side; row++){
@@ -52,7 +51,6 @@ export function BoardView(
 
     }
 
-   
     return (
         <div className={styles.BOARD} onContextMenu= {disableContextMenu}>
             {squaresViews}

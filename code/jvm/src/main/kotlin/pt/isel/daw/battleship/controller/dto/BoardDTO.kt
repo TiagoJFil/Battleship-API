@@ -14,7 +14,7 @@ data class BoardDTO(
     val shipParts: List<Square>,
     val shots: List<Square>,
     val hits: List<Square>,
-    val boardSide: Int,
+    val side: Int,
 )
 
 /**
@@ -37,6 +37,6 @@ fun Board.toDTO(userID: UserID, fleet: GameService.Fleet): BoardDTO {
         shipParts = if(fleet == GameService.Fleet.MY) getAllSquaresByType(Board.SquareType.ShipPart) else emptyList(),
         shots = getAllSquaresByType(Board.SquareType.Shot),
         hits = getAllSquaresByType(Board.SquareType.Hit),
-        boardSide = side
+        side = side
     )
 }
