@@ -50,7 +50,7 @@ class JdbiGamesRepository(
     /**
      * Inserts a new game in the database
      * @param game the game data transfer object to be persisted
-     * @return [Id] of the game created
+     * @return [ID] of the game created
      */
     private fun insert(game: GameDTO): ID {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }

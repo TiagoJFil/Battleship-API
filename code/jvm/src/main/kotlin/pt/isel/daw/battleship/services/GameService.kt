@@ -43,7 +43,9 @@ class GameService(
 
             GameStateInfo(
                 game.state,
-                game.winnerId
+                game.turnID,
+                game.playerBoards.keys.first(),
+                game.playerBoards.keys.last()
             )
         }
     }

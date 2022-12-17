@@ -9,4 +9,4 @@ COPY src/main/resources/postgresql/creation/2_functions.sql /docker-entrypoint-i
 COPY src/main/resources/postgresql/creation/3_create_views.sql /docker-entrypoint-initdb.d/3_create_views.sql
 COPY src/main/resources/postgresql/creation/4_insert_data.sql /docker-entrypoint-initdb.d/4_insert_data.sql
 
-#EXPOSE 5432
+EXPOSE 5432

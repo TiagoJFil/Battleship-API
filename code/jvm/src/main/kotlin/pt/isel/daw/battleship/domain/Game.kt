@@ -43,14 +43,6 @@ data class Game(
         playerBoards[oppositeTurnID] ?: error("No board for the opposite turn ID")
     }
 
-    val winnerId by
-    lazy {
-        if (state == State.FINISHED) {
-            playerBoards.keys.single{ !playerBoards[it]!!.isInEndGameState() }
-        } else null
-    }
-
-
     /**
      * Returns a lazy property delegate that is only available after the game has begun.
      * @throws IllegalStateException if the game has not yet begun.
