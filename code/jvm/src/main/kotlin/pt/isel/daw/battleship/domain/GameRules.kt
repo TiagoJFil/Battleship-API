@@ -22,8 +22,8 @@ data class GameRules(
         val DEFAULT = GameRules(
             1,
             10,
-            secondsToMillis(seconds=6000),
-            secondsToMillis(seconds=6000),
+            secondsToMillis(seconds=60),
+            secondsToMillis(seconds=60),
             ShipRules(
                 "Classic",
                 mapOf<ShipSize, ShipCount>(
