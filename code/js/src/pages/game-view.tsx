@@ -6,21 +6,23 @@ import { Board } from "../components/entities/board"
 import { Square } from "../components/entities/square"
 
 interface GameViewProps{
+    loading: boolean
     playerBoard: Board
     opponentBoard: Board
+    shotsDefinitionTimeout: number
     onBoardSquareClick: (square: Square) => void
-    timeoutBarPercentage: number
 }
 
 export function GameView(
     {
+       loading,
        playerBoard,
        opponentBoard,
        onBoardSquareClick,
-       timeoutBarPercentage,
+       shotsDefinitionTimeout,
     }: GameViewProps
 ){
-    return playerBoard !== null && opponentBoard !== null ? (
+    return !loading ? (
         <section id="game-view">
             <div className="game-view-space">
                 <div className="boards-space">
@@ -34,7 +36,7 @@ export function GameView(
                 </div>
                 <div className="timer-space">
                     <TimeoutBar
-                        barPercentage={timeoutBarPercentage}
+                        timeout={shotsDefinitionTimeout}
                     /> 
                 </div>
                 <div className="boards-space">

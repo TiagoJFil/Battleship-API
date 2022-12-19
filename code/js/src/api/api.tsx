@@ -1,5 +1,5 @@
 import { SirenEntity } from '../interfaces/hypermedia/siren';
-import { IAuthInformation } from '../interfaces/dto/user-dto';
+import { IAuthInformation, IUserDTO } from '../interfaces/dto/user-dto';
 import { Problem } from '../interfaces/hypermedia/problem';
 import { ILobbyInformationDTO } from '../interfaces/dto/lobby-info-dto';
 import { IStatisticsDTO } from '../interfaces/dto/statistics-dto';

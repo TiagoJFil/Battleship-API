@@ -33,7 +33,7 @@ export function BoardView(
             const type = boardRepresentation.get(square.toID()) ?? SquareType.WATER
             
             squaresViews.push(
-                <div
+                <div 
                     className={`square ${type}`} 
                     key={`${row}-${col}`}
                     onClick={() => onSquareClick(square)}
