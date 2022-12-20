@@ -108,7 +108,39 @@ const BreakError = {}
     return false
   }
 
-/**
+  /**
+   * Gets the squares of a ship
+   * 
+   * @param initialSquare the square that was clicked to place the ship
+   * @param board the board where the ship is placed
+   */
+  export function getShipSquares(
+    initialSquare: Square,
+    board: Board
+  ): Square[]{
+    const boardRepresentation = board.asMap()
+    const seen = [initialSquare]
+    const frontier = []
+    frontier.push(initialSquare)
+
+    while(frontier.length > 0){
+      const square = frontier.pop()
+      const neighbours = getAxisNeighbours(square)
+      const notSeenParts = neighbours.filter((neighbour) => {
+         const squareType = boardRepresentation.get(neighbour.toID()) ?? SquareType.WATER
+         return (squareType === SquareType.SHIP_PART || squareType === SquareType.HIT) &&
+                !seen.includes(neighbour)
+      })
+      notSeenParts.forEach((part) => {
+        seen.push(part)
+        frontier.push(part)
+      })
+    }
+
+    return seen
+  }
+
+ /**
  * Checks if a ship to be placed is within the board
  * 
  * @param ship the ship to be placed

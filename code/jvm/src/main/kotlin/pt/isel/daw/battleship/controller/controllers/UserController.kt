@@ -13,6 +13,7 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.build
 import pt.isel.daw.battleship.controller.maxAge
 import pt.isel.daw.battleship.controller.path
 import pt.isel.daw.battleship.controller.pipeline.authentication.CookieAuthorizationProcessor.Companion.COOKIE_AUTHORIZATION_NAME
+import pt.isel.daw.battleship.controller.pipeline.authentication.CookieAuthorizationProcessor.Companion.COOKIE_USER_ID_NAME
 import pt.isel.daw.battleship.services.UserService
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.entities.User
@@ -26,6 +27,9 @@ import javax.servlet.http.HttpServletResponse
 class UserController(
     private val userService: UserService
 ) {
+    companion object {
+        const val COOKIE_LIFETIME = 60 * 60 * 24 * 7
+    }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(Uris.User.REGISTER)
@@ -34,6 +38,9 @@ class UserController(
             UserValidation(input.username, input.password)
         )
         val authCookie = Cookie(COOKIE_AUTHORIZATION_NAME, authInfo.token)
+            .path("/")
+            .maxAge(COOKIE_LIFETIME)
+        val userIDCookie = Cookie(COOKIE_USER_ID_NAME, authInfo.uid.toString())
             .path("/")
             .maxAge(60 * 60 * 24 * 7)
 
@@ -59,10 +66,15 @@ class UserController(
         )
 
         val authCookie = Cookie(COOKIE_AUTHORIZATION_NAME, authInfo.token)
-        .path("/")
-        .maxAge(60 * 60 * 24 * 7)
+            .path("/")
+            .maxAge(60 * 60 * 24 * 7)
+        val userIDCookie = Cookie(COOKIE_USER_ID_NAME, authInfo.uid.toString())
+            .path("/")
+            .maxAge(60 * 60 * 24 * 7)
+
 
         response.addCookie(authCookie)
+        response.addCookie(userIDCookie)
 
         return authInfo.appToSiren(AppSirenNavigation.AUTH_INFO_NODE_KEY)
     }

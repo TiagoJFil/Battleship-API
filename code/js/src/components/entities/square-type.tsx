@@ -3,5 +3,5 @@ export enum SquareType{
     SHIP_PART = "ship-part",
     SHOT = "shot",
     HIT = "hit",
-    INVALID = "invalid"
+    INVALID = "invalid",
 }

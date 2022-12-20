@@ -11,7 +11,13 @@ export class Board{
     hits: Square[]
     invalidSquares: Square[]
 
-    constructor(side: number, shipParts: Square[], shots: Square[], hits: Square[], invalidSquares: Square[] = []){
+    constructor(
+        side: number, 
+        shipParts: Square[], 
+        shots: Square[], 
+        hits: Square[], 
+        invalidSquares: Square[] = [],
+    ){
         this.side = side
         this.shipParts = shipParts
         this.shots = shots

@@ -51,8 +51,8 @@
   border: 1px solid var(--oc-gray-8);
 }
 
-.board .hit {
-  background-color: var(--oc-red-7);
+.board .hit{
+  background-color: var(--oc-gray-9);
   border: 1px solid var(--oc-black);
 }
 

@@ -21,5 +21,6 @@ class CookieAuthorizationProcessor(
     }
     companion object{
         const val COOKIE_AUTHORIZATION_NAME = "Authorization"
+        const val COOKIE_USER_ID_NAME = "UID"
     }
 }

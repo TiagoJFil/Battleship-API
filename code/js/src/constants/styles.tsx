@@ -18,6 +18,8 @@ export const styles = {
     REDO_ICON_BUTTON: 'redo-icon',
     REDO_CONTAINTER: 'redo-container',
     TIMEOUT_BAR_CONTAINER: 'timeout-bar-container',
+    TIMER: 'timer',
+    TIMER_SPACE: 'timer-space',
     STATISTICS_ICON: 'bx-bar-chart-alt bx-flip-horizontal',
     BACK_ICON: 'bx-arrow-back',
     FILLER: 'filler',

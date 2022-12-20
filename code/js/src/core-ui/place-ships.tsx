@@ -11,6 +11,7 @@ import { ShipInfo } from '../components/entities/ship-info';
 import { authServices } from '../api/auth';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
+const INTERVAL_TIME_MS = 1000
 
 export function PlaceShips(){
     const navigate = useNavigate();
@@ -18,16 +19,14 @@ export function PlaceShips(){
     const validatedGameID = parseInt(gameID)
     
     const shootingGamePhaseURL = `/game/${gameID}`
-    const intervalTimeMs = 1000
-    
-    const [loading, setLoading] = React.useState(true)
     
     const boardSnapshot = React.useRef<Board>(null)
+    const initialShips = React.useRef(null)
+    const initialBoardSide = React.useRef(null)
+    const [loading, setLoading] = React.useState(true)
     const [visibleBoard, setVisibleBoard] = React.useState(null)
     const [shipSelected, setShipSelected] = React.useState(null)
     const [availableShips, setAvailableShips] = React.useState([])
-    const initialShips = React.useRef(null)
-    const initialBoardSide = React.useRef(null)
     const [state, setState] = React.useState(GameState.PLACING_SHIPS)
     const [placedShips, setPlacedShips] = React.useState([])
     const [layoutDefinitionTimeout, setLayoutDefinitionTimeout] = React.useState(null)
@@ -51,12 +50,14 @@ export function PlaceShips(){
                 return new Ship(index+1, size, Orientation.horizontal);
             })
 
-            setAvailableShips(ships)
             setVisibleBoard(emptyBoard(gameRulesDTO.boardSide))
             boardSnapshot.current = emptyBoard(gameRulesDTO.boardSide)
+            
             setLayoutDefinitionTimeout(gameRulesDTO.layoutDefinitionTimeout)
+            setAvailableShips(ships)
             initialShips.current = ships
             initialBoardSide.current = gameRulesDTO.boardSide	
+            
             setLoading(false)
         } 
 
@@ -127,48 +128,19 @@ export function PlaceShips(){
     }
 
     const submitPlacement = async () => {
-        console.log("placed ships: ", placedShips)
         await defineShipLayout(validatedGameID, placedShips)
         //TODO: handle error
     }
 
-    const timeoutSeconds = layoutDefinitionTimeout / 1000
-
-    const [percentage, setPercentage] = React.useState(100)
-    const [remainingTime, setRemainingTime] = React.useState(null)
-
-
     React.useEffect(() => {
         if(loading) return
-        setRemainingTime(timeoutSeconds)
-        const intervalID = setInterval(() => {
-            setRemainingTime((prev) => {
-                if(prev == 0){
-                    const stateValue = GameState[state]
-                    if(stateValue === GameState.PLACING_SHIPS){   
-                        //TIMEOUT 
-                        navigate('/')
-                    }         
-                    clearInterval(intervalID)
-                    return
-                }
-                return prev - 1
-            })
-            
-            setPercentage((previousPercentage) => {
-                return previousPercentage > 0 ? previousPercentage - 100 / timeoutSeconds : 0
-            })
-        }, intervalTimeMs)
-    }, [loading])
 
-    React.useEffect(() => {
-        if(loading) return
         const checkGameState = async () => {
             const gameStateSiren = await getGameState(validatedGameID)
-            const stateKey = gameStateSiren.properties.state
-            setState(stateKey)
-            const stateValue = GameState[stateKey]
-            if(stateValue === GameState.PLAYING){ 
+            const state = gameStateSiren.properties.state
+            setState(state)
+            const gameState = GameState[state]
+            if(gameState === GameState.PLAYING){ 
                 navigate(shootingGamePhaseURL)
                 clearInterval(intervalID);
             }
@@ -176,13 +148,20 @@ export function PlaceShips(){
         
         const intervalID = setInterval(() => {
              checkGameState()  
-        }, intervalTimeMs)
+        }, INTERVAL_TIME_MS)
+
+        return () => {
+            clearInterval(intervalID)
+        }
     }, [loading])
+
 
     return(
         <div>
             <PlaceShipView
                 board={visibleBoard}
+                gameState={state}
+                layoutDefinitionTimeout={layoutDefinitionTimeout}
                 availableShips={availableShips}
                 onBoardSquareClick={onSquareClicked}
                 onBoardSquareHover={onSquareHover}
@@ -192,7 +171,6 @@ export function PlaceShips(){
                 onFleetResetRequested={resetPlacement}
                 onFleetSubmitRequested={submitPlacement}
                 onBoardMouseDown={onBoardMouseDown}
-                timeoutBarPercentage={percentage}
                 loading={loading}
             />
         </div>

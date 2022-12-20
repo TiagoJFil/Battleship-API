@@ -6,13 +6,15 @@ import { Fleet } from "../components/fleet/fleet-view"
 import { Ship } from "../components/entities/ship"
 import { Square } from "../components/entities/square"
 import { TimeoutBar } from "../components/progress-bar"
+import { GameState } from "../components/entities/game-state"
 
 interface PlaceShipViewProps{
     board: Board
     availableShips: Ship[]
     shipSelected: Ship
-    timeoutBarPercentage: number
     loading: boolean
+    gameState: GameState
+    layoutDefinitionTimeout: number
     onBoardSquareClick: (square: Square) => void
     onBoardSquareHover: (square: Square) => void
     onBoardSquareLeave: (square: Square) => void
@@ -26,6 +28,7 @@ export function PlaceShipView(
     {
         board, 
         loading,
+        layoutDefinitionTimeout,
         onBoardSquareClick,
         onBoardSquareHover, 
         onBoardSquareLeave,
@@ -35,7 +38,6 @@ export function PlaceShipView(
         onFleetResetRequested,
         onFleetSubmitRequested,
         onBoardMouseDown,
-        timeoutBarPercentage,
     }: PlaceShipViewProps
 ){
     return !loading ? (
@@ -61,7 +63,7 @@ export function PlaceShipView(
                 </div>
                 <div className="timer-space">
                     <TimeoutBar
-                        barPercentage={timeoutBarPercentage}
+                        timeout={layoutDefinitionTimeout}
                     /> 
                 </div>
             </div>  

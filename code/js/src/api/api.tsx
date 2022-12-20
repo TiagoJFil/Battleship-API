@@ -1,5 +1,5 @@
 import { SirenEntity } from '../interfaces/hypermedia/siren';
-import { IAuthInformation } from '../interfaces/dto/user-dto';
+import { IAuthInformation, IUserDTO } from '../interfaces/dto/user-dto';
 import { Problem } from '../interfaces/hypermedia/problem';
 import { ILobbyInformationDTO } from '../interfaces/dto/lobby-info-dto';
 import { IStatisticsDTO } from '../interfaces/dto/statistics-dto';
@@ -12,8 +12,6 @@ import { ISquareDTO } from '../interfaces/dto/square-dto';
 import { IBoardDTO } from '../interfaces/dto/board-dto';
 import { ISystemInfoDTO } from '../interfaces/dto/system-info-dto';
 import { IGamesListDTO } from '../interfaces/dto/user-games-dto';
-
-//TODO: fix embedded statistics on frotned on daw and PDM
 
 const hostname = "localhost"
 const port = 8090
@@ -39,7 +37,7 @@ export async function fetchLogin (username: string, password: string) : Promise<
         if(e instanceof AxiosError) {
             throw {title: e.message} as Problem
         }
-        
+
         throw e.response.data as Problem
     })
 
