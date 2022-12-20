@@ -14,6 +14,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.BoardDTO
+import pt.isel.daw.battleship.controller.dto.GameListDTO
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.UserInfoInputModel
@@ -347,6 +348,50 @@ class GameControllerTests {
         }
 
         assertEquals(Game.State.PLACING_SHIPS, gameInfo.state)
+    }
+
+    @Test
+    fun `get games from a user`(){
+        val usersCreation = createPlayers("player1", "player2") ?: return
+        val gameID = enterLobby(usersCreation) ?: return
+
+        val games = client.get().uri(Uris.User.GAMES)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
+            .exchange()
+            .expectHeader()
+            .assertContentTypeSiren()
+            .expectBody<SirenEntity<GameListDTO>>()
+            .returnResult().responseBody?.properties
+
+        if (games == null) {
+            assert(false)
+            return
+        }
+
+        assertEquals(1, games.values.size)
+        assertEquals(gameID, games.values[0])
+    }
+
+    @Test
+    fun `get games from a user with no games`(){
+        val usersCreation = createPlayers("player1", "player2") ?: return
+
+        val games = client.get().uri(Uris.User.GAMES)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
+            .exchange()
+            .expectHeader()
+            .assertContentTypeSiren()
+            .expectBody<SirenEntity<GameListDTO>>()
+            .returnResult().responseBody?.properties
+
+        if (games == null) {
+            assert(false)
+            return
+        }
+
+        assertEquals(0, games.values.size)
     }
 
 

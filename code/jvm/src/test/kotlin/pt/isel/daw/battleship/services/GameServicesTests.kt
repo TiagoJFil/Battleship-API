@@ -352,6 +352,34 @@ class GameServicesTests {
     }
 
     @Test
+    fun `my games returns the games that the user is in`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(this)
+            val gameInfo = createGameWith(testGameRules)
+
+            gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
+            gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
+
+            val games = gameService.geUserGames(gameInfo.player1)
+
+            assertEquals(1, games.gameList.values.size)
+            assertEquals(gameInfo.id, games.gameList.values[0])
+        }
+    }
+
+    @Test
+    fun `a user with no games played returns an empty list`(){
+        testWithTransactionManagerAndRollback {
+            val gameService = GameService(this)
+            val (uid2, _) = createUser("player2")
+
+            val games = gameService.geUserGames(uid2)
+
+            assertEquals(0, games.gameList.values.size)
+        }
+    }
+
+    @Test
     fun `whole game test`() {
 
         testWithTransactionManagerAndRollback {

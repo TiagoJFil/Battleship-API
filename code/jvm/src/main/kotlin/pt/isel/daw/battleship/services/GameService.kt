@@ -3,6 +3,8 @@ package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.battleship.controller.dto.BoardDTO
+import pt.isel.daw.battleship.controller.dto.EmbeddableGameListDTO
+import pt.isel.daw.battleship.controller.dto.GameListDTO
 import pt.isel.daw.battleship.controller.dto.toDTO
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.ShipInfo
@@ -211,6 +213,19 @@ class GameService(
         }
     }
 
+    /**
+     * Gets all games where the user is playing in and the game is not finished nor cancelled
+     * @param userID the user that is getting the games
+     */
+    fun geUserGames(userID: UserID, embedded: Boolean = false): EmbeddableGameListDTO {
+        return transactionFactory.execute {
+            val gameIDs = gamesRepository.getUserGames(userID)
+            if(embedded)
+                return@execute EmbeddableGameListDTO(GameListDTO(gameIDs), gameIDs.map { this@GameService.getGameState(it, userID) })
+            else
+                return@execute EmbeddableGameListDTO(GameListDTO(gameIDs))
+        }
+    }
 
 }
 

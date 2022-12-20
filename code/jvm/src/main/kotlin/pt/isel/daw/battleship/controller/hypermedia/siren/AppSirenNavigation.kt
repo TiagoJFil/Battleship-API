@@ -9,6 +9,7 @@ import pt.isel.daw.battleship.controller.EndpointKeys.REGISTER_KEY
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.Uris.Game.WHICH_FLEET_PLACEHOLDER
 import pt.isel.daw.battleship.controller.dto.BoardDTO
+import pt.isel.daw.battleship.controller.dto.GameListDTO
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNodeID
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.buildSirenGraph
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
@@ -30,6 +31,7 @@ inline fun <reified T  : Any,reified E : Any> SirenEntity<T>.appAppendEmbedded(
 
 object AppSirenNavigation {
 
+    const val USER_GAMES_NODE_KEY = "user-games"
     const val ROOT_NODE_KEY = "home"
     const val LOBBY_STATE_NODE_KEY = "lobby-state"
     const val AUTH_INFO_NODE_KEY = "auth-info"
@@ -46,7 +48,7 @@ object AppSirenNavigation {
     val graph = buildSirenGraph {
 
         node<NoEntitySiren>(ROOT_NODE_KEY) {
-            self(Uris.User.REGISTER)
+            self(Uris.Home.ROOT)
             link(listOf(STATISTICS_NODE_KEY), Uris.Home.STATISTICS)
             link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
 
@@ -90,6 +92,20 @@ object AppSirenNavigation {
                 href = Uris.Lobby.QUEUE,
                 method = "POST",
                 title = "Play Intent"
+            )
+            link(listOf(USER_GAMES_NODE_KEY), Uris.User.GAMES)
+        }
+
+        node<GameListDTO>(USER_GAMES_NODE_KEY) {
+            self(Uris.User.GAMES)
+            action(
+                name = QUEUE_KEY,
+                href = Uris.Lobby.QUEUE,
+                method = "POST",
+                title = "Play Intent"
+            )
+            embeddedEntity<GameStateInfo>(
+                rel = listOf("game associated to id")
             )
         }
 

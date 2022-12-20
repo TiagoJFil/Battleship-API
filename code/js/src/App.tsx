@@ -5,30 +5,37 @@ import { Home } from './pages/home-view'
 import { Login } from './components/auth/login/login'
 import { Logout } from './components/auth/logout/logout'
 import { Register } from './components/auth/register'
-import { Lobby } from './components/auth/lobby/lobby'
+import { Lobby } from './pages/lobby-view'
 import { PlaceShips } from './core-ui/place-ships'
 import { Game } from './core-ui/game'
 import { Info } from './components/info'
-import { OutletPage } from './outlet'
+import { UserGames } from './pages/user-games-view'
+import { Outlet } from 'react-router-dom'
+import { BottomNav } from './components/bottom-nav'
+import { ToastContainer } from 'react-toastify';
+import "./css/app.css"
 
 
 export function App() {
     return (
         <BrowserRouter>
-        <Routes>
-            <Route path='/' element={<OutletPage/>}>
-                <Route path='/' element={<Home/>}/>
-                <Route path='statistics' element={<Statistics/>}/>
-                <Route path='login' element={<Login/>}/>
-                <Route path='logout' element={<Logout/>}/>
-                <Route path='register' element={<Register/>}/>
-                <Route path='lobby' element={<Lobby/>}/>
-                <Route path='game/:gameID/layout-definition' element={<PlaceShips/>}/>
-                <Route path='game/:gameID' element={<Game/>}/>
-                <Route path='info' element={<Info/>}/>
+            <Routes>
+                <Route path='/' element={<Outlet/>}>
+                    <Route path='/' element={<Home/>}/>
+                    <Route path='statistics' element={<Statistics/>}/>
+                    <Route path='login' element={<Login/>}/>
+                    <Route path='logout' element={<Logout/>}/>
+                    <Route path='register' element={<Register/>}/>
+                    <Route path='lobby' element={<Lobby/>}/>
+                    <Route path='game/:gameID/layout-definition' element={<PlaceShips/>}/>
+                    <Route path='game/:gameID' element={<Game/>}/>
+                    <Route path='info' element={<Info/>}/>
+                    <Route path='my/games' element={<UserGames/>}/>
                 </Route>
-        </Routes>
-    </BrowserRouter> 
+            </Routes>
+            <ToastContainer/>
+            <BottomNav/>
+        </BrowserRouter> 
     )
 }
  

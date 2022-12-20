@@ -29,11 +29,13 @@ class RootController(
         val statsSiren = embeddableStatistics.statistics.appToSiren(AppSirenNavigation.STATISTICS_NODE_KEY)
 
         if(embedded) {
-            val siren = embeddableStatistics.users.fold(statsSiren) { acc, user ->
+            val siren = embeddableStatistics.users.foldIndexed(statsSiren) { idx ,acc, user ->
+                val stat = embeddableStatistics.statistics.ranking[idx]
                 val result = acc.appAppendEmbedded(
                     AppSirenNavigation.USER_NODE_KEY,
                     user,
-                    AppSirenNavigation.STATISTICS_NODE_KEY
+                    AppSirenNavigation.STATISTICS_NODE_KEY,
+                    mapOf("id" to stat.playerID.toString())
                 )
                 result
             }

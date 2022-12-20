@@ -3,7 +3,7 @@ import { IAuthInformation } from '../interfaces/dto/user-dto';
 import { Problem } from '../interfaces/hypermedia/problem';
 import { ILobbyInformationDTO } from '../interfaces/dto/lobby-info-dto';
 import { IStatisticsDTO } from '../interfaces/dto/statistics-dto';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { IShipInfoDTO } from '../interfaces/dto/ships-info-dto';
 import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
 import { IGameStateInfoDTO } from '../interfaces/dto/game-state-dto';
@@ -11,6 +11,9 @@ import { ShipInfo } from '../components/entities/ship-info';
 import { ISquareDTO } from '../interfaces/dto/square-dto';
 import { IBoardDTO } from '../interfaces/dto/board-dto';
 import { ISystemInfoDTO } from '../interfaces/dto/system-info-dto';
+import { IGamesListDTO } from '../interfaces/dto/user-games-dto';
+
+//TODO: fix embedded statistics on frotned on daw and PDM
 
 const hostname = "localhost"
 const port = 8090
@@ -33,6 +36,10 @@ export async function fetchLogin (username: string, password: string) : Promise<
             } 
         )
     }).catch((e) => {
+        if(e instanceof AxiosError) {
+            throw {title: e.message} as Problem
+        }
+        
         throw e.response.data as Problem
     })
 
@@ -51,6 +58,9 @@ export async function fetchRegister (username: string, password: string) : Promi
         )
         
     }).catch((e) => {
+        if(e instanceof AxiosError) {
+            throw {title: e.message} as Problem
+        }
         throw e.response.data as Problem
     })
 
@@ -95,7 +105,7 @@ export async function leavelobby(lobbyID : number) : Promise< SirenEntity<any>> 
 
 export async function getStatistics(): Promise<SirenEntity<IStatisticsDTO>> {
     const response = await axios({
-        url: `statistics/`,
+        url: `statistics/?embedded=true`,
         method: 'GET',
     }).catch((e) => {
         throw e.response.data as Problem
@@ -182,6 +192,40 @@ export async function defineShot(gameID: number, shotsInfo: ISquareDTO[]): Promi
         data: JSON.stringify({
             shots: shotsInfo
         })
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+
+export async function getUserGames(): Promise<SirenEntity<IGamesListDTO>> { //todo change
+    const response = await axios({
+        url: `games/?embedded=true`,
+        method: 'GET',
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+export async function getHome() : Promise< SirenEntity<any>> {
+    const response = await axios({
+        url: ``,
+        method: 'GET',
+    }).catch((e) => {
+        throw e.response.data as Problem
+    })
+
+    return response.data
+}
+
+export async function getUserHome() : Promise< SirenEntity<any>> {
+    const response = await axios({
+        url: `my/`,
+        method: 'GET',
     }).catch((e) => {
         throw e.response.data as Problem
     })

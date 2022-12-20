@@ -10,6 +10,8 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.SirenEntity
 import pt.isel.daw.battleship.controller.hypermedia.siren.appToSiren
 import pt.isel.daw.battleship.controller.hypermedia.siren.noEntitySiren
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
+import pt.isel.daw.battleship.controller.maxAge
+import pt.isel.daw.battleship.controller.path
 import pt.isel.daw.battleship.controller.pipeline.authentication.CookieAuthorizationProcessor.Companion.COOKIE_AUTHORIZATION_NAME
 import pt.isel.daw.battleship.services.UserService
 import pt.isel.daw.battleship.services.entities.AuthInformation
@@ -32,8 +34,9 @@ class UserController(
             UserValidation(input.username, input.password)
         )
         val authCookie = Cookie(COOKIE_AUTHORIZATION_NAME, authInfo.token)
-        authCookie.path = "/"
-        authCookie.maxAge = 60 * 60 * 24 * 7
+            .path("/")
+            .maxAge(60 * 60 * 24 * 7)
+
 
         response.addCookie(authCookie)
 
@@ -56,8 +59,8 @@ class UserController(
         )
 
         val authCookie = Cookie(COOKIE_AUTHORIZATION_NAME, authInfo.token)
-        authCookie.path = "/"
-        authCookie.maxAge = 60 * 60 * 24 * 7
+        .path("/")
+        .maxAge(60 * 60 * 24 * 7)
 
         response.addCookie(authCookie)
 

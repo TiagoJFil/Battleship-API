@@ -1,35 +1,38 @@
 import * as React from 'react' 
 import { useNavigate } from 'react-router-dom';
-import { getGameRules, getLobby, joinQueue, leavelobby } from '../../../api/api';
-
+import { getGameRules, getLobby, joinQueue, leavelobby } from '../api/api';
+import { authServices } from '../api/auth';
+import { redirect } from "react-router-dom";
 
 export function Lobby() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [gameID  , setGameID] = React.useState<number | null>(null);
     const [lobbyID, setLobbyID] = React.useState<number | null>(null); 
     const hasJoinedGame = React.useRef(false);
-    const cancelled = React.useRef(false); // this cancelled could be a variable inside the useEffect
+    const cancelled = React.useRef(false);
 
     const navigate = useNavigate();
 
     React.useEffect(() => {
+       
+        if(!authServices.isLoggedIn()){
+            navigate('/login', { replace: true })
+            return
+        }
+
         if(gameID != null) {
-            navigate(`/game/${gameID}/layout-definition`)
+            navigate(`/game/${gameID}/layout-definition`, { replace: true })
+            return
         }
 
         if(lobbyID != null){
-            console.log("lobbyID is not null")
-
             const intervalID = setInterval(
                 async () => {
-                    console.log("retrying")
                     const joined = await verifyIfOtherPlayerJoined(lobbyID) 
                     
                     if (joined) {
                         hasJoinedGame.current = true;
                     }
-                    console.log("hasResolved is", hasJoinedGame.current)
-            
                     if(hasJoinedGame.current){
                         console.log("clearing interval")
                         clearInterval(intervalID);
@@ -44,7 +47,7 @@ export function Lobby() {
                 console.log("cancelled")
                 return true;
             }
-            console.log("calling getLobby")
+
             const lobbyInfo = await getLobby(lobbyID)
             if (lobbyInfo.properties.gameID) {
                 setGameID(lobbyInfo.properties.gameID)
@@ -53,10 +56,9 @@ export function Lobby() {
             }
             return false;
         }
-        //join queue    
+
         const joinAndPoolLobby = async () => {
             if(lobbyID == null){
-                console.log("joining")
                 const lobbyInfo = await joinQueue()
                 setLobbyID(lobbyInfo.properties.lobbyID);
             }
@@ -65,18 +67,12 @@ export function Lobby() {
         joinAndPoolLobby()
 
         return () => {
-            
             if(lobbyID != null && gameID == null){
-                console.log("has a lobby")
-
                 if(!hasJoinedGame.current){
-                    console.log("LOG: leaving lobby")
                     cancelled.current = true
                     leavelobby(lobbyID)
-                    
                 }
             }
-            // cleanup
         }
     }, [lobbyID,gameID]); 
 

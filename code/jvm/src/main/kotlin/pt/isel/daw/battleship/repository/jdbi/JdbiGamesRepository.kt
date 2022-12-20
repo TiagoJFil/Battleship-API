@@ -10,6 +10,7 @@ import pt.isel.daw.battleship.domain.GameRules.*
 import pt.isel.daw.battleship.repository.GameRepository
 import pt.isel.daw.battleship.repository.dto.*
 import pt.isel.daw.battleship.utils.ID
+import pt.isel.daw.battleship.utils.UserID
 
 
 class JdbiGamesRepository(
@@ -45,6 +46,17 @@ class JdbiGamesRepository(
         require(game.id != null)
         update(game)
         return game.id
+    }
+
+    /**
+     * Gets all the games that the given user is participating in and that are not finished
+     * @param userID the [UserID] of the user
+     */
+    override fun getUserGames(userID: UserID): List<ID> {
+        return handle.createQuery("select id from game where (state = 'playing' or state = 'placing_ships') and (player1 = :userID or player2 = :userID)")
+            .bind("userID", userID)
+            .mapTo<ID>()
+            .list()
     }
 
     /**

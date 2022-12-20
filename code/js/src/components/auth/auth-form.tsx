@@ -8,7 +8,7 @@ import * as React from 'react'
  *      confirmPrompt : string
  * }``
  */
-export function AuthForm(prop) {
+export function AuthForm(prop : {onSubmit :  (e : any ,username:string, password:string) => void, confirmPrompt? : string}) {
     const [username, setUsername] = React.useState('')
     const [password, setPassword] = React.useState('')
     const [passwordShown, setPasswordShown] = React.useState(false)
@@ -28,8 +28,7 @@ export function AuthForm(prop) {
                 <input type={passwordShown ? "text" : "password"} onChange={e => setPassword(e.target.value)} />
                 <button onClick={togglePasswordVisiblity}>{passwordShown ? "Hide" : "Show"}</button>
             </div>
-            <button onClick={() => prop.onSubmit(username,password)}>{prop.confirmPrompt ?? "Confirm"}</button>
+            <button  onClick={ (e : any) => prop.onSubmit(e,username,password) }>{prop.confirmPrompt ?? "Confirm"}</button>
         </div>
     )
-
 }

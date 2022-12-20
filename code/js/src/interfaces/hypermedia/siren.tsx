@@ -1,7 +1,6 @@
 
-
 export interface SirenEntity<T> {
-    clazz?: Array<string>,
+    class?: Array<string>,
     properties?: T,
     entities?: Array<SubEntity>,
     links?: Array<SirenLink>,
@@ -16,7 +15,6 @@ export interface SirenLink {
     type?: string
 }
 
-
 export interface SirenAction {
     name: string,
     href: string,
@@ -26,6 +24,7 @@ export interface SirenAction {
     type?: string,
     fields?: Array<Field>
 }
+
 export interface Field {
     name: string,
     type?: string,
@@ -33,11 +32,10 @@ export interface Field {
     title?: string,
 }
 
-
 export interface SubEntity{}
 export interface EmbeddedEntity <T> extends SubEntity{
     rel: Array<string>,
-    clazz?: Array<string>,
+    class?: Array<string>,
     properties?: T,
     entities?: Array<SubEntity>,
     links?: Array<SirenLink>,
@@ -47,7 +45,7 @@ export interface EmbeddedEntity <T> extends SubEntity{
 
 export interface EmbeddedLink extends SubEntity {
     rel: Array<string>,
-    clazz?: Array<string>,
+    class?: Array<string>,
     href: string,
     type?: string,
     title?: string

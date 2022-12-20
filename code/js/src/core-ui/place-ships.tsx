@@ -8,6 +8,7 @@ import { PlaceShipView } from '../pages/place-ships-view';
 import { GameState } from '../components/entities/game-state';
 import { defineShipLayout, getBoard, getGameRules, getGameState } from '../api/api';
 import { ShipInfo } from '../components/entities/ship-info';
+import { authServices } from '../api/auth';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 
@@ -32,6 +33,11 @@ export function PlaceShips(){
     const [layoutDefinitionTimeout, setLayoutDefinitionTimeout] = React.useState(null)
     
     React.useEffect(() => {
+        if(!authServices.isLoggedIn()){
+            navigate('/login', { replace: true }) 
+            return
+        }
+        
         const getRules = async () => {
             const response = await getGameRules(validatedGameID)
             const gameRulesDTO = response.properties

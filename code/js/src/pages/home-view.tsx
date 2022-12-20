@@ -1,15 +1,15 @@
 import * as React from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { authServices } from '../api/auth'
-import { BottomNav } from '../components/bottom-nav'
 import { IconLinkButtonList, IconLinkInfo } from '../components/icons'
 import { styles } from '../constants/styles'
 
 import "../css/home.css"
 
 export function Home(){
+    const isLoggedIn = authServices.isLoggedIn()
 
-    const authButton : IconLinkInfo = authServices.isLoggedIn() ?
+    const authButton : IconLinkInfo = isLoggedIn ?
     {
         title : "Logout",
         iconClass: styles.LOGOUT_ICON,
@@ -36,16 +36,23 @@ export function Home(){
             link: "/lobby",
             cssTag: "play",
         },
+        {
+            title: "my games",
+            iconClass: styles.HOME_ICON,
+            link: "/my/games",
+            cssTag: "my-games",
+        },
         authButton
     ]
 
-
     return(
-        <div>
-        <h1>Home</h1>
+        <div className='home-page'>
+            <div className='page-title'>
+                <span className='app-title'>Battleship</span>
+            </div>
             <IconLinkButtonList icons={mainIconsButtonList}/>
-        <Outlet/>
-        <BottomNav />
-    </div>)
+            <Outlet/>
+        </div>
+    )
 }
 

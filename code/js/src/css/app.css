@@ -1,0 +1,27 @@
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+html {
+    height: 100%;
+    padding: 0;
+}
+
+#the-div{
+    height: 100%;
+}
+
+.page-title{
+    display : flex;
+    justify-content: center;
+    align-items: center;
+    height: 20%;
+}
+
+.app-title{
+    font-size: 50px;
+    font-weight: 700;
+    color: #bd1e33;
+    text-align: center;
+}

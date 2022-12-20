@@ -3,6 +3,7 @@ package pt.isel.daw.battleship.controller.controllers
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.battleship.controller.Uris
 import pt.isel.daw.battleship.controller.dto.BoardDTO
+import pt.isel.daw.battleship.controller.dto.GameListDTO
 import pt.isel.daw.battleship.controller.dto.input.LayoutInfoInputModel
 import pt.isel.daw.battleship.controller.dto.input.ShotsInfoInputModel
 import pt.isel.daw.battleship.controller.hypermedia.siren.*
@@ -84,6 +85,29 @@ class GameController(
     fun getGameRules(@PathVariable("gameId") gameID: Int, userID: UserID): SirenEntity<GameRulesDTO> {
         val rules = gameService.getGameRules(gameID, userID)
         return rules.appToSiren(AppSirenNavigation.GAME_RULES_NODE_KEY)
+    }
+
+    @Authentication
+    @GetMapping(Uris.User.GAMES)
+    fun getMyGames(
+        @RequestParam(required = false) embedded : Boolean,
+        userID: UserID
+    ): SirenEntity<GameListDTO> {
+        val games = gameService.geUserGames(userID,embedded)
+
+        val siren = games.gameList.appToSiren(AppSirenNavigation.USER_GAMES_NODE_KEY)
+        if(embedded){
+            return games.gameStates?.foldIndexed(siren){ index, acc, state ->
+                acc.appAppendEmbedded(
+                    AppSirenNavigation.GAME_STATE_NODE_KEY,
+                    state,
+                    AppSirenNavigation.USER_GAMES_NODE_KEY,
+                    mapOf("gameId" to games.gameList.values[index].toString())
+                )
+            } ?: siren
+        }
+
+        return siren
     }
 
 }

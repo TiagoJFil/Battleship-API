@@ -1,6 +1,7 @@
 package pt.isel.daw.battleship.services
 
 import org.springframework.stereotype.Service
+import pt.isel.daw.battleship.services.entities.EmbeddableStatistics
 import pt.isel.daw.battleship.services.entities.Statistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
 import pt.isel.daw.battleship.services.entities.User
@@ -29,11 +30,5 @@ class GeneralService (
             EmbeddableStatistics(statistics,users)
         }
     }
-
-
-    data class EmbeddableStatistics(
-        val statistics: Statistics,
-        val users: List<User>
-    )
 
 }

@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { authServices } from '../api/auth';
 import { styles } from '../constants/styles';
-import './bottom-nav.css'
+import './../css/bottom-nav.css'
 import { IconButton } from './icons';
 
 
