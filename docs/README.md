@@ -6,36 +6,34 @@ This project is the backend for the battleship game.
 
 To build this project we used the following technologies:
 - **database**: PostgreSQL 
-- **server side**: spring boot framework with kotlin, jdbi
+- **server side**: Spring Boot framework with Kotlin and jdbi
 
 # Software organization
 
 ### API Specification
-Authentication is needed on every endpoint that uses the `POST` method. This authorization is provided by supplying the bearer token in the `Authorization` header.
+Authentication is required for all endpoints that uses the `POST` method. This can be provided by sending the auth cookie in the `Cookie` header that is supplied by the login and register endpoints. 
 
 
 ### App configuration
 
-The app configuration is located in the `application.yml` file.
+The app configuration can be found in the `application.yml` file.
 
 #### Database configuration
 
 The database connection is configured using the following environment variable:
 
-- `JDBC_DATABASE_URL` - the database url containing the db information using the following format:
- "jdbc:postgresql://**IP**:**PORT**/**DB_NAME**?user=**USERNAME**&password=**PASSWORD**"
+- `JDBC_DATABASE_URL` - The URL for the database, including IP, port, database name, username and password.
  The default configuration is:
  "jdbc:postgresql://localhost/postgres?user=postgres&password=postgres"
-
 
 
 ## App layers
 
 
 The app is divided in the following layers:
-- **API layer**: responsible for handling the requests from the client.
-- **Services layer**: responsible for the business logic.
-- **Data layer**: responsible for the communication with the database.
+- **API layer**: Handles requests from the client.
+- **Services layer**: Containes the business logic.
+- **Data layer**: Handle communication with the database.
 
 
 ### API layer
@@ -47,9 +45,9 @@ The app is divided in the following layers:
 
 * Authentication interceptor
 
-To handle the authorization necessary for some endpoints, we use a custom annotation called `Authentication`.
-This annotation is used in any handler that requires Authentication, if the userID of the authorized user is needed it can be supplied by an argument of the type `UserID`.
-This process can be achieved by using the `AuthenticationInterceptor` class, which is responsible for intercepting the request and checking if the given token is valid, if it is valid it will add the `UserID` to the request attributes.
+Handles authorization for endpoints.This is done with the `Authentication` annotation.
+This annotation is used in any handler that requires Authentication, if the userID of the authorized user is needed it can be supplied with an argument of the type `UserID`.
+This process can be achieved by using the `AuthenticationInterceptor` class, which is responsible for intercepting the request and checking if the given token is valid, if it is valid it will add the `UserID` to the request attributes and allow the request to complete sucessfully.
 
 * Info Filter 
 
@@ -58,7 +56,10 @@ The `Info filter` is responsible for logging the request information, this is do
 * Error Handler
 
 This class handles the errors that occur, this is done by using spring annotations and overriding spring errorHandler functions to catch the exceptions that are thrown while processing the outcome of the request.
-To be able catch the Spring Related Exceptions it was necessary to add the following option to the `application.yml` file:
+To be able catch the Spring Related Exceptions.
+In order to catch Spring-related exceptions the following options must be added to the application.yml file:
+
+
 ```
 spring.mvc.throw-exception-if-no-handler-found=true
 spring.web.resources.add-mappings=false
@@ -136,9 +137,6 @@ This can be used to get a better understanding of the api and how the different 
 
 #### Modeling the database
 
-
-##### Conceptual model
-
 ##### Physical Model
 The physical model of the database is available [here](https://github.com/isel-leic-daw/2022-daw-leic52d-2022-daw-leic52d-g06/tree/main/code/jvm/src/main/resources/postgresql/creation).
  
@@ -151,13 +149,56 @@ The physical model of the database is available [here](https://github.com/isel-l
 To access the database we use the [JDBI](https://jdbi.org/) framework.
 This framework gives us two choices about how we want to interact with the database. Its possible to use the `Fluent API` or the `Declarative API`. We chose to use the `Fluent API` because it is very similar to [JDBC](https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/).
 
-To reduce the complexity of the SQL queries and make them more readable on the data layere, we created our own JDBI mappers and on the database we created views and triggers to complement ******************************* (ver se ta bem complementar) the views.
+To reduce the complexity of the SQL queries and make them more readable on the data layer, we created our own JDBI mappers and on the database we created views and triggers to complement  the views.
 
-//insert example of view and trigger and mapper
- 
- 
 
-----
+##### Mappers
+
+We have created a mapper for the `ShipRules` entity so that this entity would be stored in JSON format and be parsed to JSON when inserted in the database.
+
+```kotlin
+//ShipRulesMapper.kt
+
+class ShipRulesMapper: ColumnMapper<GameRules.ShipRules> {
+    override fun map(rs: ResultSet, columnNumber: Int, ctx: StatementContext): GameRules.ShipRules {
+        val obj = rs.getObject(columnNumber, PGobject::class.java)
+        return JdbiGamesRepository.deserializeShipRulesFromJson(obj.value ?: throw IllegalStateException("Not a valid value"))
+    }
+}
+```
+
+##### Views
+
+We have created a view in the database to easily map a GameDTO object, which contains all the necessary information to store a game. In order to handle the input and output of this view, we have created triggers for inserting and deleting records from the view. These triggers ensure that the data in the view stays up to date and consistent with the underlying tables.
+
+To create this view we used the following query:
+
+```sql
+create or replace view GameView as
+select g.id,
+       gr.boardSide,
+       gr.shotsPerTurn,
+       gr.layoutDefinitionTimeout,
+       gr.playTimeout,
+       sr.fleetInfo as shiprules,
+       g.state,
+       g.turn,
+       g.player1,
+       g.player2,
+       b1.layout    as boardP1,
+       b2.layout    as boardP2,
+       g.lastUpdated
+from Game g
+         left join Gamerules gr on g.rules = gr.id
+         left join ShipRules sr on gr.shiprules = sr.id
+         left join "User" u on g.player1 = u.id
+         left join Board b1 on b1.userId = g.player1 and b1.gameId = g.id
+         left join Board b2 on b2.userId = g.player2 and b2.gameId = g.id;
+```
+
+We have also created a view for the `Statistics` entity. 
+
+
 
 ### Transaction Management
 
@@ -231,39 +272,41 @@ of the transaction management mechanism.
 ```kotlin
 // Transaction.kt
 
-fun <T> execute(block: TransactionScope.() -> T): T {
-    begin()
-    try {
-        val result = this.scope.block()
-        commit()
-        return result
-    } catch (e: Exception) {
-        rollback()
-        throw e
-    } finally {
-        end()
+fun <R> execute(block: Transaction.() -> R): R {
+    return jdbi.inTransaction<R, Exception> { handle ->
+        try {
+            val transaction = JdbiTransaction(handle)
+            block(transaction)
+        } catch (e: Exception) {
+            if (e is AppException) throw e
+            e.printStackTrace()
+
+            throw InternalErrorAppException()
+        }
     }
 }
 ```
-All the database operations are wrapped in an [execute](https://github.com/isel-leic-ls/2122-2-LEIC42D-G04/blob/main/src/main/kotlin/pt/isel/ls/utils/repository/transactions/Transaction.kt#L40) block.
+All the database operations are wrapped in an [execute](TODO: insertlink) block.
 
-e.g execute being used to create a sport.
+e.g execute being used to get a game State.
 
 ```kotlin
-// SportService.kt
+// GameService.kt
 
-fun createSport(token: UserToken?, name: String?, description: String?): SportID {
-    logger.traceFunction(::createSport.name) { listOf(NAME_PARAM to name, DESCRIPTION_PARAM to description) }
+fun getGameState(gameID: ID, userID: UserID): GameStateInfo {
+        return transactionFactory.execute {
+            val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
+            if(userID !in game.playerBoards.keys)
+                throw ForbiddenAccessAppException("User $userID is not part of the game $gameID")
 
-    return transactionFactory.getTransaction().execute {
-
-        val userID = usersRepository.requireAuthenticated(token) // db access
-        val safeName = requireParameter(name, NAME_PARAM)
-        val handledDescription = description?.ifBlank { null }
-
-        sportsRepository.addSport(safeName, handledDescription, userID) // db access
+            GameStateInfo(
+                game.state,
+                game.turnID,
+                game.playerBoards.keys.first(),
+                game.playerBoards.keys.last()
+            )
+        }
     }
-}
 
 ```
 
@@ -337,7 +380,13 @@ With this in mind all the repository objects are created lazily, so that the sco
 
 # Web User Interface
 
-## Routing
+
+### Handling Authorization
+
+Because of the way the backend handles authorization, the frontend deals with it easily. The api requests on the frontend always send the received cookie to the backend this will be sent back to the frontend and so on. This way the frontend always has the latest cookie and can use it to make requests.
+To remove the cookie from the frontend we use the `document.cookie` property. This property is a string that contains all the cookies for the current domain. To remove the cookie we just set its expire date to a date in the past. The browser, seeing that the expiry date has passed, immediately removes the cookie.
+
+
 
 ## Critical Evaluation
 

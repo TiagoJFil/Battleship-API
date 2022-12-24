@@ -11,7 +11,7 @@ import java.sql.ResultSet
 class ShipRulesMapper: ColumnMapper<GameRules.ShipRules> {
     override fun map(rs: ResultSet, columnNumber: Int, ctx: StatementContext): GameRules.ShipRules {
         val obj = rs.getObject(columnNumber, PGobject::class.java)
-        return JdbiGamesRepository.deserializeShipRulesFromJson(obj.value ?: throw IllegalArgumentException("TODO"))
+        return JdbiGamesRepository.deserializeShipRulesFromJson(obj.value ?: throw IllegalStateException("Not a valid value"))
     }
 }
 

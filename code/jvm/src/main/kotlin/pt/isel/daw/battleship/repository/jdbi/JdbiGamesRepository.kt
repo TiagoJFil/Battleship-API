@@ -20,7 +20,7 @@ class JdbiGamesRepository(
     /**
      * Gets the game with the given id
      * @param gameID the id of the game
-     * @return [Game] the game
+     * @return [Game] the game or null if it doesn't exist
      */
     override fun get(gameID: ID): Game? {
         return handle.createQuery(
@@ -51,6 +51,7 @@ class JdbiGamesRepository(
     /**
      * Gets all the games that the given user is participating in and that are not finished
      * @param userID the [UserID] of the user
+     * @return [List] of Game [ID]s
      */
     override fun getUserGames(userID: UserID): List<ID> {
         return handle.createQuery("select id from game where (state = 'playing' or state = 'placing_ships') and (player1 = :userID or player2 = :userID)")
@@ -85,7 +86,7 @@ class JdbiGamesRepository(
     /**
      * Updates the given game in the database
      * @param game the game data transfer object to be persisted
-     * @return [Id] of the game updated
+     * @return [ID] of the game updated
      */
     private fun update(game: GameDTO) {
         val gameViewColumnNames = GameView.values().filter { it != GameView.SHIP_RULES && it != GameView.LAST_UPDATED }
