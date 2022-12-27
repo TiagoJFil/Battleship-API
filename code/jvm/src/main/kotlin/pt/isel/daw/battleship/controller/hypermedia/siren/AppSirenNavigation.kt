@@ -13,6 +13,7 @@ import pt.isel.daw.battleship.controller.dto.GameListDTO
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.SirenNodeID
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.buildSirenGraph
 import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.NoEntitySiren
+import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.builders.SirenNodeBuilder
 import pt.isel.daw.battleship.domain.Game
 import pt.isel.daw.battleship.domain.GameRules
 import pt.isel.daw.battleship.services.entities.*
@@ -34,7 +35,11 @@ object AppSirenNavigation {
     const val USER_GAMES_NODE_KEY = "user-games"
     const val ROOT_NODE_KEY = "home"
     const val LOBBY_STATE_NODE_KEY = "lobby-state"
-    const val AUTH_INFO_NODE_KEY = "auth-info"
+    const val PLAY_INTENT_NODE_KEY = "play-intent"
+
+    //AUTH-INFO node
+    const val REGISTER_NODE_KEY = "auth-info-register"
+    const val LOGIN_NODE_KEY = "auth-info-login"
     const val USER_HOME_NODE_KEY = "user-home"
     const val USER_NODE_KEY = "user"
     const val FLEET_NODE_KEY = "fleet"
@@ -42,13 +47,18 @@ object AppSirenNavigation {
     const val SHOTS_DEFINITION_NODE_KEY = "shots-definition"
     const val GAME_STATE_NODE_KEY = "game-state"
     const val GAME_RULES_NODE_KEY = "game-rules"
+
+    //AUTH and NO AUTH
     const val STATISTICS_NODE_KEY = "statistics"
+    const val STATISTICS_NODE_KEY_WITH_AUTH = "statistics-authenticated"
     const val SYSTEM_INFO_NODE_KEY = "system-info"
+    const val SYSTEM_INFO_NODE_KEY_WITH_AUTH = "system-info-authenticated"
 
     val graph = buildSirenGraph {
 
         node<NoEntitySiren>(ROOT_NODE_KEY) {
             self(Uris.Home.ROOT)
+
             link(listOf(STATISTICS_NODE_KEY), Uris.Home.STATISTICS)
             link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
 
@@ -63,13 +73,19 @@ object AppSirenNavigation {
             }
         }
 
-        node<Statistics>(STATISTICS_NODE_KEY) {
+        fun SirenNodeBuilder<Statistics>.sirenStatisticsNav() {
             self(Uris.Home.STATISTICS)
+            link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
+        }
+
+        node<Statistics>(STATISTICS_NODE_KEY) {
+            sirenStatisticsNav()
             link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
-            link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
-            embeddedEntity<User>(
-                rel = listOf("user associated to id"),
-            )
+        }
+
+        node<Statistics>(STATISTICS_NODE_KEY_WITH_AUTH) {
+            sirenStatisticsNav()
+            link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
         }
 
         node<User>(USER_NODE_KEY) {
@@ -81,8 +97,19 @@ object AppSirenNavigation {
             link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
         }
 
-        node<AuthInformation>(AUTH_INFO_NODE_KEY) {
-            link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
+        node<SystemInfo>(SYSTEM_INFO_NODE_KEY_WITH_AUTH) {
+            self(Uris.Home.SYSTEM_INFO)
+            link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
+        }
+
+        node<AuthInformation>(LOGIN_NODE_KEY) {
+            self(Uris.User.LOGIN)
+            link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
+        }
+
+        node<AuthInformation>(REGISTER_NODE_KEY) {
+            self(Uris.User.REGISTER)
+            link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
         }
 
         node<NoEntitySiren>(USER_HOME_NODE_KEY) {
@@ -98,6 +125,10 @@ object AppSirenNavigation {
 
         node<GameListDTO>(USER_GAMES_NODE_KEY) {
             self(Uris.User.GAMES)
+            link(
+                listOf(GAME_STATE_NODE_KEY),
+                Uris.Game.STATE
+            )
             action(
                 name = QUEUE_KEY,
                 href = Uris.Lobby.QUEUE,
@@ -109,13 +140,23 @@ object AppSirenNavigation {
             )
         }
 
-        node<LobbyInformation>(LOBBY_STATE_NODE_KEY) {
-            self(href = Uris.Lobby.STATE)
+        fun SirenNodeBuilder<LobbyInformation>.lobbyInformationNav(){
             link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
             action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "DELETE", title = "Cancel")
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES) showWhen { it.gameID != null }
+        }
+
+
+        node<LobbyInformation>(LOBBY_STATE_NODE_KEY) {
+            self(href = Uris.Lobby.STATE)
+            lobbyInformationNav()
+        }
+
+        node<LobbyInformation>(PLAY_INTENT_NODE_KEY) {
+            self(href = Uris.Lobby.STATE)
+            lobbyInformationNav()
         }
 
         node<GameStateInfo>(GAME_STATE_NODE_KEY) {

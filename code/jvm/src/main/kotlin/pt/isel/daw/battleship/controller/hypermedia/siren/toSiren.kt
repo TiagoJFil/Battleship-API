@@ -251,13 +251,14 @@ private fun <T : Any> SirenNode<T>.toEntity(
 ): SirenEntity<T> {
     val newNode = this.filterRelationshipsByPredicate(instance)
 
-    return SirenEntity(
+    val x =  SirenEntity(
         clazz = newNode.clazz,
         properties = instance,
         links = newNode.links?.map(LinkRelationship<T>::link),
         actions = newNode.actions?.map(ActionRelationship<T>::action),
         entities = newNode.entities?.map { it.link }
-    ).tryExpandHrefs(placeholders)
+    )
+       return x.tryExpandHrefs(placeholders)
         .nullifyEmptyCollections()
 }
 

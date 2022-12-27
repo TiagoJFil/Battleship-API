@@ -2,6 +2,7 @@ import * as React from "react"
 import { useNavigate } from "react-router-dom"
 import { styles } from "../constants/styles"
 import '../css/timeout-bar.css'
+import AnimatedModal from "./modal"
 
 const WARNING_THRESHOLD = 20
 const INTERVAL_TIME_MS = 1000
@@ -11,7 +12,8 @@ const HOME_URI_SUFFIX = '/'
 
 export function TimeoutBar(
   props: {
-      timeout: number //in ms   
+      timeout: number //in ms 
+      onTimeout: () => void  
   }
 ){  
     const navigate = useNavigate();
@@ -26,8 +28,8 @@ export function TimeoutBar(
           
           setRemainingTime((prev) => {
               if(prev == 0){ 
-                  //TIMEOUT
-                  navigate(HOME_URI_SUFFIX)        
+                  props.onTimeout()
+                  //navigate(HOME_URI_SUFFIX)        
                   clearInterval(intervalID)
                   return
               }

@@ -1,0 +1,12 @@
+.modal-container{
+    display: 'flex';
+    align-items: 'center';
+    justify-content: 'center';
+}
+
+.modal {
+    background-color: wheat;
+    border: '2px solid #000';
+    box-shadow: saddlebrown;
+    padding: '16px';
+}

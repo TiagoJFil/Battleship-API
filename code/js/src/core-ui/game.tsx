@@ -27,7 +27,7 @@ export function Game() {
     const [currentPlayerBoard, setPlayerBoard] = React.useState<Board>(null)
     const [currentOpponentBoard, setOpponentBoard] = React.useState<Board>(null)
     const [shotsDefinitionTimeout, setShotsDefinitionTimeout] = React.useState(null)
-    const [turn, setTurn] = React.useState(null) 
+    const [turn, setTurn] = React.useState<Fleet>(null) 
     
     React.useEffect(() => {
         const getGameInfo = async () => {
@@ -61,9 +61,9 @@ export function Game() {
 
 
     const changeTurn = () => {
-        setTurn((prevTurn) =>
-          prevTurn === Fleet.MY ? Fleet.OPPONENT : Fleet.MY
-        );
+        setTurn((prevTurn) =>{
+            return prevTurn === Fleet.MY ? Fleet.OPPONENT : Fleet.MY
+        })
     };
 
     const onSquareClicked = (squareClicked: Square) => {
@@ -106,7 +106,7 @@ export function Game() {
         const getPlayerBoard = async() =>{
             const siren: SirenEntity<IBoardDTO> = await getBoard(validatedGameID, Fleet.MY)
             const boardDTO = siren.properties
-          
+
             const boardChanged =  boardDTO.shots.length !== currentPlayerBoard.shots.length ||
                                   boardDTO.hits.length !== currentPlayerBoard.hits.length
 
@@ -119,11 +119,15 @@ export function Game() {
 
         const intervalID = setInterval(() => {
             if(turn === Fleet.OPPONENT){
-                console.log('here')
                 getPlayerBoard()
             }
         }, INTERVAL_TIME_MS)
-    }, [currentOpponentBoard])
+    }, [turn])
+
+
+    React.useEffect(() => {
+        console.log('curr turn:' + turn)
+    }, [turn])
 
     return (
         <div>

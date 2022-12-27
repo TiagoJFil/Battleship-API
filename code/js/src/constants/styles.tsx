@@ -23,4 +23,6 @@ export const styles = {
     STATISTICS_ICON: 'bx-bar-chart-alt bx-flip-horizontal',
     BACK_ICON: 'bx-arrow-back',
     FILLER: 'filler',
+    MODAL_CONTAINER: 'modal-container',
+    MODAL: 'modal'
 }

@@ -24,7 +24,7 @@ class LobbyController(
     @PostMapping(Uris.Lobby.QUEUE)
     fun playIntent(userID: UserID): SirenEntity<LobbyInformation> {
         val lobbyInfo = gameService.enqueue(userID)
-        return lobbyInfo.appToSiren(AppSirenNavigation.LOBBY_STATE_NODE_KEY)
+        return lobbyInfo.appToSiren(AppSirenNavigation.PLAY_INTENT_NODE_KEY)
     }
 
 
