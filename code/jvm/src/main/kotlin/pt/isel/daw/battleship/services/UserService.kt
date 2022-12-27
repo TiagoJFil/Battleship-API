@@ -28,7 +28,7 @@ class UserService(
             if (userRepository.hasUser(userValidation.username))
                 throw UserAlreadyExistsException(userValidation.username)
 
-            val generatedToken = generateUUId()
+            val generatedToken = generateUUID()
 
             val salt = generateSalt()
             val hashedPassword = hashPassword(userValidation.password, salt)

@@ -30,16 +30,16 @@ class LobbyController(
 
     @Authentication
     @GetMapping(Uris.Lobby.STATE)
-    fun getLobbyState(@PathVariable("lobbyId") lobbyId: ID, userID: UserID): SirenEntity<LobbyInformation> {
-        val lobbyInfo: LobbyInformation = gameService.getMyLobbyState(userID, lobbyId)
+    fun getLobbyState(@PathVariable("lobbyID") lobbyID: ID, userID: UserID): SirenEntity<LobbyInformation> {
+        val lobbyInfo: LobbyInformation = gameService.getMyLobbyState(userID, lobbyID)
 
         return lobbyInfo.appToSiren(AppSirenNavigation.LOBBY_STATE_NODE_KEY)
     }
 
     @Authentication
     @DeleteMapping(Uris.Lobby.CANCEL_QUEUE)
-    fun cancelQueue(@PathVariable("lobbyId") lobbyId: ID, userID: UserID) : SirenEntity<NoEntitySiren> {
-        gameService.leaveLobby(lobbyId, userID)
+    fun cancelQueue(@PathVariable("lobbyID") lobbyID: ID, userID: UserID) : SirenEntity<NoEntitySiren> {
+        gameService.leaveLobby(lobbyID, userID)
         return noEntitySiren(AppSirenNavigation.graph, AppSirenNavigation.USER_HOME_NODE_KEY)
     }
 

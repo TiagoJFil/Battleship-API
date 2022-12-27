@@ -192,7 +192,7 @@ class BoardShotTests {
     @Test
     fun `Cant shoot on a square that is out of bounds`(){
         val layout =
-                "###" +
+                        "###" +
                         "#O#" +
                         "###"
 

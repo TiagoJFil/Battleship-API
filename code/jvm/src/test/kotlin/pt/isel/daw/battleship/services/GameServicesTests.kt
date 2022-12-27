@@ -282,7 +282,7 @@ class GameServicesTests {
             assertThrows<GameRuleViolationException> {
                 gameService.makeShots(
                     userID = gameInfo.player1,
-                    gameId = gameInfo.id,
+                    gameID = gameInfo.id,
                     shots = listOf(Square(0, 0), Square(1, 0))
                 )
             }
@@ -303,7 +303,7 @@ class GameServicesTests {
             assertThrows<ForbiddenAccessAppException> {
                 gameService.makeShots(
                     userID = uid3,
-                    gameId = gameInfo.id,
+                    gameID = gameInfo.id,
                     shots = listOf(Square(0, 0))
                 )
             }
@@ -325,7 +325,7 @@ class GameServicesTests {
             assertThrows<TimeoutExceededAppException> {
                 gameService.makeShots(
                     userID = gameInfo.player1,
-                    gameId = gameInfo.id,
+                    gameID = gameInfo.id,
                     shots = listOf(Square(0, 0))
                 )
             }
@@ -344,7 +344,7 @@ class GameServicesTests {
             assertThrows<ForbiddenAccessAppException> {
                 gameService.makeShots(
                     userID = gameInfo.player2,
-                    gameId = gameInfo.id,
+                    gameID = gameInfo.id,
                     shots = listOf(Square(0, 0))
                 )
             }

@@ -25,7 +25,7 @@ fun hashPassword(password: String, salt: String): String {
 /**
  * Generates a random UUID.
  */
-fun generateUUId() = UUID.randomUUID().toString()
+fun generateUUID() = UUID.randomUUID().toString()
 
 /**
  * Generates a random Salt for the password.
