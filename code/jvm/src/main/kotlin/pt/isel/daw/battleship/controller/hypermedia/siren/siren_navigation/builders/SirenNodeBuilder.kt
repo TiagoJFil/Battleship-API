@@ -8,8 +8,8 @@ abstract class Relationship<T> {
     var predicate: ((T) -> Boolean)? = null
 }
 
-data class LinkRelationship<T>(val link: SirenLink) : Relationship<T>()
-data class ActionRelationship<T>(val action: SirenAction) : Relationship<T>()
+data class LinkRelationship<T>(val link: SirenLink,val optionalHrefExpand: Boolean) : Relationship<T>()
+data class ActionRelationship<T>(val action: SirenAction ,val optionalHrefExpand: Boolean) : Relationship<T>()
 data class EmbeddedEntityRelationship<T: Any>(val entity: EmbeddedEntity<T>, val kClass : KClass<T> ) : Relationship<T>()
 data class EmbeddedLinkRelationship<T>(val link: EmbeddedLink) : Relationship<T>()
 
@@ -38,15 +38,29 @@ class SirenNodeBuilder<T>(val id: SirenNodeID) {
         this.predicate = predicate
     }
 
-    fun link(rel: List<String>, href: String, title: String? = null, type: String? = null): Relationship<T> {
+    /**
+     * Adds a link to the node.
+     * * @param optionalHrefExpand if false the href will have to be expanded with the parameters, if there are no parameters the href wont appear,
+     * else if true the href will be expanded with the parameters if there are any, if there are no parameters the href will be returned as it is
+     */
+    fun link(rel: List<String>, href: String, title: String? = null, type: String? = null, optionalHrefExpand: Boolean = false): Relationship<T> {
         val link = SirenLink(rel, href, title, type)
-        return LinkRelationship<T>(link).also { links.add(it) }
+        return LinkRelationship<T>(link,optionalHrefExpand).also { links.add(it) }
     }
 
-    fun self(href: String, title: String? = null, type: String? = null): Relationship<T> {
-        return link(rel = listOf("self"), href = href, title = title, type = type)
+    /**
+     * Adds a link to the SirenNode
+     * @param optionalHrefExpand if false the href will have to be expanded with the parameters, if there are no parameters the href wont appear,
+     * else if true the href will be expanded with the parameters if there are any, if there are no parameters the href will be returned as it is
+     */
+    fun self(href: String, title: String? = null, type: String? = null, optionalHrefExpand : Boolean = true): Relationship<T> {
+        return link(rel = listOf("self"), href = href, title = title, type = type, optionalHrefExpand)
     }
-
+    /**
+     * Adds an action to the node.
+     * * @param optionalHrefExpand if false the href will have to be expanded with the parameters, if there are no parameters the href wont appear,
+     * else if true the href will be expanded with the parameters if there are any, if there are no parameters the href will be returned as it is
+     */
     fun action(
         name: String,
         href: String,
@@ -54,6 +68,7 @@ class SirenNodeBuilder<T>(val id: SirenNodeID) {
         clazz: List<String>? = null,
         title: String? = null,
         type: String? = null,
+        optionalHrefExpand: Boolean = false,
         builderScope: SirenActionBuilder.() -> Unit = {}
     ): Relationship<T> {
         val builder = SirenActionBuilder()
@@ -62,7 +77,7 @@ class SirenNodeBuilder<T>(val id: SirenNodeID) {
         val sirenAction =
             builder.build(name = name, href = href, method = method, clazz = clazz, title = title, type = type)
 
-        return ActionRelationship<T>(sirenAction).also {
+        return ActionRelationship<T>(sirenAction,optionalHrefExpand).also {
             actions.add(it)
         }
     }

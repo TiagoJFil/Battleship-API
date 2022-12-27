@@ -111,7 +111,7 @@ class GameTests {
 
     @Test
     fun `Placing ships on invalid squares throws an exception`(){
-        val testBoard = Board.fromLayout(testBoardLayout)
+        val testBoard = Board.fromLayout(emptyBoard)
         val game = Game(0, Game.State.PLACING_SHIPS,rules= testGameRules, playerBoards = mapOf(1 to testBoard, 2 to testBoard), turnID= 2)
         val shipInfo = ShipInfo(Square(10,20), 5, Orientation.Horizontal)
         assertThrows<IllegalArgumentException> {
@@ -328,7 +328,6 @@ class GameTests {
                     turnID= 1
                 ).placeShips(listOf(ShipInfo(Square(1,1), 2, Orientation.Vertical)), 1)
             }
-
     }
 
 }

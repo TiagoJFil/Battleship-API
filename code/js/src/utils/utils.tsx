@@ -32,14 +32,17 @@ export async function getStatisticsWithEmbeddedPlayers(){
     const fetchedStatistics = await getStatistics();
 
     let stats: IStatisticsDTO = fetchedStatistics.properties;
+    const userNodeKey = 'user';
+    const userInfoURI = fetchedStatistics.links.find((link: SirenLink) => link.rel.includes('user')).href;
+
     const namedPlayerStats = stats.ranking.map((playerStatistics: IPlayerStatisticsDTO) => {
         let newStats : any  = playerStatistics;
         
         const getSelfLink = (link: SirenLink) => link.rel.includes('self');
         const embeddedInfo = fetchedStatistics.entities.find((entity: EmbeddedEntity<IUserDTO>) => {
-            const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, '/user/:userID')
+            const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, userInfoURI)
 
-            return entity.class.includes('user') && uriProperties.userID == playerStatistics.playerID;
+            return entity.class.includes(userNodeKey) && uriProperties.userID == playerStatistics.playerID;
         }) as EmbeddedEntity<IUserDTO>;
         
         delete newStats.playerID;
@@ -53,13 +56,16 @@ export async function getStatisticsWithEmbeddedPlayers(){
 
 export async function getUserGamesWithEmbeddedState(){
     const fetchedGames = await getUserGames();
+    const gameStateNodeKey = 'game-state';
+    const gameStateUri = fetchedGames.links.find((link: SirenLink) => link.rel.includes(gameStateNodeKey)).href;
+    
 
     const gamesWithState = fetchedGames.properties.values.map((gameID: number) => {
 
         const embeddedInfo = fetchedGames.entities.find((entity: EmbeddedEntity<IGameStateInfoDTO>) => {
-            const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, '/games/:gameID/state')
+            const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, gameStateUri)
 
-            return entity.class.includes('game-state') && uriProperties.gameID == gameID;
+            return entity.class.includes(gameStateNodeKey) && uriProperties.gameID == gameID;
         }) as EmbeddedEntity<IGameStateInfoDTO>;
 
         console.log(embeddedInfo)

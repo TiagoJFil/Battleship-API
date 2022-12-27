@@ -247,9 +247,8 @@ data class Board(val linearMatrix: List<SquareType>) {
             }
         )
     }
-
-
 }
+fun Board.hasShips() : Boolean = fleetComposition.size > 0
 
 /**
  * Gets the surrounding squares of the given square taking into account the board bounds

@@ -6,11 +6,6 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.siren_navigation.build
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-//TODO : remove this
-data class EmbeddedEntityInfo<E>(
-    val nodeID : String,
-    val entity : E,
-)
 
 /**
  * Other interface to the [appendEmbedded] function. Using reified type parameters.
@@ -135,6 +130,27 @@ private fun <T> SirenEntity<T>.nullifyEmptyCollections() = copy(
     )
 
 /**
+ * Adds links and actions to the entity.
+ * @param links The links to add.
+ * @param actions The actions to add.
+ */
+private fun <T> SirenEntity<T>.addRelations(
+    links: List<SirenLink>?,
+    actions: List<SirenAction>?
+): SirenEntity<T> {
+    val newLinks = this.links?.toMutableList() ?: mutableListOf()
+    val newActions = this.actions?.toMutableList() ?: mutableListOf()
+
+    links?.forEach { newLinks.add(it) }
+    actions?.forEach { newActions.add(it) }
+
+    return this.copy(
+        links = newLinks.ifEmpty { null },
+        actions = newActions.ifEmpty { null }
+    )
+}
+
+/**
  * Tries to fill the URI placeholders with the properties of the object.
  *
  * It matches the placeholder with the property name, and replaces it with the property value.
@@ -236,6 +252,45 @@ private fun <T : Any> SirenNode<T>.filterRelationshipsByPredicate(instance: T): 
 }
 
 /**
+ * Gets all the links and actions that should not have its href expanded.
+ * A permanent entity is an entity that should not have its href expanded.
+ * A permanent href has the following format:
+ *     href: "http://example.com/:foo"
+ */
+private fun <T : Any> getPermanentRelations(
+    node : SirenNode<T>,
+    placeholders: Map<String, String?> = emptyMap()
+) : Pair<List<SirenLink>?,List<SirenAction>?> {
+
+    val permanentLinks = node.links
+        ?.filter { it.optionalHrefExpand }
+        ?.filter { it.link.href.replacePlaceholders(placeholders) == null }
+        ?.map(LinkRelationship<T>::link)
+        ?.map { it.copy(href = it.href.parseHref()) }
+
+    val permanentActions = node.actions
+        ?.filter { it.optionalHrefExpand }
+        ?.filter { it.action.href.replacePlaceholders(placeholders) == null }
+        ?.map(ActionRelationship<T>::action)
+        ?.map { it.copy(href = it.href.parseHref()) }
+
+    return Pair(permanentLinks, permanentActions)
+}
+
+/**
+ * Receives an href that could have placeholders with the following format:
+ *    href: "/api/v1/endpoint/{id}"
+ * Parses the href with this format to the following:
+ *   href: "/api/v1/endpoint/:id"
+ */
+fun String.parseHref() : String {
+    val regex = Regex("\\{\\w+}")
+    return regex.replace(this) { ":${it.value.substring(1, it.value.length - 1)}" }
+}
+
+
+
+/**
  * Transforms a SirenNode into a SirenEntity.
  *
  * First it filters the relationships that don't satisfy their respective showWhen predicates.
@@ -251,6 +306,8 @@ private fun <T : Any> SirenNode<T>.toEntity(
 ): SirenEntity<T> {
     val newNode = this.filterRelationshipsByPredicate(instance)
 
+    val (nonExapandableLinks, nonExpandableActions) = getPermanentRelations(newNode, placeholders)
+
     return SirenEntity(
         clazz = newNode.clazz,
         properties = instance,
@@ -259,7 +316,10 @@ private fun <T : Any> SirenNode<T>.toEntity(
         entities = newNode.entities?.map { it.link }
     ).tryExpandHrefs(placeholders)
         .nullifyEmptyCollections()
+        .addRelations(nonExapandableLinks, nonExpandableActions)
 }
+
+
 
 /**
  * Transforms a SirenNode into a SirenEntity.

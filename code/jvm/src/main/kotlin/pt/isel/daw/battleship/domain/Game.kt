@@ -2,6 +2,7 @@
 package pt.isel.daw.battleship.domain
 
 import pt.isel.daw.battleship.domain.board.*
+import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
@@ -115,20 +116,26 @@ fun Game.Companion.new(players: Pair<UserID, UserID>, rules: GameRules) = Game(
     lastUpdated = System.currentTimeMillis()
 )
 
-
+/**
+ * Checks whether the game has ran out of time for the specified timeout.
+ */
 private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - lastUpdated > timeout
 
 /**
  * Returns a new game after placing the ships on the board
  * @param shipList the list of ships to place
  * @param playerID the player that is placing the ships
- * @throws IllegalArgumentException if the ship is invalid according to the [Game.rules]
+ * @throws GameRuleViolationException if the ship is invalid according to the [Game.rules]
  */
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
     requireGameState(Game.State.PLACING_SHIPS)
 
     if (ranOutOfTimeFor(rules.layoutDefinitionTimeout)) {
         return this.copy(state = Game.State.CANCELLED)
+    }
+
+    requireGameRule(this.playerBoards[playerID]?.hasShips() != true) {
+        "You already placed your ships."
     }
 
     val emptyBoard = Board.empty(this.rules.boardSide)

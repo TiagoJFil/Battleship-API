@@ -57,9 +57,12 @@ class UserController(
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(Uris.User.GET_USER)
-    fun getUser(@PathVariable id: UserID): SirenEntity<User> {
-        val user = userService.getUser(id)
-        return user.appToSiren(AppSirenNavigation.USER_NODE_KEY)
+    fun getUser(@PathVariable userID: UserID): SirenEntity<User> {
+        val user = userService.getUser(userID)
+        return user.appToSiren(
+            AppSirenNavigation.USER_NODE_KEY,
+            mapOf("userID" to userID.toString())
+        )
     }
 
     @CookieDistributer

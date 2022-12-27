@@ -66,14 +66,14 @@ object AppSirenNavigation {
         node<Statistics>(STATISTICS_NODE_KEY) {
             self(Uris.Home.STATISTICS)
             link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
-            link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
+            link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true)
             embeddedEntity<User>(
                 rel = listOf("user associated to id"),
             )
         }
 
         node<User>(USER_NODE_KEY) {
-            self(Uris.User.GET_USER)
+            self(Uris.User.GET_USER, optionalHrefExpand = true)
         }
 
         node<SystemInfo>(SYSTEM_INFO_NODE_KEY) {

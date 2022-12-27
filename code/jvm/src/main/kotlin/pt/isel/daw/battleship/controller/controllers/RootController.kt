@@ -35,7 +35,7 @@ class RootController(
                     AppSirenNavigation.USER_NODE_KEY,
                     user,
                     AppSirenNavigation.STATISTICS_NODE_KEY,
-                    mapOf("id" to stat.playerID.toString())
+                    mapOf("userID" to stat.playerID.toString())
                 )
                 result
             }
