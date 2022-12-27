@@ -32,7 +32,7 @@ class LoggingFilter : OncePerRequestFilter() {
         val paramsString = request.parameterMap.map { "${it.key}=${it.value[0]}" }.joinToString("&")
 
         LOGGER.info(
-            "Request ${request.method} on ${request.requestURI} took $timeTaken millis with params: |$paramsString| and body: |$requestBody|",
+            "Request ${request.method} on ${request.requestURI} took $timeTaken millis with params: |$paramsString| and and cookies: | ${request.cookies}| body: |$requestBody|",
         )
     }
 

@@ -8,5 +8,5 @@ sealed class GameException(type: String?, message: String?) : AppException(type,
 /**
  * Exception thrown when a game is not found.
  */
-class GameNotFoundException(gameId: Int) :
-    GameException(ErrorTypes.Game.NOT_FOUND, "Game with id $gameId not found")
+class GameNotFoundException(gameID: Int) :
+    GameException(ErrorTypes.Game.NOT_FOUND, "Game with id $gameID not found")

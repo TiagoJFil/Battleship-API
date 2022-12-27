@@ -97,13 +97,13 @@ class GameService(
      * Makes a set of shots to the board of the game with the given id
      *
      * @param userID the user that is making the shots
-     * @param gameId the id of the game
+     * @param gameID the id of the game
      * @param shots the shots to be made
      */
-    fun makeShots(userID: UserID, gameId: ID, shots: List<Square>) {
+    fun makeShots(userID: UserID, gameID: ID, shots: List<Square>) {
         val gameState= transactionFactory.execute {
             val currentGameState =
-                gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+                gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             if (userID !in currentGameState.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
 
@@ -128,14 +128,14 @@ class GameService(
      * Places a fleet in the board of the game with the given id
      *
      * @param userID the user that is placing the fleet
-     * @param gameId the id of the game
+     * @param gameID the id of the game
      * @param ships the fleet to be placed
      * @throws GameNotFoundException if the game with the given id does not exist
      * @throws ForbiddenAccessAppException if the user is not in the game
      */
-    fun defineFleetLayout(userID: UserID, gameId: ID, ships: List<ShipInfo>) {
+    fun defineFleetLayout(userID: UserID, gameID: ID, ships: List<ShipInfo>) {
         val gameState = transactionFactory.execute {
-            val currentGameState = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            val currentGameState = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             if (userID !in currentGameState.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
 
@@ -159,13 +159,13 @@ class GameService(
     /**
      * Gets the fleet state of a user in a game
      * @param userID the user that is getting the fleet state
-     * @param gameId the id of the game
+     * @param gameID the id of the game
      * @param whichFleet the fleet to be retrieved
      * @return [BoardDTO]
      */
-    fun getFleetState(userID: UserID, gameId: ID, whichFleet: String): BoardDTO {
+    fun getFleetState(userID: UserID, gameID: ID, whichFleet: String): BoardDTO {
         return transactionFactory.execute {
-            val game = gamesRepository.get(gameId) ?: throw GameNotFoundException(gameId)
+            val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             game.playerBoards[userID] ?: throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
 
             val fleetState = when (whichFleet) {
@@ -185,19 +185,19 @@ class GameService(
     }
 
     /**
-     * Gets the lobby state of the lobby identified by the given [lobbyId]
+     * Gets the lobby state of the lobby identified by the given [lobbyID]
      * @param userID the user that is getting the lobby state
-     * @param lobbyId the [ID] of the lobby
+     * @param lobbyID the [ID] of the lobby
      *
      */
-    fun getMyLobbyState(userID: UserID, lobbyId: ID): LobbyInformation {
+    fun getMyLobbyState(userID: UserID, lobbyID: ID): LobbyInformation {
         return transactionFactory.execute {
-            val lobbyDto = lobbyRepository.get(lobbyId) ?: throw NotFoundAppException("Lobby $lobbyId")
+            val lobbyDto = lobbyRepository.get(lobbyID) ?: throw NotFoundAppException("Lobby $lobbyID")
             if(userID !in listOf(lobbyDto.player1, lobbyDto.player2))
                 throw ForbiddenAccessAppException(NOT_ALLOWED)
 
             LobbyInformation(
-                lobbyId,
+                lobbyID,
                 lobbyDto.gameID
             )
         }

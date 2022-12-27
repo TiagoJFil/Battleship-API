@@ -21,13 +21,13 @@ object Uris {
     object Lobby {
         const val ROOT = "/lobby"
         const val QUEUE = ROOT
-        const val CANCEL_QUEUE = "$ROOT/{lobbyId}"
-        const val STATE = "$ROOT/{lobbyId}"
+        const val CANCEL_QUEUE = "$ROOT/{lobbyID}"
+        const val STATE = "$ROOT/{lobbyID}"
     }
 
     object Game {
         const val ROOT = "/game"
-        private const val GAME_ID_PLACEHOLDER = "/{gameId}"
+        private const val GAME_ID_PLACEHOLDER = "/{gameID}"
         private const val RESOURCE = "$ROOT$GAME_ID_PLACEHOLDER"
         const val FLEET = "$RESOURCE/fleet/{whichFleet}"
         const val STATE = "$RESOURCE/state"

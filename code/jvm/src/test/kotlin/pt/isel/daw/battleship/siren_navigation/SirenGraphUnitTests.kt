@@ -73,7 +73,7 @@ class SirenGraphUnitTests {
             node<RankedSportsList>("sports") {
                 link(listOf("self"), "/api/sports")
                 embeddedLink(rel=listOf("most-popular"), href="/api/sports/{mostPopularId}")
-                // the mostPopularId is not a property of the RankedSportsList object
+                // the mostPopularID is not a property of the RankedSportsList object
             }
 
             node<RankedSport>("single-sport") {
@@ -86,7 +86,7 @@ class SirenGraphUnitTests {
             RankedSport(id=2, name="Basketball", rank=2)
         ))
 
-        // toSiren will filter out the most-popular link because the mostPopularId is not a property of the SportsList object
+        // toSiren will filter out the most-popular link because the mostPopularID is not a property of the SportsList object
         // the placeholder can't be inserted
         val sirenEntity = sportList.toSiren(sportsGraph, "sports")
 
@@ -100,7 +100,7 @@ class SirenGraphUnitTests {
 
         assertEquals(expectedSirenEntity, sirenEntity)
 
-        // To include the mostPopularId in the SirenEntity, we need to pass it as an extra placeholder
+        // To include the mostPopularID in the SirenEntity, we need to pass it as an extra placeholder
 
         val mostPopularSport = sportList.sports.minByOrNull { it.rank }?.id
 
@@ -119,7 +119,7 @@ class SirenGraphUnitTests {
             entities = listOf(
                 EmbeddedLink( // The most popular sport is now shown as an embedded link
                     rel = listOf("most-popular"),
-                    href = "/api/sports/1" // the mostPopularId is now inserted into the href
+                    href = "/api/sports/1" // the mostPopularID is now inserted into the href
                 )
             )
         )
