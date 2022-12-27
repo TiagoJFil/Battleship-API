@@ -6,7 +6,7 @@ import { Ship } from '../components/entities/ship';
 import { Square } from '../components/entities/square';
 import { PlaceShipView } from '../pages/place-ships-view';
 import { GameState } from '../components/entities/game-state';
-import { defineShipLayout, getBoard, getGameRules, getGameState } from '../api/api';
+import { defineShipLayout, getGameRules, getGameState } from '../api/api';
 import { ShipInfo } from '../components/entities/ship-info';
 import { authServices } from '../api/auth';
  
@@ -30,6 +30,7 @@ export function PlaceShips(){
     const [state, setState] = React.useState(GameState.PLACING_SHIPS)
     const [placedShips, setPlacedShips] = React.useState([])
     const [layoutDefinitionTimeout, setLayoutDefinitionTimeout] = React.useState(null)
+    const [isTimedOut, setIsTimedOut] = React.useState(false)
     
     React.useEffect(() => {
         if(!authServices.isLoggedIn()){
@@ -132,6 +133,10 @@ export function PlaceShips(){
         //TODO: handle error
     }
 
+    const onTimeout = () => {
+        setIsTimedOut(true)
+    }
+
     React.useEffect(() => {
         if(loading) return
 
@@ -172,6 +177,8 @@ export function PlaceShips(){
                 onFleetSubmitRequested={submitPlacement}
                 onBoardMouseDown={onBoardMouseDown}
                 loading={loading}
+                isTimedOut={isTimedOut}
+                onTimeout={onTimeout}
             />
         </div>
     )

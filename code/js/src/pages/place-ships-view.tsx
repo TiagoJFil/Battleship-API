@@ -7,6 +7,8 @@ import { Ship } from "../components/entities/ship"
 import { Square } from "../components/entities/square"
 import { TimeoutBar } from "../components/progress-bar"
 import { GameState } from "../components/entities/game-state"
+import { Modal } from "@mui/material"
+import AnimatedModal from "../components/modal"
 
 interface PlaceShipViewProps{
     board: Board
@@ -15,6 +17,7 @@ interface PlaceShipViewProps{
     loading: boolean
     gameState: GameState
     layoutDefinitionTimeout: number
+    isTimedOut: boolean
     onBoardSquareClick: (square: Square) => void
     onBoardSquareHover: (square: Square) => void
     onBoardSquareLeave: (square: Square) => void
@@ -22,12 +25,14 @@ interface PlaceShipViewProps{
     onFleetResetRequested: () => void
     onFleetSubmitRequested: () => void
     onBoardMouseDown: (event: React.MouseEvent, square: Square) => void
+    onTimeout: () => void
 }
 
 export function PlaceShipView(
     {
         board, 
         loading,
+        isTimedOut,
         layoutDefinitionTimeout,
         onBoardSquareClick,
         onBoardSquareHover, 
@@ -38,6 +43,7 @@ export function PlaceShipView(
         onFleetResetRequested,
         onFleetSubmitRequested,
         onBoardMouseDown,
+        onTimeout
     }: PlaceShipViewProps
 ){
     return !loading ? (
@@ -64,8 +70,13 @@ export function PlaceShipView(
                 <div className="timer-space">
                     <TimeoutBar
                         timeout={layoutDefinitionTimeout}
+                        onTimeout={onTimeout}
                     /> 
                 </div>
+                <AnimatedModal
+                    message="" 
+                    show={false}                
+                />
             </div>  
     </section>
     ) :  <div> Loading...</div>

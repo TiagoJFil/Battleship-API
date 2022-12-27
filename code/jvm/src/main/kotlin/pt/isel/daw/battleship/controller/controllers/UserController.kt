@@ -15,8 +15,6 @@ import pt.isel.daw.battleship.controller.maxAge
 import pt.isel.daw.battleship.controller.path
 import pt.isel.daw.battleship.controller.pipeline.authentication.CookieAuthorizationProcessor.Companion.COOKIE_AUTHORIZATION_NAME
 import pt.isel.daw.battleship.controller.pipeline.authentication.CookieAuthorizationProcessor.Companion.COOKIE_USER_ID_NAME
-import pt.isel.daw.battleship.controller.pipeline.authentication.CookieDistributer
-import pt.isel.daw.battleship.controller.pipeline.authentication.CookieDistributerInterceptor.Companion.MODEL_COOKIE_AUTH_NAME
 import pt.isel.daw.battleship.services.UserService
 import pt.isel.daw.battleship.services.entities.AuthInformation
 import pt.isel.daw.battleship.services.entities.User
@@ -35,7 +33,6 @@ class UserController(
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @CookieDistributer
     @PostMapping(Uris.User.REGISTER)
     fun createUser(@RequestBody input: UserInfoInputModel, response: HttpServletResponse, modelAndView: ModelAndView): SirenEntity<AuthInformation> {
         val authInfo = userService.createUser(
@@ -51,7 +48,7 @@ class UserController(
         response.addCookie(authCookie)
         response.addCookie(userIDCookie)
 
-        return authInfo.appToSiren(AppSirenNavigation.AUTH_INFO_NODE_KEY)
+        return authInfo.appToSiren(AppSirenNavigation.REGISTER_NODE_KEY)
     }
 
 
@@ -65,7 +62,6 @@ class UserController(
         )
     }
 
-    @CookieDistributer
     @PostMapping(Uris.User.LOGIN)
     @ResponseStatus(HttpStatus.OK)
     fun authenticate(@RequestBody input: UserInfoInputModel,response: HttpServletResponse, modelAndView: ModelAndView): SirenEntity<AuthInformation> {
@@ -80,11 +76,10 @@ class UserController(
             .path("/")
             .maxAge(COOKIE_LIFETIME)
 
-
         response.addCookie(authCookie)
         response.addCookie(userIDCookie)
 
-        return authInfo.appToSiren(AppSirenNavigation.AUTH_INFO_NODE_KEY)
+        return authInfo.appToSiren(AppSirenNavigation.LOGIN_NODE_KEY)
     }
 
     @GetMapping(Uris.User.HOME)

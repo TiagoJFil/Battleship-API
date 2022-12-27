@@ -37,6 +37,7 @@ export function GameView(
                 <div className="timer-space">
                     <TimeoutBar
                         timeout={shotsDefinitionTimeout}
+                        onTimeout={() => {}}
                     /> 
                 </div>
                 <div className="boards-space">
