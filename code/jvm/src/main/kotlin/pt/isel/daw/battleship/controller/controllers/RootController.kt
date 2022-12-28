@@ -8,8 +8,6 @@ import pt.isel.daw.battleship.controller.hypermedia.siren.*
 import pt.isel.daw.battleship.services.GeneralService
 import pt.isel.daw.battleship.services.entities.Statistics
 import pt.isel.daw.battleship.services.entities.SystemInfo
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 
 @RestController
@@ -38,7 +36,8 @@ class RootController(
         val statsSiren = embeddableStatistics.statistics.appToSiren(node)
 
         if(embedded) {
-            val siren = embeddableStatistics.users.foldIndexed(statsSiren) { idx ,acc, user ->
+            val safeUsers = requireNotNull(embeddableStatistics.users)
+            val siren = safeUsers.foldIndexed(statsSiren) { idx, acc, user ->
                 val stat = embeddableStatistics.statistics.ranking[idx]
                 val result = acc.appAppendEmbedded(
                     AppSirenNavigation.USER_NODE_KEY,
@@ -50,6 +49,7 @@ class RootController(
             }
             return siren
         }
+
         return statsSiren
     }
 

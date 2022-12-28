@@ -26,8 +26,12 @@ class GeneralService (
     fun getStatistics(embedded: Boolean = false): EmbeddableStatistics {
         return transactionFactory.execute {
             val statistics = generalRepository.getStatistics()
-            val users = statistics.ranking.mapNotNull { userRepository.getUser(it.playerID) }
-            EmbeddableStatistics(statistics,users)
+
+            val users = statistics.ranking
+                .mapNotNull { userRepository.getUser(it.playerID) }
+                .takeIf { embedded }
+
+            EmbeddableStatistics(statistics, users)
         }
     }
 
