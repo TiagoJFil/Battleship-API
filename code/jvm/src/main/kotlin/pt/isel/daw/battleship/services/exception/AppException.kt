@@ -25,6 +25,7 @@ object ErrorTypes {
     }
 
     object General {
+        const val INVALID_REQUEST= "https://battleship.com/problems/invalid-request"
         const val UNAUTHORIZED = "https://battleship.com/problems/unauthorized"
         const val NOT_FOUND = "https://battleship.com/problems/not-found"
         const val INTERNAL_ERROR = "https://battleship.com/problems/internal-error"

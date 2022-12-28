@@ -16,3 +16,4 @@ class MissingParameterException(parameter: String) :
  */
 class InvalidParameterException(parameter: String) :
     InputValidationException(ErrorTypes.InputValidation.INVALID_PARAMETER, "Invalid parameter $parameter")
+

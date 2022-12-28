@@ -19,13 +19,25 @@ class InternalErrorAppException() :
     GeneralException(ErrorTypes.General.INTERNAL_ERROR, "An internal error has occurred while processing the request.")
 
 /**
+ * Thrown when the user makes an invalid request.
+ */
+class InvalidRequestException(message: String) :
+    InputValidationException(ErrorTypes.General.INVALID_REQUEST, message)
+
+/**
  * Indicates that the user is not authorized to perform the requested operation.
+ *
+ * Similar to UnauthorizedException, but this exception is thrown when the user is authenticated, but is not allowed to
+ * perform the requested operation.
+ * The access is permanently forbidden and is linked to the application logic (like an incorrect password)
  */
 class ForbiddenAccessAppException(message: String) :
     GeneralException(ErrorTypes.General.FORBIDDEN, message)
 
 /**
  * Indicates that the user is not authenticated.
+ * Similar to ForbiddenException, but this exception is thrown when the user is not authenticated.
+ * The user can authenticate to be able to perform the operation.
  */
 class UnauthenticatedAppException() :
     GeneralException(ErrorTypes.General.UNAUTHORIZED, "Invalid or missing token")

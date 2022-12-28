@@ -29,7 +29,6 @@ class AppConfig : WebMvcConfigurer {
         return super.addArgumentResolvers(resolvers)
     }
 
-    //temporary needed for development on the frontend
     override fun addCorsMappings(registry: CorsRegistry) {
         registry
             .addMapping("/**")

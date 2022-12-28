@@ -7,6 +7,7 @@ val errorToStatusMap = mapOf(
     UserAlreadyExistsException::class to HttpStatus.CONFLICT,
     InvalidParameterException::class to HttpStatus.BAD_REQUEST,
     MissingParameterException::class to HttpStatus.BAD_REQUEST,
+    InvalidRequestException::class to HttpStatus.BAD_REQUEST,
     NotFoundAppException::class to HttpStatus.NOT_FOUND,
     GameNotFoundException::class to HttpStatus.NOT_FOUND,
     UserNotFoundException::class to HttpStatus.NOT_FOUND,
