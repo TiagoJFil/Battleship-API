@@ -113,7 +113,8 @@ object AppSirenNavigation {
             self(Uris.User.GAMES, optionalHrefExpand = true)
             link(
                 listOf(GAME_STATE_NODE_KEY),
-                Uris.Game.STATE
+                Uris.Game.STATE,
+                optionalHrefExpand = true
             )
             action(
                 name = QUEUE_KEY,
