@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Square } from '../components/entities/square'
 import { Fleet } from '../components/entities/fleet'
 import { GameView } from '../pages/game-view'
@@ -17,6 +17,7 @@ import { GameState } from '../components/entities/game-state'
 const INTERVAL_TIME_MS = 1000
 
 export function Game() {
+    const navigate = useNavigate()
     let { gameID } = useParams()
     const userID = getCookie(UID_COOKIE_NAME)
    
@@ -31,16 +32,26 @@ export function Game() {
     
     React.useEffect(() => {
         const getGameInfo = async () => {
+            
+            try{
+                const gameStateResponse: SirenEntity<IGameStateInfoDTO> = await getGameState(validatedGameID)
+                const gameStateDTO = gameStateResponse.properties
+                gameStateDTO.turnID === validatedUserID ? setTurn(Fleet.MY) : setTurn(Fleet.OPPONENT)
+            }catch(error){
+                if(error.status === 404){
+                    navigate('/not-found')
+                    return
+                }
+            }
+
             const playerBoardResponse: SirenEntity<IBoardDTO> = await getBoard(validatedGameID, Fleet.MY)
             const opponentBoardResponse: SirenEntity<IBoardDTO> = await getBoard(validatedGameID, Fleet.OPPONENT)
 
-            const gameStateResponse: SirenEntity<IGameStateInfoDTO> = await getGameState(validatedGameID)
-
             const playerBoardDTO = playerBoardResponse.properties 
             const opponentBoardDTO = opponentBoardResponse.properties 
-            
 
             setPlayerBoard(toBoard(playerBoardDTO))
+            
             setOpponentBoard(toBoard(opponentBoardDTO))
 
             if(shotsDefinitionTimeout === null){
@@ -49,10 +60,6 @@ export function Game() {
                 setShotsDefinitionTimeout(gameRulesDTO.playTimeout)
             }
 
-            const gameStateDTO = gameStateResponse.properties
-            const player1ID = gameStateDTO.player1ID
-
-            player1ID === validatedUserID ? setTurn(Fleet.MY) : setTurn(Fleet.OPPONENT)
             setLoading(false)
         }
 
@@ -113,7 +120,7 @@ export function Game() {
             if(boardChanged){
                 setPlayerBoard(toBoard(boardDTO))
                 changeTurn()
-                clearInterval(intervalID)
+                //clearInterval(intervalID)
             }
         }
 
@@ -121,7 +128,9 @@ export function Game() {
             if(turn === Fleet.OPPONENT){
                 getPlayerBoard()
             }
+            console.log(`Interval ${intervalID} getting playerboard...`)
         }, INTERVAL_TIME_MS)
+
     }, [turn])
 
 

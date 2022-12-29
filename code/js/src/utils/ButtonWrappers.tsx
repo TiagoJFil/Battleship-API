@@ -1,8 +1,6 @@
-export async function DisableButtonWhileOnClickWrapper(e : any ,block : () => any)  {
-    try {
-        e.target.disabled = true;
-        await block();
-    } finally {
-        e.target.disabled = false;
-    }
+
+export async function executeWhileDisabled(button: HTMLButtonElement, block: () => Promise<void>) {
+    button.disabled = true;
+    await block()
+    button.disabled = false;
 }

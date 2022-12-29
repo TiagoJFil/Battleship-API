@@ -4,23 +4,29 @@ import { fetchRegister } from '../../api/api'
 import { AuthForm } from './auth-form';
 import { useNavigate } from 'react-router-dom';
 import { ErrorToast } from './../../core-ui/toasts';
-import { DisableButtonWhileOnClickWrapper } from '../../utils/ButtonWrappers';
+import { executeWhileDisabled } from '../../utils/ButtonWrappers';
 
 export function Register(){
     const navigate = useNavigate()
 
     const onRegisterClick = (event : any,username : string,password : string) => {
-        DisableButtonWhileOnClickWrapper(event, async () => {
+        
+        const button: HTMLButtonElement = event.target;
+
+        executeWhileDisabled(button, async () => {
+            // Current millis
+            const start = Date.now();
             try {
                 validateAuth(username,password)
                 await fetchRegister(username, password);
                 navigate('/')
             } catch (e ) {
-                console.log("asdasd")
-                console.log(e)
+                const end = Date.now();
                 ErrorToast(e.title);
+                console.log("Time taken: " + (end - start) + "ms");
             }
         })
+
     }
 
     return (

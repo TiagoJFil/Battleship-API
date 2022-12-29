@@ -6,28 +6,34 @@ import { styles } from "../../constants/styles"
 import { IconButton } from "../icons"
 
 
-interface Props{
-    availableShips: Ship[],
-    shipSelected: Ship,
-    onClick: (shipID: number) => void,
+interface FleetProps{
+    state: FleetState
+    controls: FleetControls
+}
+
+export interface FleetState{
+    availableShips: Ship[]
+    shipSelected: Ship
+}
+
+export interface FleetControls{
+    onShipClick: (shipID: number) => void
     onResetRequested: () => void
     onSubmitRequested: () => void
 }
 
 export function Fleet(
-    {
-        availableShips,
-        shipSelected,
-        onClick,
-        onResetRequested,
-        onSubmitRequested
-    }: Props
+    { state, controls }: FleetProps
 ){
+
+    const { availableShips, shipSelected } = state
+    const { onShipClick, onResetRequested, onSubmitRequested } = controls
+
     const shipsToPlace = availableShips.map((ship) => {
         return <MiniShip
             key={ship.id}
             ship={ship}
-            onShipClicked={onClick}
+            onShipClicked={onShipClick}
             currentlyPlacing={shipSelected && shipSelected.id === ship.id}
         />
     })

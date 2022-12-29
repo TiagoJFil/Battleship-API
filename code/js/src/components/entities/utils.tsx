@@ -1,8 +1,8 @@
 
-import { Ship } from "../entities/ship"
-import { Square } from "../entities/square"
-import { SquareType } from "../entities/square-type"
-import { Board } from "../entities/board"
+import { Ship } from "./ship"
+import { Square } from "./square"
+import { SquareType } from "./square-type"
+import { Board } from "./board"
 
 // Used to break out of a loop like a forEach
 const BreakError = {}

@@ -1,7 +1,7 @@
 import { Ship } from "./ship"
 import { Square } from "./square"
 import { SquareType } from "./square-type"
-import { hasAdjacentShips, isPlaceFree, isWithinBounds } from "../board/utils"
+import { hasAdjacentShips, isPlaceFree, isWithinBounds } from "./utils"
 
 
 export class Board{

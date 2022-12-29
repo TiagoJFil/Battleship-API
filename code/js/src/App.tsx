@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { BrowserRouter, Route, Routes, } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, } from 'react-router-dom'
 import { Statistics } from './pages/statistics-view'
 import { Home } from './pages/home-view'
 import { Login } from './components/auth/login/login'
@@ -14,6 +14,7 @@ import { Outlet } from 'react-router-dom'
 import { BottomNav } from './components/bottom-nav'
 import { ToastContainer } from 'react-toastify';
 import "./css/app.css"
+import NotFound from './pages/not-found-view'
 
 
 export function App() {
@@ -31,6 +32,8 @@ export function App() {
                     <Route path='game/:gameID' element={<Game/>}/>
                     <Route path='info' element={<Info/>}/>
                     <Route path='my/games' element={<UserGames/>}/>
+                    <Route path='/not-found' element={<NotFound/>}/>
+                    <Route path='*' element={<Navigate replace to="/not-found" />}/>
                 </Route>
             </Routes>
             <ToastContainer/>

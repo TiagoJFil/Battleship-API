@@ -6,25 +6,28 @@ import { Board } from '../entities/board';
 import { styles } from '../../constants/styles';
 
 
-interface BoardViewProp{
-    onSquareHover: (square: Square) => void
-    onSquareClick: (square: Square) => void
-    onSquareLeave: (square: Square) => void
-    onMouseDown: (event: React.MouseEvent, onSquareMouseDown: Square) => void
+interface BoardViewProps{
     board: Board
+    controls: BoardControls
+}
+
+export interface BoardControls{
+    onSquareHover?: (square: Square) => void
+    onSquareClick?: (square: Square) => void
+    onSquareLeave?: (square: Square) => void
+    onMouseDown?: (event: React.MouseEvent, onSquareMouseDown: Square) => void
 }
 
 export function BoardView(
     {
         board, 
-        onSquareHover, 
-        onSquareClick, 
-        onSquareLeave, 
-        onMouseDown
-    }: BoardViewProp
+        controls,
+    }: BoardViewProps
 ){
     const boardRepresentation = board.asMap()
     const squaresViews: React.ReactElement[] = []
+
+    const {onSquareHover, onSquareClick, onSquareLeave, onMouseDown} = controls
     
     for(let row = 0; row < board.side; row++){
         for(let col = 0; col < board.side; col++){
@@ -36,10 +39,10 @@ export function BoardView(
                 <div 
                     className={`square ${type}`} 
                     key={`${row}-${col}`}
-                    onClick={() => onSquareClick(square)}
-                    onMouseEnter={() => onSquareHover(square)}
-                    onMouseLeave={() => {onSquareLeave(square)}}
-                    onMouseDown={(event) => onMouseDown(event, square)}
+                    onClick={() => {onSquareClick?.(square)}}
+                    onMouseEnter={() => onSquareHover?.(square)}
+                    onMouseLeave={() => {onSquareLeave?.(square)}}
+                    onMouseDown={(event) => onMouseDown?.(event, square)}
                 />
             )
 

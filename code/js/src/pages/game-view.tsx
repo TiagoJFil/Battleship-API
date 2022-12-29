@@ -1,7 +1,7 @@
 import * as React from "react"
 import '../css/game.css'
 import { BoardView } from "../components/board/board-view"
-import { TimeoutBar } from "../components/progress-bar"
+import { Timer } from "../components/progress-bar"
 import { Board } from "../components/entities/board"
 import { Square } from "../components/entities/square"
 
@@ -28,14 +28,11 @@ export function GameView(
                 <div className="boards-space">
                     <BoardView 
                         board={playerBoard}
-                        onSquareClick={() => {}}
-                        onSquareHover={() => {}}
-                        onSquareLeave={() => {}}
-                        onMouseDown={() => {}}
+                        controls={{}}
                     />
                 </div>
                 <div className="timer-space">
-                    <TimeoutBar
+                    <Timer
                         timeout={shotsDefinitionTimeout}
                         onTimeout={() => {}}
                     /> 
@@ -43,10 +40,7 @@ export function GameView(
                 <div className="boards-space">
                     <BoardView 
                         board={opponentBoard}
-                        onSquareClick={onBoardSquareClick}
-                        onSquareHover={() => {}}
-                        onSquareLeave={() => {}}
-                        onMouseDown={() => {}}
+                        controls={{onSquareClick: onBoardSquareClick}}
                     />
                 </div>
             </div>  

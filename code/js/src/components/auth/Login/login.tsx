@@ -5,15 +5,14 @@ import { AuthForm } from '../auth-form';
 import { ErrorToast } from '../../../core-ui/toasts';
 import { BottomNav } from '../../bottom-nav';
 import { Link, useNavigate } from 'react-router-dom'
-import { DisableButtonWhileOnClickWrapper } from '../../../utils/ButtonWrappers';
-
+import { executeWhileDisabled } from '../../../utils/ButtonWrappers';
 
 export function Login() {
+    
     const navigate = useNavigate()
 
-    const onLoginClick = (event : any,username : string,password : string) => {
-
-        DisableButtonWhileOnClickWrapper(event, async () => {
+    const onLoginClick = (event : any, username : string,password : string) => {
+        executeWhileDisabled(event.target, async () => {
             try {
                 validateAuth(username,password)
                 await fetchLogin(username, password);
@@ -21,7 +20,8 @@ export function Login() {
             } catch (e) {
                 ErrorToast(e.title);
             }
-        })
+        });
+
     }
 
     return (

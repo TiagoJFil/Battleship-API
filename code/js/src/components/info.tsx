@@ -9,7 +9,8 @@ export function Info(){
 
 
     React.useEffect(() => {
-        getSystemInfo().then( (res : SirenEntity<ISystemInfoDTO>) => setSytemInfo(res.properties));
+        getSystemInfo()
+        .then( (res : SirenEntity<ISystemInfoDTO>) => setSytemInfo(res.properties));
     }, []);
 
     if (systemInfo === null) {

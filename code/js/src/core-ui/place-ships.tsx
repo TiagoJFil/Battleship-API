@@ -9,6 +9,11 @@ import { GameState } from '../components/entities/game-state';
 import { defineShipLayout, getGameRules, getGameState } from '../api/api';
 import { ShipInfo } from '../components/entities/ship-info';
 import { authServices } from '../api/auth';
+import AnimatedModal from '../components/modal'
+import { BoardControls } from '../components/board/board-view';
+import { FleetControls, FleetState } from '../components/fleet/fleet-view';
+import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
+import { GameRules } from '../components/entities/game-rules';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 const INTERVAL_TIME_MS = 1000
@@ -16,21 +21,29 @@ const INTERVAL_TIME_MS = 1000
 export function PlaceShips(){
     const navigate = useNavigate();
     let { gameID } = useParams()
+
     const validatedGameID = parseInt(gameID)
-    
     const shootingGamePhaseURL = `/game/${gameID}`
-    
-    const boardSnapshot = React.useRef<Board>(null)
-    const initialShips = React.useRef(null)
-    const initialBoardSide = React.useRef(null)
+
+    const boardSnapshot = React.useRef<Board>(null) // Board used to store the valid state of the board at each placement
+    const gameRules = React.useRef<GameRules>(null)
     const [loading, setLoading] = React.useState(true)
-    const [visibleBoard, setVisibleBoard] = React.useState(null)
-    const [shipSelected, setShipSelected] = React.useState(null)
-    const [availableShips, setAvailableShips] = React.useState([])
-    const [state, setState] = React.useState(GameState.PLACING_SHIPS)
-    const [placedShips, setPlacedShips] = React.useState([])
-    const [layoutDefinitionTimeout, setLayoutDefinitionTimeout] = React.useState(null)
-    const [isTimedOut, setIsTimedOut] = React.useState(false)
+    const [visibleBoard, setVisibleBoard] = React.useState(null) // Board that is displayed to the user
+    const [shipSelected, setShipSelected] = React.useState(null) // Ship that is currently selected to be placed
+    const [availableShips, setAvailableShips] = React.useState([]) // Ships that are available to be placed
+    const [placedShips, setPlacedShips] = React.useState([]) // Ships that have been placed
+    const [isTimedOut, setIsTimedOut] = React.useState(false) 
+    const [isCustomModalOpen, setIsCustomModalOpen] = React.useState(false)
+    const [customModalMessage, setCustomModalMessage] = React.useState('')
+
+    function clearBoards(){
+        const newBoard = emptyBoard(gameRules.current.boardSide)
+        setVisibleBoard(newBoard)
+        boardSnapshot.current = newBoard
+        setAvailableShips(gameRules.current.ships)
+        setPlacedShips([])
+        setShipSelected(null)
+    }
     
     React.useEffect(() => {
         if(!authServices.isLoggedIn()){
@@ -40,29 +53,51 @@ export function PlaceShips(){
         
         const getRules = async () => {
             const response = await getGameRules(validatedGameID)
-            const gameRulesDTO = response.properties
+            const gameRulesDTO: IGameRulesDTO = response.properties
 
             const fleetComposition: Map<string, number> = gameRulesDTO.shipRules.fleetComposition
- 
-            const fleetCompositionKeys = Object.keys(fleetComposition).map(
-                (key) => parseInt(key)
-            )
-            const ships = fleetCompositionKeys.map((size, index) => {
+            const shipSizes = Object
+                .entries(fleetComposition)
+                .flatMap(([shipSize, shipCount]) => {
+                    return Array(shipCount).fill(parseInt(shipSize))
+                })
+                
+            const ships: Ship[] = shipSizes.map((size, index) => {
                 return new Ship(index+1, size, Orientation.horizontal);
             })
 
-            setVisibleBoard(emptyBoard(gameRulesDTO.boardSide))
-            boardSnapshot.current = emptyBoard(gameRulesDTO.boardSide)
-            
-            setLayoutDefinitionTimeout(gameRulesDTO.layoutDefinitionTimeout)
-            setAvailableShips(ships)
-            initialShips.current = ships
-            initialBoardSide.current = gameRulesDTO.boardSide	
-            
+            gameRules.current = { ships, boardSide: gameRulesDTO.boardSide, layoutDefinitionTimeout: gameRulesDTO.layoutDefinitionTimeout }
+            clearBoards()
             setLoading(false)
-        } 
+        }
 
-        getRules()
+        const checkGameState = async () => {
+            const response = await getGameState(validatedGameID)
+
+            const gameState = GameState[response.properties.state]
+            let modalMessage: string = null
+            if(gameState == GameState.FINISHED){
+                modalMessage = "Game has already finished"
+            } else if(gameState == GameState.PLAYING){
+                navigate(shootingGamePhaseURL, { replace: true })
+                return Promise.reject()
+            }else if(gameState == GameState.CANCELLED){
+                modalMessage = "Game has been cancelled"
+            }
+            
+            if(modalMessage != null){
+                setIsCustomModalOpen(true)
+                setCustomModalMessage(modalMessage)
+                return Promise.reject()
+            }
+
+            return Promise.resolve()
+        }
+
+        checkGameState()
+        .then(() => getRules())
+        .catch()
+
     }, [])
 
     const onShipClicked = (shipID: number) => {
@@ -120,21 +155,21 @@ export function PlaceShips(){
         }
     }
 
-    const resetPlacement = () => {
-        boardSnapshot.current = emptyBoard(initialBoardSide.current)
-        setVisibleBoard(boardSnapshot.current)
-        setShipSelected(null);
-        setPlacedShips([])
-        setAvailableShips(initialShips.current);
-    }
-
     const submitPlacement = async () => {
         await defineShipLayout(validatedGameID, placedShips)
-        //TODO: handle error
     }
 
     const onTimeout = () => {
-        setIsTimedOut(true)
+        submitPlacement()
+        .catch((problem) => {
+            if(problem.status === 400){
+                console.log("Timeout Reached. Submitting placement")
+            }
+        })
+        .finally(() => {
+            console.log("Timeout Reached. Submitting placement. Modal Opening.")
+            setIsTimedOut(true)
+        })
     }
 
     React.useEffect(() => {
@@ -143,7 +178,6 @@ export function PlaceShips(){
         const checkGameState = async () => {
             const gameStateSiren = await getGameState(validatedGameID)
             const state = gameStateSiren.properties.state
-            setState(state)
             const gameState = GameState[state]
             if(gameState === GameState.PLAYING){ 
                 navigate(shootingGamePhaseURL)
@@ -152,7 +186,16 @@ export function PlaceShips(){
         }
         
         const intervalID = setInterval(() => {
-             checkGameState()  
+            
+            checkGameState()
+            .catch((problem) => {
+                if(problem.status === 401){
+                    console.log("Unauthorized. Opening modal")
+                }
+
+                clearInterval(intervalID)
+            })
+             
         }, INTERVAL_TIME_MS)
 
         return () => {
@@ -160,26 +203,46 @@ export function PlaceShips(){
         }
     }, [loading])
 
+    const boardControls: BoardControls = {
+        onSquareClick: onSquareClicked,
+        onSquareHover: onSquareHover,
+        onSquareLeave: onSquareLeave,
+        onMouseDown: onBoardMouseDown
+    }
+
+    const fleetState: FleetState = {
+        availableShips: availableShips,
+        shipSelected: shipSelected,
+    }
+
+    const fleetControls: FleetControls = {
+        onShipClick: onShipClicked,
+        onResetRequested: clearBoards,
+        onSubmitRequested: submitPlacement
+    }
+
+    const handleModalClose = () => navigate('/', { replace: true })
 
     return(
         <div>
             <PlaceShipView
                 board={visibleBoard}
-                gameState={state}
-                layoutDefinitionTimeout={layoutDefinitionTimeout}
-                availableShips={availableShips}
-                onBoardSquareClick={onSquareClicked}
-                onBoardSquareHover={onSquareHover}
-                onBoardSquareLeave={onSquareLeave}
-                onShipClick={onShipClicked}
-                shipSelected={shipSelected}
-                onFleetResetRequested={resetPlacement}
-                onFleetSubmitRequested={submitPlacement}
-                onBoardMouseDown={onBoardMouseDown}
+                boardControls={boardControls}
+                layoutDefinitionTimeout={gameRules.current?.layoutDefinitionTimeout}
+                fleetState={fleetState}
+                fleetControls={fleetControls}
                 loading={loading}
-                isTimedOut={isTimedOut}
                 onTimeout={onTimeout}
             />
+            <AnimatedModal
+                    message="Timeout reached. Game cancelled."
+                    show={isTimedOut}
+                    handleClose={handleModalClose}
+            />
+            <AnimatedModal
+                    message={customModalMessage}
+                    show={isCustomModalOpen}
+                    handleClose={handleModalClose}/>
         </div>
     )
 }

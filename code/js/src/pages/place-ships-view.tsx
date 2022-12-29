@@ -3,46 +3,30 @@ import '../css/game.css'
 import { Board } from "../components/entities/board"
 import { BoardView } from "../components/board/board-view"
 import { Fleet } from "../components/fleet/fleet-view"
-import { Ship } from "../components/entities/ship"
-import { Square } from "../components/entities/square"
-import { TimeoutBar } from "../components/progress-bar"
-import { GameState } from "../components/entities/game-state"
-import { Modal } from "@mui/material"
-import AnimatedModal from "../components/modal"
+import { Timer } from "../components/progress-bar"
+import { FleetControls, FleetState } from "../components/fleet/fleet-view"
+import { BoardControls } from "../components/board/board-view"
+import { CircularProgress } from "@mui/material"
+
 
 interface PlaceShipViewProps{
     board: Board
-    availableShips: Ship[]
-    shipSelected: Ship
+    boardControls: BoardControls
     loading: boolean
-    gameState: GameState
+    fleetState: FleetState
+    fleetControls: FleetControls
     layoutDefinitionTimeout: number
-    isTimedOut: boolean
-    onBoardSquareClick: (square: Square) => void
-    onBoardSquareHover: (square: Square) => void
-    onBoardSquareLeave: (square: Square) => void
-    onShipClick: (shipID: number) => void
-    onFleetResetRequested: () => void
-    onFleetSubmitRequested: () => void
-    onBoardMouseDown: (event: React.MouseEvent, square: Square) => void
     onTimeout: () => void
 }
 
 export function PlaceShipView(
     {
-        board, 
+        board,
+        boardControls, 
         loading,
-        isTimedOut,
         layoutDefinitionTimeout,
-        onBoardSquareClick,
-        onBoardSquareHover, 
-        onBoardSquareLeave,
-        availableShips,
-        onShipClick,
-        shipSelected,
-        onFleetResetRequested,
-        onFleetSubmitRequested,
-        onBoardMouseDown,
+        fleetState,
+        fleetControls,
         onTimeout
     }: PlaceShipViewProps
 ){
@@ -51,33 +35,23 @@ export function PlaceShipView(
             <div className="layout-definition-view-space">
                 <div className="fleet-space">
                     <Fleet
-                        shipSelected={shipSelected}
-                        availableShips={availableShips}
-                        onClick={onShipClick}
-                        onResetRequested={onFleetResetRequested}
-                        onSubmitRequested={onFleetSubmitRequested}
+                        state={fleetState}
+                        controls={fleetControls}
                     />
                 </div>
                 <div className="boards-space">
                     <BoardView 
                         board={board}
-                        onSquareClick={onBoardSquareClick}
-                        onSquareHover={onBoardSquareHover}
-                        onSquareLeave={onBoardSquareLeave}
-                        onMouseDown={onBoardMouseDown}
+                        controls={boardControls}
                     />
                 </div>
                 <div className="timer-space">
-                    <TimeoutBar
+                    <Timer
                         timeout={layoutDefinitionTimeout}
                         onTimeout={onTimeout}
                     /> 
                 </div>
-                <AnimatedModal
-                    message="" 
-                    show={false}                
-                />
             </div>  
     </section>
-    ) :  <div> Loading...</div>
+    ) :  <CircularProgress />
 }
