@@ -341,7 +341,7 @@ class GameServicesTests {
             gameService.defineFleetLayout(gameInfo.player1, gameInfo.id, validRuleFleet)
             gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
 
-            assertThrows<ForbiddenAccessAppException> {
+            assertThrows<InvalidRequestException> {
                 gameService.makeShots(
                     userID = gameInfo.player2,
                     gameID = gameInfo.id,

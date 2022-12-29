@@ -13,7 +13,10 @@ import javax.servlet.http.HttpServletRequest
 class UserIDArgumentResolver : HandlerMethodArgumentResolver {
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
-        return parameter.parameterType == UserID::class.java
+        val parameterIsCorrectType = parameter.parameterType == UserID::class.java
+        val parameterCorrectlyNamed = parameter.parameterName == ACCEPTED_PARAM_NAME
+
+        return parameterCorrectlyNamed && parameterIsCorrectType
     }
 
     override fun resolveArgument(
@@ -28,8 +31,9 @@ class UserIDArgumentResolver : HandlerMethodArgumentResolver {
 
     companion object{
         private const val KEY = "UserIDArgumentResolver"
+        private const val ACCEPTED_PARAM_NAME = "userID"
 
-        fun addUserIDTo(user: UserID, request: HttpServletRequest) {
+        fun addUserIDTo(user: UserID?, request: HttpServletRequest) {
             return request.setAttribute(KEY, user)
         }
 

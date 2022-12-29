@@ -130,13 +130,14 @@ private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - l
 fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
     requireGameState(Game.State.PLACING_SHIPS)
 
+    requireGameRule(this.playerBoards[playerID]?.hasShips() != true) {
+        "You already placed your ships."
+    }
+
     if (ranOutOfTimeFor(rules.layoutDefinitionTimeout)) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
-    requireGameRule(this.playerBoards[playerID]?.hasShips() != true) {
-        "You already placed your ships."
-    }
 
     val emptyBoard = Board.empty(this.rules.boardSide)
     val newBoard = emptyBoard.placeShips(shipList)

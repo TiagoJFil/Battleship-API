@@ -85,11 +85,15 @@ class GameService(
      */
     fun leaveLobby(lobbyID: ID, userID: UserID) =
         transactionFactory.execute {
-            if(lobbyRepository.get(lobbyID)?.gameID != null)
-                throw ForbiddenAccessAppException("You can't leave a lobby that is already in a game")
+            val lobby = lobbyRepository.get(lobbyID)
+            if (userID !in listOf(lobby?.player1,lobby?.player2))
+                throw ForbiddenAccessAppException("You can't leave a lobby that you are not part of")
+
+            if(lobby?.gameID != null)
+                throw InvalidRequestException("You can't leave a lobby that is already in a game")
 
             if(!lobbyRepository.removePlayerFromLobby(lobbyID, userID))
-                throw ForbiddenAccessAppException("User $userID is not in the lobby")
+                throw InternalErrorAppException()
         }
 
 
@@ -112,7 +116,7 @@ class GameService(
             }
 
             if (userID != currentGameState.turnID)
-                throw ForbiddenAccessAppException("Not your turn!")
+                throw InvalidRequestException("Not your turn!")
 
             val newGameState = currentGameState.makePlay(shots)
             gamesRepository.persist(newGameState.toDTO())
@@ -194,7 +198,7 @@ class GameService(
         return transactionFactory.execute {
             val lobbyDto = lobbyRepository.get(lobbyID) ?: throw NotFoundAppException("Lobby $lobbyID")
             if(userID !in listOf(lobbyDto.player1, lobbyDto.player2))
-                throw ForbiddenAccessAppException(NOT_ALLOWED)
+                throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
 
             LobbyInformation(
                 lobbyID,
@@ -208,7 +212,9 @@ class GameService(
             val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             if(userID !in game.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
-
+            if(game.state == Game.State.CANCELLED ){
+                throw TimeoutExceededAppException(THIS_GAME_HAS_BEEN_CANCELLED)
+            }
             game.rules.toDTO()
         }
     }
