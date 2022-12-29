@@ -226,10 +226,12 @@ class GameService(
     fun geUserGames(userID: UserID, embedded: Boolean = false): EmbeddableGameListDTO {
         return transactionFactory.execute {
             val gameIDs = gamesRepository.getUserGames(userID)
-            if(embedded)
-                return@execute EmbeddableGameListDTO(GameListDTO(gameIDs), gameIDs.map { this@GameService.getGameState(it, userID) })
-            else
-                return@execute EmbeddableGameListDTO(GameListDTO(gameIDs))
+
+            val gameStates = gameIDs
+                .map { this@GameService.getGameState(it, userID) }
+                .takeIf { embedded }
+
+            return@execute EmbeddableGameListDTO(GameListDTO(gameIDs), gameStates)
         }
     }
 
