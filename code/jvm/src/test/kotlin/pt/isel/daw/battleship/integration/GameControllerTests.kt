@@ -395,6 +395,68 @@ class GameControllerTests {
     }
 
 
+    @Test
+    fun `making a play with an invalid ammount of shots fails`(){
+        val usersCreation = createPlayers("player1", "player2") ?: return
+        val gameID = enterLobby(usersCreation) ?: return
+
+        val fleetJson = objectMapper.writeValueAsString(defaultFleet)
+
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
+            .assertAndDefineFleet(fleetJson, usersCreation.player1.token)
+
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
+            .assertAndDefineFleet(fleetJson, usersCreation.player2.token)
+
+        val shots = ShotsInfoInputModel(
+            listOf(Square(0, 0), Square(0, 1))
+        )
+        val shotsJson = objectMapper.writeValueAsString(shots)
+        client.post().uri(Uris.Game.SHOTS_DEFINITION, gameID)
+            .bodyValue(shotsJson)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectHeader()
+            .assertContentTypeProblem()
+            .expectBody<Problem>()
+    }
+
+    @Test
+    fun `try to place_ships with the game in PLAYING state fails`(){
+        val usersCreation = createPlayers("player1", "player2") ?: return
+        val gameID = enterLobby(usersCreation) ?: return
+
+        val fleetJson = objectMapper.writeValueAsString(defaultFleet)
+
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
+            .assertAndDefineFleet(fleetJson, usersCreation.player1.token)
+
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
+            .assertAndDefineFleet(fleetJson, usersCreation.player2.token)
+
+        val shots = ShotsInfoInputModel(
+            listOf(Square(0, 0))
+        )
+        val shotsJson = objectMapper.writeValueAsString(shots)
+        client.post().uri(Uris.Game.SHOTS_DEFINITION, gameID)
+            .bodyValue(shotsJson)
+            .setContentTypeJson()
+            .setAuthToken(usersCreation.player1.token)
+            .exchange()
+            .expectBody<SirenEntity<Nothing>>()
+
+        client.post().uri(Uris.Game.LAYOUT_DEFINITION, gameID)
+
+            .assertAndDefineFleet(fleetJson, usersCreation.player1.token)
+            .expectStatus().isBadRequest
+            .expectHeader()
+            .assertContentTypeProblem()
+            .expectBody<Problem>()
+    }
+
+
     private data class UsersCreation(val player1: AuthInformation, val player2: AuthInformation)
 
     private fun createPlayers(player1: String, player2: String): UsersCreation? {
@@ -466,12 +528,14 @@ class GameControllerTests {
             .returnResult().responseBody?.properties
     }
 
-    private fun WebTestClient.RequestBodySpec.assertAndDefineFleet(fleetJson: String, userToken: String){
-        bodyValue(fleetJson)
+    private fun WebTestClient.RequestBodySpec.assertAndDefineFleet(fleetJson: String, userToken: String): WebTestClient.ResponseSpec {
+        val result = bodyValue(fleetJson)
             .setContentTypeJson()
             .setAuthToken(userToken)
             .exchange()
+        result
             .expectBody<SirenEntity<Nothing>>()
+        return result
     }
 
     val defaultFleet = LayoutInfoInputModel(

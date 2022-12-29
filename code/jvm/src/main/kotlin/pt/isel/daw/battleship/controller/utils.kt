@@ -1,6 +1,10 @@
 package pt.isel.daw.battleship.controller
 
 import org.springframework.http.server.ServerHttpResponse
+import pt.isel.daw.battleship.controller.controllers.UserController
+import pt.isel.daw.battleship.controller.controllers.UserController.Companion.COOKIE_USER_ID_NAME
+import pt.isel.daw.battleship.controller.pipeline.authentication.CookieAuthorizationProcessor.Companion.COOKIE_AUTHORIZATION_NAME
+import pt.isel.daw.battleship.services.entities.AuthInformation
 import javax.servlet.http.Cookie
 
 /**
@@ -20,6 +24,19 @@ fun Cookie.path(path: String): Cookie {
 }
 
 /**
+ * Transforms the [AuthInformation] properties into [Cookie]s and returns them
+ */
+fun AuthInformation.toCookies(): List<Cookie> {
+    val authCookie = Cookie(COOKIE_AUTHORIZATION_NAME, token)
+        .path("/")
+        .maxAge(UserController.COOKIE_LIFETIME)
+    val userIDCookie = Cookie(COOKIE_USER_ID_NAME, uid.toString())
+        .path("/")
+        .maxAge(UserController.COOKIE_LIFETIME)
+    return listOf(authCookie, userIDCookie)
+}
+
+/**
  * Converts a [Cookie] into a [String] that can be used in a HTTP response header.
  */
 fun Cookie.asString() : String {
@@ -29,7 +46,6 @@ fun Cookie.asString() : String {
     cookieString += "; Expires=${expireDate}"
     path?.let { cookieString += "; Path=$it" }
     domain?.let { cookieString += "; Domain=$it" }
-    isHttpOnly.let { cookieString += "; HttpOnly" }
     return cookieString
 }
 

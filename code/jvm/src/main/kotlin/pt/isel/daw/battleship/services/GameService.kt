@@ -212,7 +212,9 @@ class GameService(
             val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             if(userID !in game.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
-
+            if(game.state == Game.State.CANCELLED ){
+                throw TimeoutExceededAppException(THIS_GAME_HAS_BEEN_CANCELLED)
+            }
             game.rules.toDTO()
         }
     }

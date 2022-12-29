@@ -1,6 +1,8 @@
 package pt.isel.daw.battleship.controller.pipeline.exceptions
 
 import org.springframework.http.HttpStatus
+import pt.isel.daw.battleship.domain.GameRuleViolationException
+import pt.isel.daw.battleship.domain.IllegalGameStateException
 import pt.isel.daw.battleship.services.exception.*
 
 val errorToStatusMap = mapOf(
@@ -15,4 +17,10 @@ val errorToStatusMap = mapOf(
     ForbiddenAccessAppException::class to HttpStatus.FORBIDDEN,
     UnauthenticatedAppException::class to HttpStatus.UNAUTHORIZED,
     TimeoutExceededAppException::class to HttpStatus.REQUEST_TIMEOUT,
+)
+
+
+val domainToAppExceptionMap = mapOf(
+    IllegalGameStateException::class to InvalidRequestException::class,
+    GameRuleViolationException::class to InvalidRequestException::class,
 )

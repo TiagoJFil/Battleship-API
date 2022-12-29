@@ -47,12 +47,8 @@ object AppSirenNavigation {
     const val SHOTS_DEFINITION_NODE_KEY = "shots-definition"
     const val GAME_STATE_NODE_KEY = "game-state"
     const val GAME_RULES_NODE_KEY = "game-rules"
-
-    //AUTH and NO AUTH
     const val STATISTICS_NODE_KEY = "statistics"
-    const val STATISTICS_NODE_KEY_WITH_AUTH = "statistics-authenticated"
     const val SYSTEM_INFO_NODE_KEY = "system-info"
-    const val SYSTEM_INFO_NODE_KEY_WITH_AUTH = "system-info-authenticated"
 
     val graph = buildSirenGraph {
 
@@ -73,23 +69,14 @@ object AppSirenNavigation {
             }
         }
 
-        fun SirenNodeBuilder<Statistics>.sirenStatisticsNav() {
+        node<Statistics>(STATISTICS_NODE_KEY) {
             self(Uris.Home.STATISTICS)
+            link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
             link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
-            link(listOf(USER_NODE_KEY), pt.isel.daw.battleship.controller.Uris.User.GET_USER)
+            link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true )
             embeddedEntity<User>(
                 rel = listOf("user associated to id"),
             )
-        }
-
-        node<Statistics>(STATISTICS_NODE_KEY) {
-            sirenStatisticsNav()
-            link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
-        }
-
-        node<Statistics>(STATISTICS_NODE_KEY_WITH_AUTH) {
-            sirenStatisticsNav()
-            link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
         }
 
         node<User>(USER_NODE_KEY) {
@@ -99,11 +86,6 @@ object AppSirenNavigation {
         node<SystemInfo>(SYSTEM_INFO_NODE_KEY) {
             self(Uris.Home.SYSTEM_INFO)
             link(listOf(ROOT_NODE_KEY), Uris.Home.ROOT)
-        }
-
-        node<SystemInfo>(SYSTEM_INFO_NODE_KEY_WITH_AUTH) {
-            self(Uris.Home.SYSTEM_INFO)
-            link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
         }
 
         node<AuthInformation>(LOGIN_NODE_KEY) {
@@ -116,9 +98,8 @@ object AppSirenNavigation {
             link(listOf(USER_HOME_NODE_KEY), Uris.User.HOME)
         }
 
-
         node<NoEntitySiren>(USER_HOME_NODE_KEY) {
-            self(Uris.User.HOME)
+            self(Uris.User.HOME, optionalHrefExpand = true)
             action(
                 name = QUEUE_KEY,
                 href = Uris.Lobby.QUEUE,
@@ -129,7 +110,7 @@ object AppSirenNavigation {
         }
 
         node<GameListDTO>(USER_GAMES_NODE_KEY) {
-            self(Uris.User.GAMES)
+            self(Uris.User.GAMES, optionalHrefExpand = true)
             link(
                 listOf(GAME_STATE_NODE_KEY),
                 Uris.Game.STATE
@@ -155,17 +136,17 @@ object AppSirenNavigation {
 
 
         node<LobbyInformation>(LOBBY_STATE_NODE_KEY) {
-            self(href = Uris.Lobby.STATE)
+            self(href = Uris.Lobby.STATE, optionalHrefExpand = true)
             lobbyInformationNav()
         }
 
         node<LobbyInformation>(PLAY_INTENT_NODE_KEY) {
-            self(href = Uris.Lobby.STATE)
+            self(href = Uris.Lobby.STATE, optionalHrefExpand = true)
             lobbyInformationNav()
         }
 
         node<GameStateInfo>(GAME_STATE_NODE_KEY) {
-            self(Uris.Game.STATE)
+            self(Uris.Game.STATE, optionalHrefExpand = true)
             action(
                 name = SHOTS_DEFINITION_NODE_KEY,
                 href = Uris.Game.SHOTS_DEFINITION,
@@ -195,11 +176,11 @@ object AppSirenNavigation {
 
 
         node<NoEntitySiren>(nodeID = DEFINE_LAYOUT_NODE_ID){
-            self(Uris.Game.LAYOUT_DEFINITION)
+            self(Uris.Game.LAYOUT_DEFINITION, optionalHrefExpand = true)
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
         }
         node<NoEntitySiren>(nodeID = SHOTS_DEFINITION_NODE_KEY){
-            self(Uris.Game.SHOTS_DEFINITION)
+            self(Uris.Game.SHOTS_DEFINITION, optionalHrefExpand = true)
 
             embeddedEntity<BoardDTO>(
                 rel = listOf("board"),
@@ -207,10 +188,14 @@ object AppSirenNavigation {
         }
 
         node<BoardDTO>(FLEET_NODE_KEY) {
+            self(Uris.Game.FLEET, optionalHrefExpand = true)
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
         }
 
-        node<GameRules>(GAME_RULES_NODE_KEY)
+        node<GameRulesDTO>(GAME_RULES_NODE_KEY){
+            self(Uris.Game.RULES, optionalHrefExpand = true)
+            link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
+        }
     }
 }
 
