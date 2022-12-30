@@ -3,7 +3,8 @@ begin;
 create table if not exists Authors(
     name varchar(20) primary key,
     email varchar(255) constraint emailinvalid check(email ~* '^[A-Z0-9.%-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,4}$'),
-    github varchar(255)
+    github varchar(255),
+    iselID int constraint iselIDinvalid check(iselID > 0)
 );
 
 create table if not exists SystemInfo(

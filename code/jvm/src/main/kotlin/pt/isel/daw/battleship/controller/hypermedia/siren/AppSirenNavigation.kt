@@ -24,9 +24,9 @@ inline fun <reified T : Any> T.appToSiren(
 ): SirenEntity<T> = this.toSiren(AppSirenNavigation.graph, nodeID, extraPlaceholders)
 
 inline fun <reified T  : Any,reified E : Any> SirenEntity<T>.appAppendEmbedded(
-    embeddedNodeID: SirenNodeID,
+    originalNodeID: SirenNodeID,
     entity: E,
-    originalNodeID : SirenNodeID,
+    embeddedNodeID : SirenNodeID,
     extraPlaceholders: Map<String, String?>? = null
 ): SirenEntity<T> = this.appendEmbedded(AppSirenNavigation.graph,embeddedNodeID, entity,originalNodeID,extraPlaceholders)
 
@@ -173,8 +173,11 @@ object AppSirenNavigation {
                 title = "Opponent's Fleet"
             ) showWhen { it.state == Game.State.PLAYING || it.state == Game.State.FINISHED }
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
+            link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true)
+            embeddedEntity<User>(
+                rel = listOf("user associated to id"),
+            )
         }
-
 
         node<NoEntitySiren>(nodeID = DEFINE_LAYOUT_NODE_ID){
             self(Uris.Game.LAYOUT_DEFINITION, optionalHrefExpand = true)

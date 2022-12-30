@@ -53,9 +53,9 @@ class GameController(
             val embeddableBoard = gameService.getFleetState(userID, gameID, whichFleet = "opponent")
 
             siren.appAppendEmbedded(
-                AppSirenNavigation.FLEET_NODE_KEY,
+                AppSirenNavigation.SHOTS_DEFINITION_NODE_KEY,
                 embeddableBoard,
-                AppSirenNavigation.SHOTS_DEFINITION_NODE_KEY
+                AppSirenNavigation.FLEET_NODE_KEY
             )
         }else{
             siren
@@ -80,12 +80,36 @@ class GameController(
 
     @Authentication
     @GetMapping(Uris.Game.STATE)
-    fun getGameState(@PathVariable("gameID") gameID: Int, userID: UserID): SirenEntity<GameStateInfo> {
-        val state = gameService.getGameState(gameID, userID)
-        return state.appToSiren(
+    fun getGameState(
+        @PathVariable("gameID") gameID: Int,
+        @RequestParam(required = false) embedded : Boolean,
+        userID: UserID
+    ): SirenEntity<GameStateInfo> {
+        val embeddableGameStateInfo = gameService.getGameState(gameID, userID,embedded)
+
+        val siren = embeddableGameStateInfo.stateInfo.appToSiren(
             AppSirenNavigation.GAME_STATE_NODE_KEY,
             mapOf("gameID" to gameID.toString())
         )
+
+        return if(embedded) {
+            val player1 = requireNotNull(embeddableGameStateInfo.player1)
+            val player2 = requireNotNull(embeddableGameStateInfo.player2)
+
+            return siren.appAppendEmbedded(
+                AppSirenNavigation.GAME_STATE_NODE_KEY,
+                player1,
+                AppSirenNavigation.USER_NODE_KEY,
+                mapOf("userID" to embeddableGameStateInfo.stateInfo.player1ID.toString())
+            ).appAppendEmbedded(
+                AppSirenNavigation.GAME_STATE_NODE_KEY,
+                player2,
+                AppSirenNavigation.USER_NODE_KEY,
+                mapOf("userID" to embeddableGameStateInfo.stateInfo.player2ID.toString())
+            )
+        }else{
+            siren
+        }
     }
 
     @Authentication
@@ -108,14 +132,15 @@ class GameController(
 
         val siren = games.gameList.appToSiren(AppSirenNavigation.USER_GAMES_NODE_KEY)
         if(embedded){
-            return games.gameStates?.foldIndexed(siren){ index, acc, state ->
+            val gamesStates = requireNotNull(games.gameStates)
+            return gamesStates.foldIndexed(siren){ index, acc, state ->
                 acc.appAppendEmbedded(
-                    AppSirenNavigation.GAME_STATE_NODE_KEY,
-                    state,
                     AppSirenNavigation.USER_GAMES_NODE_KEY,
+                    state,
+                    AppSirenNavigation.GAME_STATE_NODE_KEY,
                     mapOf("gameID" to games.gameList.values[index].toString())
                 )
-            } ?: siren
+            }
         }
 
         return siren

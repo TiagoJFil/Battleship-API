@@ -9,10 +9,7 @@ import pt.isel.daw.battleship.controller.dto.toDTO
 import pt.isel.daw.battleship.domain.*
 import pt.isel.daw.battleship.domain.board.ShipInfo
 import pt.isel.daw.battleship.repository.dto.toDTO
-import pt.isel.daw.battleship.services.entities.GameRulesDTO
-import pt.isel.daw.battleship.services.entities.GameStateInfo
-import pt.isel.daw.battleship.services.entities.LobbyInformation
-import pt.isel.daw.battleship.services.entities.toDTO
+import pt.isel.daw.battleship.services.entities.*
 import pt.isel.daw.battleship.services.exception.*
 import pt.isel.daw.battleship.services.transactions.TransactionFactory
 import pt.isel.daw.battleship.utils.ID
@@ -37,17 +34,27 @@ class GameService(
      * @param gameID the id of the game
      * @return [Game.State] the game state
      */
-    fun getGameState(gameID: ID, userID: UserID): GameStateInfo {
+    fun getGameState(gameID: ID, userID: UserID, embedded: Boolean = false): EmbeddableGameStateInfo {
         return transactionFactory.execute {
             val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             if(userID !in game.playerBoards.keys)
                 throw ForbiddenAccessAppException("User $userID is not part of the game $gameID")
+            val player1 =if(embedded) {
+                userRepository.getUser(game.player1ID)
+            } else null
+            val player2 = if(embedded) {
+                userRepository.getUser(game.player2ID)
+            } else null
 
-            GameStateInfo(
-                game.state,
-                game.turnID,
-                game.playerBoards.keys.first(),
-                game.playerBoards.keys.last()
+            EmbeddableGameStateInfo(
+                GameStateInfo(
+                    game.state,
+                    game.turnID,
+                    game.player1ID,
+                    game.player2ID,
+                ),
+                player1,
+                player2
             )
         }
     }
@@ -228,7 +235,7 @@ class GameService(
             val gameIDs = gamesRepository.getUserGames(userID)
 
             val gameStates = gameIDs
-                .map { this@GameService.getGameState(it, userID) }
+                .map { this@GameService.getGameState(it, userID).stateInfo }
                 .takeIf { embedded }
 
             return@execute EmbeddableGameListDTO(GameListDTO(gameIDs), gameStates)
