@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { styles } from '../constants/styles';
+import { Styles } from '../constants/styles';
 import './../css/bottom-nav.css'
 import { IconButton } from './icons';
 
@@ -13,13 +13,13 @@ export function BottomNav() {
         <div className='Bottom-Nav-Outter'>
             <div className='Bottom-Nav-Inner'>
                 <div className='Bottom-Nav-Item'>
-                    <IconButton iconClass={styles.BACK_ICON} onClick={() => navigate(-1) } />
+                    <IconButton iconClass={Styles.BACK_ICON} onClick={() => navigate(-1) } />
                 </div>
                 <div className='Bottom-Nav-Item'>
-                    <IconButton iconClass={styles.HOME_ICON} onClick={() => navigate("/") } />
+                    <IconButton iconClass={Styles.HOME_ICON} onClick={() => navigate("/") } />
                 </div>
                 <div className='Bottom-Nav-Item'>
-                    <IconButton iconClass={styles.INFO_ICON} onClick={() => navigate("/info") } />
+                    <IconButton iconClass={Styles.INFO_ICON} onClick={() => navigate("/info") } />
                 </div>
             </div>
         </div>

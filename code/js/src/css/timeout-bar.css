@@ -4,7 +4,7 @@
     align-items: center;
 }
 
-.timeout-bar-container {
+.progress-bar-container {
     height: 20px;
     width: 100%;
     background-color: var(--oc-gray-3);

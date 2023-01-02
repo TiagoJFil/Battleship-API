@@ -14,6 +14,8 @@ import { BoardControls } from '../components/board/board-view';
 import { FleetControls, FleetState } from '../components/fleet/fleet-view';
 import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
 import { GameRules } from '../components/entities/game-rules';
+import { INITIAL_MODAL_STATE, ModalMessages, ModalState } from './modal-state-config';
+import { AppRoutes } from '../constants/routes';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 const INTERVAL_TIME_MS = 1000
@@ -27,14 +29,14 @@ export function PlaceShips(){
 
     const boardSnapshot = React.useRef<Board>(null) // Board used to store the valid state of the board at each placement
     const gameRules = React.useRef<GameRules>(null)
-    const [loading, setLoading] = React.useState(true)
     const [visibleBoard, setVisibleBoard] = React.useState(null) // Board that is displayed to the user
     const [shipSelected, setShipSelected] = React.useState(null) // Ship that is currently selected to be placed
     const [availableShips, setAvailableShips] = React.useState([]) // Ships that are available to be placed
     const [placedShips, setPlacedShips] = React.useState([]) // Ships that have been placed
-    const [isTimedOut, setIsTimedOut] = React.useState(false) 
-    const [isCustomModalOpen, setIsCustomModalOpen] = React.useState(false)
-    const [customModalMessage, setCustomModalMessage] = React.useState('')
+    const [customModalState, setCustomModalState] = React.useState<ModalState>(INITIAL_MODAL_STATE)
+    const [readyToPlay, setReadyToPlay] = React.useState(false)
+
+    const loading = gameRules.current === null
 
     function clearBoards(){
         const newBoard = emptyBoard(gameRules.current.boardSide)
@@ -47,7 +49,7 @@ export function PlaceShips(){
     
     React.useEffect(() => {
         if(!authServices.isLoggedIn()){
-            navigate('/login', { replace: true }) 
+            navigate(AppRoutes.LOGIN, { replace: true }) 
             return
         }
         
@@ -68,27 +70,19 @@ export function PlaceShips(){
 
             gameRules.current = { ships, boardSide: gameRulesDTO.boardSide, layoutDefinitionTimeout: gameRulesDTO.layoutDefinitionTimeout }
             clearBoards()
-            setLoading(false)
         }
 
         const checkGameState = async () => {
             const response = await getGameState(validatedGameID)
 
             const gameState = GameState[response.properties.state]
-            let modalMessage: string = null
-            if(gameState == GameState.FINISHED){
-                modalMessage = "Game has already finished"
-            } else if(gameState == GameState.PLAYING){
+
+            if(gameState === GameState.PLAYING){
                 navigate(shootingGamePhaseURL, { replace: true })
                 return Promise.reject()
-            }else if(gameState == GameState.CANCELLED){
-                modalMessage = "Game has been cancelled"
-            }
-            
-            if(modalMessage != null){
-                setIsCustomModalOpen(true)
-                setCustomModalMessage(modalMessage)
-                return Promise.reject()
+            }else if(gameState !== GameState.PLACING_SHIPS){
+                const modalMessage = gameState === GameState.FINISHED ? ModalMessages.Finished : ModalMessages.Cancelled
+                setCustomModalState({ message: modalMessage, isOpen: true })
             }
 
             return Promise.resolve()
@@ -143,7 +137,6 @@ export function PlaceShips(){
         if(shipSelected != null && event.button === RIGHT_MOUSE_CLICK_EVENT){
             const newShip = shipSelected.rotate()
             setShipSelected(newShip)
-            
             setVisibleBoard(() => {
                 const board = boardSnapshot.current
 
@@ -155,25 +148,22 @@ export function PlaceShips(){
         }
     }
 
-    const submitPlacement = async () => {
-        await defineShipLayout(validatedGameID, placedShips)
-    }
-
     const onTimeout = () => {
-        submitPlacement()
+        defineShipLayout(validatedGameID, placedShips)
         .catch((problem) => {
             if(problem.status === 400){
-                console.log("Timeout Reached. Submitting placement")
+                setCustomModalState({ message: ModalMessages.Cancelled, isOpen: true })
             }
         })
         .finally(() => {
-            console.log("Timeout Reached. Submitting placement. Modal Opening.")
-            setIsTimedOut(true)
+            setCustomModalState({ message: ModalMessages.Cancelled, isOpen: true })
         })
     }
 
-    React.useEffect(() => {
-        if(loading) return
+    React.useEffect(() => { // Starts polling as soon as the player is ready
+
+        if(!readyToPlay) return
+        console.log("Started polling for game state.")
 
         const checkGameState = async () => {
             const gameStateSiren = await getGameState(validatedGameID)
@@ -181,27 +171,33 @@ export function PlaceShips(){
             const gameState = GameState[state]
             if(gameState === GameState.PLAYING){ 
                 navigate(shootingGamePhaseURL)
-                clearInterval(intervalID);
-            }
-        }
-        
-        const intervalID = setInterval(() => {
-            
-            checkGameState()
-            .catch((problem) => {
-                if(problem.status === 401){
-                    console.log("Unauthorized. Opening modal")
-                }
-
                 clearInterval(intervalID)
-            })
-             
-        }, INTERVAL_TIME_MS)
+                return 
+            }
+            console.log("Opponent not ready yet.")
+        }
+
+        let intervalID: NodeJS.Timeout | null = null
+
+        defineShipLayout(validatedGameID, placedShips)
+        .then(() => {
+            intervalID = setInterval(() => {
+                checkGameState()
+                .catch((problem) => {
+                    if(problem.status === 401){
+                        setCustomModalState({ message: ModalMessages.NotLoggedIn, isOpen: true })
+                    }
+                    console.log(`Stopped polling for game state.`)
+                    intervalID ?? clearInterval(intervalID)
+                })
+                 
+            }, INTERVAL_TIME_MS)
+        })
 
         return () => {
-            clearInterval(intervalID)
+            intervalID ?? clearInterval(intervalID)
         }
-    }, [loading])
+    }, [readyToPlay])
 
     const boardControls: BoardControls = {
         onSquareClick: onSquareClicked,
@@ -218,10 +214,10 @@ export function PlaceShips(){
     const fleetControls: FleetControls = {
         onShipClick: onShipClicked,
         onResetRequested: clearBoards,
-        onSubmitRequested: submitPlacement
+        onSubmitRequested: () => {setReadyToPlay(true); console.log("Ready to play")}
     }
 
-    const handleModalClose = () => navigate('/', { replace: true })
+    const handleModalClose = () => navigate(AppRoutes.HOME, { replace: true })
 
     return(
         <div>
@@ -232,18 +228,14 @@ export function PlaceShips(){
                 fleetState={fleetState}
                 fleetControls={fleetControls}
                 loading={loading}
+                timerResetToggle={null}
                 onTimeout={onTimeout}
             />
             <AnimatedModal
-                    message="Timeout reached. Game cancelled."
-                    show={isTimedOut}
-                    handleClose={handleModalClose}
+                message={customModalState.message}
+                show={customModalState.isOpen}
+                handleClose={handleModalClose}
             />
-            <AnimatedModal
-                    message={customModalMessage}
-                    show={isCustomModalOpen}
-                    handleClose={handleModalClose}/>
         </div>
     )
 }
-

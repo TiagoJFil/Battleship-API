@@ -1,7 +1,7 @@
-import { Modal } from "@mui/material"
+import { Fade, Modal } from "@mui/material"
 import Button from '@mui/material/Button';
 import * as React from "react"
-import { styles } from "../constants/styles"
+import { Styles } from "../constants/styles"
 import '../css/modal.css'
 
 export default function AnimatedModal(
@@ -16,10 +16,10 @@ export default function AnimatedModal(
             open={props.show}
             onClose={props.handleClose}
         >
-            <div className={styles.MODAL}>
+            <div className={Styles.MODAL}>
                 <div>{props.message}</div>
                 <Button variant="contained" color="success" onClick={props.handleClose}>
-                    Return
+                    Close
                 </Button>
             </div>
         </Modal>
