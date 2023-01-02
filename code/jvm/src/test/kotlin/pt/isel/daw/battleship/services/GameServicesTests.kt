@@ -162,8 +162,8 @@ class GameServicesTests {
             assertEquals(stateForPlayer1, stateForPlayer2)
             val expectedState = GameStateInfo(Game.State.PLACING_SHIPS, game.player1,game.player1,game.player2)
 
-            assertEquals(expectedState, stateForPlayer1)
-            assertEquals(expectedState, stateForPlayer2)
+            assertEquals(expectedState, stateForPlayer1.stateInfo)
+            assertEquals(expectedState, stateForPlayer2.stateInfo)
         }
     }
 
@@ -180,7 +180,7 @@ class GameServicesTests {
             val stateForPlayer2 = gameService.getGameState(game.id, game.player2)
 
             assertEquals(stateForPlayer1, stateForPlayer2)
-            assertEquals(GameStateInfo(Game.State.PLAYING, game.player1,game.player1,game.player2), stateForPlayer1)
+            assertEquals(GameStateInfo(Game.State.PLAYING, game.player1,game.player1,game.player2), stateForPlayer1.stateInfo)
         }
     }
 
@@ -391,14 +391,14 @@ class GameServicesTests {
 
             val inBetweenState = gameService.getGameState(gameInfo.id, gameInfo.player1)
 
-            assertEquals(GameStateInfo(Game.State.PLACING_SHIPS, gameInfo.player1,gameInfo.player1,gameInfo.player2), inBetweenState)
+            assertEquals(GameStateInfo(Game.State.PLACING_SHIPS, gameInfo.player1,gameInfo.player1,gameInfo.player2), inBetweenState.stateInfo)
 
             gameService.defineFleetLayout(gameInfo.player2, gameInfo.id, validRuleFleet)
 
             val stateForPlayer1 = gameService.getGameState(gameInfo.id, gameInfo.player1)
             val stateForPlayer2 = gameService.getGameState(gameInfo.id, gameInfo.player2)
 
-            assertEquals(GameStateInfo(Game.State.PLAYING, gameInfo.player1,gameInfo.player1,gameInfo.player2), stateForPlayer1)
+            assertEquals(GameStateInfo(Game.State.PLAYING, gameInfo.player1,gameInfo.player1,gameInfo.player2), stateForPlayer1.stateInfo)
             assertEquals(stateForPlayer1, stateForPlayer2)
 
             val squaresToHit = validRuleFleet.flatMap { it.getShipSquares() }
@@ -410,7 +410,7 @@ class GameServicesTests {
             }
 
             val stateForPlayer1AfterGame = gameService.getGameState(gameInfo.id, gameInfo.player1)
-            assertEquals(GameStateInfo(Game.State.FINISHED, gameInfo.player2 ,gameInfo.player1,gameInfo.player2), stateForPlayer1AfterGame)
+            assertEquals(GameStateInfo(Game.State.FINISHED, gameInfo.player2 ,gameInfo.player1,gameInfo.player2), stateForPlayer1AfterGame.stateInfo)
 
             val board = gameService.getFleetState(
                 gameInfo.player1,

@@ -66,7 +66,10 @@ data class Game(
         FINISHED,
         CANCELLED
     }
+    val player1ID: UserID by lazy { playerBoards.keys.first() }
+    val player2ID: UserID by lazy { playerBoards.keys.last() }
 }
+
 
 /**
  * Returns a new game after a shot is made on the specified [Square]

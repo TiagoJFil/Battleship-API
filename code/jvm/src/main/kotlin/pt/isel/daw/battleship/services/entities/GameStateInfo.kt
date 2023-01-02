@@ -9,3 +9,9 @@ data class GameStateInfo(
     val player1ID : UserID,
     val player2ID : UserID
 )
+
+data class EmbeddableGameStateInfo(
+    val stateInfo : GameStateInfo,
+    val player1 : User?,
+    val player2 : User?
+)
