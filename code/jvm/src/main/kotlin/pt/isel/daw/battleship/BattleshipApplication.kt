@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.scheduling.annotation.EnableScheduling
 import pt.isel.daw.battleship.repository.jdbi.configure
 
 
 @SpringBootApplication
+@EnableScheduling
 class BattleshipApplication {
 
     @Value("\${spring.datasource.url}")
