@@ -42,7 +42,9 @@ The app is divided in the following layers:
 
 
 
-![SpringPipeline](https://user-images.githubusercontent.com/86708200/203870698-e1fa2faf-405d-46d6-8947-ba837e43e569.svg)
+![springPipeline](https://user-images.githubusercontent.com/80893716/210456085-f052cb7c-e741-4dbe-b556-38af540f61d0.svg)
+
+The Info Filter é um HTTP Servlet and the other resolvers and interceptors are from Spring
 
 * Authentication interceptor
 
@@ -116,16 +118,17 @@ val errorToStatusMap = mapOf(
 This advice is responsible for adding the siren content type to the response headers.
 This only affects the responses that return a `SirenEntity`.
 
-#### Hypermedia
+### Hypermedia
 
-##### Problem
+We used the following hypermedia:
 
-##### Siren
+* Problem
+* Siren
 
-###### Siren relationship graph 
+#### Siren relationship graph 
 
 
-![sirenRelationShip](https://user-images.githubusercontent.com/86708200/199119090-85b06f39-7add-48af-bdd8-c520f795b56d.svg)
+![sirenGraph](https://user-images.githubusercontent.com/80893716/210455293-f07f222d-5332-464c-a9ca-7d3be262d887.svg)
 All the api requests are followed by the base url: http://{adress}:{port}/api/
 
 With the assist of the Siren specification, we can create a relationship graph of the api.
@@ -133,6 +136,44 @@ The graph is shown above.
 The graph shows the relationship between the different entities and the actions that can be performed on them.
 The Siren media returned by each endpoint also shows the different fields that are required for each neighbour action.
 This can be used to get a better understanding of the api and how the different entities are related to each other.
+With this in mind, we did an `AppSirenNavigation` that builds all the graph nodes and permits us to navigate through them. 
+
+Below is an example of a node for the game state that has different actions or links for each available state of the game.
+
+```kotlin
+    node<GameStateInfo>(GAME_STATE_NODE_KEY) {
+            self(Uris.Game.STATE, optionalHrefExpand = true)
+            action(
+                name = SHOTS_DEFINITION_NODE_KEY,
+                href = Uris.Game.SHOTS_DEFINITION,
+                "POST",
+                title = "Make Play"
+            ) showWhen { it.state == Game.State.PLAYING }
+            action(
+                name = DEFINE_LAYOUT_NODE_ID,
+                href = Uris.Game.LAYOUT_DEFINITION,
+                "POST",
+                title = "Place Ships"
+            ) showWhen { it.state == Game.State.PLACING_SHIPS }
+            embeddedLink(
+                clazz = listOf(FLEET_NODE_KEY),
+                href = Uris.Game.FLEET.replace(WHICH_FLEET_PLACEHOLDER, "my"),
+                rel = listOf(MY_FLEET_KEY),
+                title = "My Fleet"
+            ) showWhen { it.state == Game.State.PLAYING || it.state == Game.State.FINISHED }
+            embeddedLink(
+                clazz = listOf(FLEET_NODE_KEY),
+                href = Uris.Game.FLEET.replace(WHICH_FLEET_PLACEHOLDER, "opponent"),
+                rel = listOf(OPPONENT_FLEET_KEY),
+                title = "Opponent's Fleet"
+            ) showWhen { it.state == Game.State.PLAYING || it.state == Game.State.FINISHED }
+            link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
+            link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true)
+            embeddedEntity<User>(
+                rel = listOf("user"),
+            )
+        }
+```
 
 ### Service layer
 
@@ -140,12 +181,10 @@ This can be used to get a better understanding of the api and how the different 
 
 #### Modeling the database
 
-##### Physical Model
+### Physical Model
 The physical model of the database is available [here](https://github.com/isel-leic-daw/2022-daw-leic52d-2022-daw-leic52d-g06/tree/main/code/jvm/src/main/resources/postgresql/creation).
  
-
- # TODO UPDATE THE IMAGE
-![image](https://user-images.githubusercontent.com/86708200/199119486-8293ef74-5986-46d9-8a55-e60c64903bf8.png)
+![image](https://user-images.githubusercontent.com/80893716/210450117-7d29874d-ff5e-4cd8-8101-5d4d4207cdc9.png)
 
 ### Data Access
 
@@ -155,7 +194,7 @@ This framework gives us two choices about how we want to interact with the datab
 To reduce the complexity of the SQL queries and make them more readable on the data layer, we created our own JDBI mappers and on the database we created views and triggers to complement  the views.
 
 
-##### Mappers
+### Mappers
 
 We have created a mapper for the `ShipRules` entity so that this entity would be stored in JSON format and be parsed to JSON when inserted in the database.
 
@@ -170,7 +209,7 @@ class ShipRulesMapper: ColumnMapper<GameRules.ShipRules> {
 }
 ```
 
-##### Views
+### Views
 
 We have created a view in the database to easily map a GameDTO object, which contains all the necessary information to store a game. In order to handle the input and output of this view, we have created triggers for inserting and deleting records from the view. These triggers ensure that the data in the view stays up to date and consistent with the underlying tables.
 
@@ -201,7 +240,7 @@ from Game g
 
 We have also created a view for the `Statistics` entity. 
 
-##### Non Trivial Database SQL Statements
+### Non Trivial Database SQL Statements
 
 
 In order to get the games that are out of time, we created a function that returns a set of game ids.
@@ -254,8 +293,10 @@ end;
 $$ language plpgsql;
 ```
 This procedure is needed because to check if a game is timed out, a user needs to make a request to the respective endpoint (makeShot or placeShip). if the user does not make a request, the game will never be timed out. The database stays inconsistent with the state of the game.
-In order to solve this problem, we created a procedure that is called every 5 minutes by a spring worker.
-//TODO: move this make a link to spring worker
+In order to solve this problem, we created a procedure [GameScheduler](https://github.com/isel-leic-daw/2022-daw-leic52d-2022-daw-leic52d-g06/blob/main/code/jvm/src/main/kotlin/pt/isel/daw/battleship/controller/CancelGamesScheduler.kt) that is called every 5 minutes by a spring worker. 
+
+
+
 
 ### Transaction Management
 
@@ -462,15 +503,142 @@ The frontend handles authorization easily due to the way the backend handles it.
 ### Custom hooks
 
 Use of custom hooks allows us to reuse code and keep our components clean and easy to read. The custom hooks are defined in the `src/hooks` directory. These are defined as follows:
-//ir ao site q o costa mandou 
-```typescript
 
+```typescript
+export default function useInterval(callback: () => void, delay?: number) {
+  const savedCallback = useRef<() => void>();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  // Set up the interval.
+  useEffect(() => {
+      function tick() {
+        savedCallback?.current()
+      }
+      if (delay !== null) {
+        let id = setInterval(tick, delay)
+        return () => clearInterval(id)
+      }
+  }, [delay]);
+}
+```
+This is used to run the effect every number of delay seconds
+
+
+### Views
+
+These are the main views of the website's user interface:
+
+* home 
+* statistics
+* system information
+* lobby
+* place ships
+* user games
+* not found
+* game 
+
+### Home
+
+Used to acess the app's statistics and system info when not logged in.
+When logged in the user can start a game and acess his current on going games.
+
+### Statistics
+
+Shows all the games that were played and the respective user rankings.
+
+### System info
+
+Shows the app's version and developers.
+
+### Lobby
+
+Page that is used while waiting for the opponent with the purpose to join a game. Here is used polling to know when two players already joined the lobby and the game was created.
+
+### Place ships
+
+Page that allows the user to define a fleet layout for its game.
+Here is used polling to check when both players are ready to play.
+
+### Game
+
+Page that shows both player boards and allows the game to be played.
+Here is also used polling to check when a change was made to the player's board, so he can know when its his turn.
+
+### User games
+
+Page that shows the user's current on going games.
+
+### Not found
+
+View when a user's tries to access a resource that is not found.
+
+Below there is an example of a view.
+
+```kotlin
+export function GameView(
+    {
+        loading,
+        playerBoard,
+        opponentBoard,
+        selectedShots,
+        onOpponentBoardSquareClick,
+        shotsDefinitionTimeout,
+        shotsRemaining,
+        shotsDefinitionRemainingTimeMs,
+        turn,
+        timerResetToggle,
+        onTimerTimeout,
+        onSubmitShotsClick,
+    }: GameViewProps
+){
+    return !loading ? (
+        <section id="game-view">
+            <div className="game-view-space">
+                <div className="boards-space">
+                    <BoardView 
+                        board={playerBoard}
+                        currentShots={[]}
+                        controls={{}} // No controls for the player board
+                    />
+                </div>
+                <div className="timer-space">
+                    <ProgressTimer
+                        maxValue={shotsDefinitionTimeout}
+                        startValue={shotsDefinitionRemainingTimeMs}
+                        onTimeout={onTimerTimeout}
+                        barColor={turn === GameTurn.MY ? BarColor.PRIMARY : BarColor.SECONDARY}
+                        resetToggle={timerResetToggle}
+                    /> 
+                </div>
+                <div className="boards-space">
+                    <BoardView 
+                        board={opponentBoard}
+                        currentShots={selectedShots}
+                        controls={{onSquareClick: onOpponentBoardSquareClick}} // Controls for the opponent board
+                    />
+                </div>
+                <div className="shots-remaining">
+                    Shots remaining: {shotsRemaining}
+                </div>
+                <div className="submit-shots">
+                    <Button variant="contained" color="primary" onClick={onSubmitShotsClick}>Submit</Button>
+                </div>
+            </div>  
+    </section>
+    ) : <CircularProgress />
+}
 ```
 
-###
+### Redux
+
+For our web app, we did not use Redux. Redux is a predictable state container designed to help you write JavaScript apps that behave consistently across client, server, and native environments, and are easy to test. Despite this, our lack of time to explore more this concept and test it made us to not implement it. Since we also thought that it was not necessary for the app to work well, as it is used to share state between components and we barely needed it. 
 
 
 ## Critical Evaluation
-
-### Defects
 ### Improvements to be made
+* Improve error handling
+* Tests
