@@ -52,7 +52,7 @@ class GameService(
                     game.turnID,
                     game.player1ID,
                     game.player2ID,
-                    game.lastUpdated
+                    game.remainingTime()
                 ),
                 player1,
                 player2
