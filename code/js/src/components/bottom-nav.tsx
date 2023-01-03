@@ -16,8 +16,8 @@ export function BottomNav(){
 
     return (
         <BottomNavigation className={Styles.BOTTOM_BAR_CONTAINER} style={styles} showLabels>
-            <BottomNavigationAction className={Styles.BOTTOM_BAR_BUTTON} label="Favorites" icon={<ArrowBackIcon />} onClick={() => navigate(-1) } />
-            <BottomNavigationAction className={Styles.BOTTOM_BAR_BUTTON} label="Recents" icon={<HomeIcon />} onClick={() => navigate("/") } />
+            <BottomNavigationAction className={Styles.BOTTOM_BAR_BUTTON} label="Back" icon={<ArrowBackIcon />} onClick={() => navigate(-1) } />
+            <BottomNavigationAction className={Styles.BOTTOM_BAR_BUTTON} label="Home" icon={<HomeIcon />} onClick={() => navigate("/") } />
             <BottomNavigationAction className={Styles.BOTTOM_BAR_BUTTON} label="My games" icon={<VideoLibraryIcon />} onClick={() => navigate("/my/games") } />
         </BottomNavigation>
     )

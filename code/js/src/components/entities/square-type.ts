@@ -4,4 +4,5 @@ export enum SquareType{
     SHOT = "shot",
     HIT = "hit",
     INVALID = "invalid",
+    SELECTED = "selected"
 }
