@@ -24,11 +24,10 @@ interface AppLink{
     href: string;
 }
 
-const hostname = "localhost"
-const port = 8090
 const basePath = "/api/"
+const apiURL = process.env.API_URL || `http://localhost:8090`
+const baseUrl = `${apiURL}${basePath}`
 
-const baseUrl = `http://${hostname}:${port}${basePath}`
 
 axios.defaults.baseURL = baseUrl
 axios.defaults.withCredentials = true

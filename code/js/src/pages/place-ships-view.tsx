@@ -3,7 +3,7 @@ import '../css/game.css'
 import { Board } from "../components/entities/board"
 import { BoardView } from "../components/board/board-view"
 import { Fleet } from "../components/fleet/fleet-view"
-import { Timer } from "../components/progress-bar"
+import { ProgressTimer } from "../components/progress-timer"
 import { FleetControls, FleetState } from "../components/fleet/fleet-view"
 import { BoardControls } from "../components/board/board-view"
 import { CircularProgress } from "@mui/material"
@@ -16,6 +16,7 @@ interface PlaceShipViewProps{
     fleetState: FleetState
     fleetControls: FleetControls
     layoutDefinitionTimeout: number
+    timerResetToggle: boolean
     onTimeout: () => void
 }
 
@@ -27,6 +28,7 @@ export function PlaceShipView(
         layoutDefinitionTimeout,
         fleetState,
         fleetControls,
+        timerResetToggle,
         onTimeout
     }: PlaceShipViewProps
 ){
@@ -46,8 +48,9 @@ export function PlaceShipView(
                     />
                 </div>
                 <div className="timer-space">
-                    <Timer
+                    <ProgressTimer
                         timeout={layoutDefinitionTimeout}
+                        resetToggle={timerResetToggle}
                         onTimeout={onTimeout}
                     /> 
                 </div>

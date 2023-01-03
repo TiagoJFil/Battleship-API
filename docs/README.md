@@ -41,12 +41,13 @@ The app is divided in the following layers:
 #### Spring pipeline
 
 
+
 ![SpringPipeline](https://user-images.githubusercontent.com/86708200/203870698-e1fa2faf-405d-46d6-8947-ba837e43e569.svg)
 
 * Authentication interceptor
 
 Handles authorization for endpoints.This is done with the `Authentication` annotation.
-This annotation is used in any handler that requires Authentication, if the userID of the authorized user is needed it can be supplied with an argument of the type `UserID`.
+This annotation is used in any handler that requires Authentication, if the userID of the authorized user is needed it can be supplied with an argument of the type `UserID` and named `UserID` both of this conditions have to be met for it to be supplied.
 This process can be achieved by using the `AuthenticationInterceptor` class, which is responsible for intercepting the request and checking if the given token is valid, if it is valid it will add the `UserID` to the request attributes and allow the request to complete sucessfully.
 
 * Info Filter 
@@ -97,6 +98,7 @@ val errorToStatusMap = mapOf(
     UserAlreadyExistsException::class to HttpStatus.CONFLICT,
     InvalidParameterException::class to HttpStatus.BAD_REQUEST,
     MissingParameterException::class to HttpStatus.BAD_REQUEST,
+    InvalidRequestException::class to HttpStatus.BAD_REQUEST,
     NotFoundAppException::class to HttpStatus.NOT_FOUND,
     GameNotFoundException::class to HttpStatus.NOT_FOUND,
     UserNotFoundException::class to HttpStatus.NOT_FOUND,
@@ -104,6 +106,7 @@ val errorToStatusMap = mapOf(
     ForbiddenAccessAppException::class to HttpStatus.FORBIDDEN,
     UnauthenticatedAppException::class to HttpStatus.UNAUTHORIZED,
     TimeoutExceededAppException::class to HttpStatus.REQUEST_TIMEOUT,
+)
 
 
 ```
@@ -198,7 +201,61 @@ from Game g
 
 We have also created a view for the `Statistics` entity. 
 
+##### Non Trivial Database SQL Statements
 
+
+In order to get the games that are out of time, we created a function that returns a set of game ids.
+The games can be timed out by two different timeouts, the `layoutDefinitionTimeout` and the `playTimeout`.
+The `layoutDefinitionTimeout` is the time that a player has to place all the ships on the board.
+The `playTimeout` is the time that a player has to make a move.
+In order to verify if a game is timed out, we get the timeout value from the database and compare it to the time that has passed since the last update of the game.
+If the time that has passed is greater than the timeout, the game is timed out.
+
+```sql
+create function getTimedOutGames() returns setof integer as $$
+declare
+    Vgameid integer;
+    Vtimeout integer;
+    Vlastupdated timestamp;
+    VgameState varchar;
+    now timestamp;
+    outofplaytimeout boolean;
+begin
+    for Vgameid, VgameState in select id, state from gameview loop
+            if VgameState = 'playing' then
+                select playtimeout into Vtimeout from gameview where id = Vgameid;
+            end if;
+            if VgameState = 'placing_ships' then
+                select layoutdefinitiontimeout into Vtimeout from gameview where id = Vgameid;
+            end if;
+
+            select lastupdated into Vlastupdated from gameview where id = Vgameid;
+            select now()::timestamp into now;
+            select age(now, Vlastupdated::timestamp + to_interval((Vtimeout / (1000* 60)))) >= '0 seconds'::interval into outofplaytimeout;
+
+            if outofplaytimeout then
+                return next Vgameid;
+            end if;
+
+        end loop;
+
+    return;
+end;
+$$ language plpgsql;
+```
+This functions is then called by a procedure that updates the state of the timed out games to `cancelled`.
+
+```sql
+
+create procedure CancelOutOfTimeoutGames() as $$
+begin
+    update game set state = 'cancelled' where id in (select * from getOutOfTimeoutGames());
+end;
+$$ language plpgsql;
+```
+This procedure is needed because to check if a game is timed out, a user needs to make a request to the respective endpoint (makeShot or placeShip). if the user does not make a request, the game will never be timed out. The database stays inconsistent with the state of the game.
+In order to solve this problem, we created a procedure that is called every 5 minutes by a spring worker.
+//TODO: move this make a link to spring worker
 
 ### Transaction Management
 
@@ -278,13 +335,12 @@ fun <R> execute(block: Transaction.() -> R): R {
             val transaction = JdbiTransaction(handle)
             block(transaction)
         } catch (e: Exception) {
-            if (e is AppException) throw e
-            e.printStackTrace()
-
+            //handle exceptions ..
             throw InternalErrorAppException()
         }
     }
 }
+
 ```
 All the database operations are wrapped in an [execute](TODO: insertlink) block.
 
@@ -374,6 +430,23 @@ With this in mind all the repository objects are created lazily, so that the sco
 
 ### Error Handling Processing
 
+The top level `App exceptions` are dealt with the Error Processing previously mentioned in the [spring pipeline](#Spring-Pipeline) section
+
+The Domain exceptions are only thrown in the domain where the logic of the battleship is made.
+These exceptions are caught in the Transaction `execute` function and are associated with its corresponded `App Exception` using the following map: 
+
+```kotlin
+
+val domainToAppExceptionMap = mapOf(
+    IllegalGameStateException::class to InvalidRequestException::class,
+    GameRuleViolationException::class to InvalidRequestException::class,
+)
+
+```
+
+
+ 
+
 
 
 ----
@@ -383,9 +456,18 @@ With this in mind all the repository objects are created lazily, so that the sco
 
 ### Handling Authorization
 
-Because of the way the backend handles authorization, the frontend deals with it easily. The api requests on the frontend always send the received cookie to the backend this will be sent back to the frontend and so on. This way the frontend always has the latest cookie and can use it to make requests.
-To remove the cookie from the frontend we use the `document.cookie` property. This property is a string that contains all the cookies for the current domain. To remove the cookie we just set its expire date to a date in the past. The browser, seeing that the expiry date has passed, immediately removes the cookie.
+The frontend handles authorization easily due to the way the backend handles it. The frontend sends the received cookie to the backend with each API request, and the backend returns the cookie to the frontend. This ensures that the frontend always has the most recent cookie for making requests. To remove the cookie from the frontend, we can use the document.cookie property, which is a string containing all the cookies for the current domain. By setting the expire date of the cookie to a date in the past, the browser will automatically remove the cookie because it recognizes that the expiry date has passed.
 
+
+### Custom hooks
+
+Use of custom hooks allows us to reuse code and keep our components clean and easy to read. The custom hooks are defined in the `src/hooks` directory. These are defined as follows:
+//ir ao site q o costa mandou 
+```typescript
+
+```
+
+###
 
 
 ## Critical Evaluation

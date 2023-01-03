@@ -25,3 +25,10 @@ html {
     color: #bd1e33;
     text-align: center;
 }
+
+.screen-centered{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

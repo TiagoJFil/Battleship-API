@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { styles } from '../constants/styles';
+import { Styles } from '../constants/styles';
 import { useNavigate } from 'react-router-dom'
 
 
@@ -12,7 +12,7 @@ export function IconButton(prop : {id?: string, title?: string, iconClass: strin
 }
 
 export function BoxIcon(prop : {className: string}){
-    const className = styles.BX_CLASS + ' ' + prop.className;
+    const className = Styles.BX_CLASS + ' ' + prop.className;
     return ( <i className={className}/>)
 }
 

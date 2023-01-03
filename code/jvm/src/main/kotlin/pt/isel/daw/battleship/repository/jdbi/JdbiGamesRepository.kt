@@ -61,6 +61,14 @@ class JdbiGamesRepository(
     }
 
     /**
+     * Cancels all the games that the timeout for the rules has been reached
+     */
+    override fun cancelUnusableGames() {
+        handle.createUpdate("call CancelOutOfTimeoutGames();")
+            .execute()
+    }
+
+    /**
      * Inserts a new game in the database
      * @param game the game data transfer object to be persisted
      * @return [ID] of the game created

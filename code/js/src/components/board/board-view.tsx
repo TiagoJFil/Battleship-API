@@ -3,7 +3,7 @@ import '../../css/board.css';
 import { Square } from '../entities/square';
 import { SquareType } from '../entities/square-type';
 import { Board } from '../entities/board';
-import { styles } from '../../constants/styles';
+import { Styles } from '../../constants/styles';
 
 
 interface BoardViewProps{
@@ -55,7 +55,7 @@ export function BoardView(
     }
 
     return (
-        <div className={styles.BOARD} onContextMenu= {disableContextMenu}>
+        <div className={Styles.BOARD} onContextMenu= {disableContextMenu}>
             {squaresViews}
         </div>
     )

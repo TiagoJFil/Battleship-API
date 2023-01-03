@@ -1,10 +1,12 @@
 import * as React from "react"
 import { useNavigate } from 'react-router-dom'
 import { authServices } from '../api/auth'
+import ButtonList from "../components/button-list"
 import { GameState } from "../components/entities/game-state"
 import { GameButton } from "../components/game-button"
 import { IGameStateInfoDTO } from "../interfaces/dto/game-state-dto"
 import { getUserGamesWithEmbeddedState } from "../utils/utils"
+
 
 
 
@@ -17,10 +19,11 @@ export function UserGames(){
 
     const onGameClick = (event : any, gameID : number,gameInfo: IGameStateInfoDTO) => {
         event.preventDefault()
-        if(gameInfo.state == GameState.PLACING_SHIPS){
+        const gameState = GameState[gameInfo.state]
+        if(gameState === GameState.PLACING_SHIPS){
             navigate(`/game/${gameID}/layout-definition`)
         }
-        else if(gameInfo.state = GameState.PLAYING){
+        else if(gameState === GameState.PLAYING){
             navigate(`/game/${gameID}`)
         }
     }
@@ -42,14 +45,16 @@ export function UserGames(){
     if(loading == true){
         return <div>Loading...</div>
     }
+    const buttons = gamesWithState.map((it) => {
+        return { name: it.gameID.toString(), onClick: (e) => onGameClick(e,it.gameID,it.state) } 
+    })
+
 
     return (
         <div>
             <h1>My Games</h1>
             <div className="GameButtonsContainer">
-                {gamesWithState.map((it) => {
-                    return <GameButton key={it.gameID} text={it.gameID.toString()} onClick={(e) => onGameClick(e,it.gameID,it.state)}/>
-                })}
+                <ButtonList buttons={buttons} />  
             </div>
         </div>
     )

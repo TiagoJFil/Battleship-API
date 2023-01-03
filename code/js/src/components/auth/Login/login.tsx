@@ -3,7 +3,6 @@ import { fetchLogin } from '../../../api/api'
 import { validateAuth } from '../../../validations/auth-validation';
 import { AuthForm } from '../auth-form';
 import { ErrorToast } from '../../../core-ui/toasts';
-import { BottomNav } from '../../bottom-nav';
 import { Link, useNavigate } from 'react-router-dom'
 import { executeWhileDisabled } from '../../../utils/ButtonWrappers';
 
@@ -26,7 +25,6 @@ export function Login() {
 
     return (
         <div>
-            <BottomNav/>
             <h1>Login</h1>
             <AuthForm confirmPrompt="Login" onSubmit={(event,username,password) => {onLoginClick(event,username,password)} } />   
             Dont have an account? <Link to="/register">Register</Link>

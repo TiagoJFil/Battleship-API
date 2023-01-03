@@ -2,7 +2,7 @@ import * as React from "react"
 import { MiniShip } from "./mini-ship-view"
 import '../../css/mini-fleet.css'
 import { Ship } from "../entities/ship"
-import { styles } from "../../constants/styles"
+import { Styles } from "../../constants/styles"
 import { IconButton } from "../icons"
 
 
@@ -39,22 +39,22 @@ export function Fleet(
     })
 
     const fleet = (
-        <div id={styles.FLEET}>
+        <div id={Styles.FLEET}>
             {shipsToPlace}
         </div>
     )
 
     return (
-        <div className={styles.FLEET_CONTAINER}>
-            <div id={styles.REMAINING_SHIPS}>
+        <div className={Styles.FLEET_CONTAINER}>
+            <div id={Styles.REMAINING_SHIPS}>
                 {availableShips.length > 0 ? 
                     fleet : 
-                    <IconButton iconClass={styles.PLAY_ICON} onClick={onSubmitRequested}></IconButton>
+                    <IconButton iconClass={Styles.PLAY_ICON} onClick={onSubmitRequested}></IconButton>
                 }
             </div>
-            <div className={styles.REDO_CONTAINTER}>
-                <div className= {styles.REDO_ICON_BUTTON}>
-                    <IconButton iconClass={styles.REDO} onClick={onResetRequested}></IconButton>
+            <div className={Styles.REDO_CONTAINTER}>
+                <div className= {Styles.REDO_ICON_BUTTON}>
+                    <IconButton iconClass={Styles.REDO} onClick={onResetRequested}></IconButton>
                 </div>
             </div>
         </div>

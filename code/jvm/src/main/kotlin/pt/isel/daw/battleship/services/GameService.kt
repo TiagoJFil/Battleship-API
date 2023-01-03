@@ -217,7 +217,7 @@ class GameService(
 
     fun getGameRules(gameID: ID, userID: UserID) : GameRulesDTO {
         return transactionFactory.execute {
-            val game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
+            val game: Game = gamesRepository.get(gameID) ?: throw GameNotFoundException(gameID)
             if(userID !in game.playerBoards.keys)
                 throw ForbiddenAccessAppException(MUST_BE_PARTICIPANT)
             if(game.state == Game.State.CANCELLED ){
@@ -240,6 +240,15 @@ class GameService(
                 .takeIf { embedded }
 
             return@execute EmbeddableGameListDTO(GameListDTO(gameIDs), gameStates)
+        }
+    }
+
+    /**
+     *
+     */
+    fun cancelTimedOutGames() {
+        transactionFactory.execute {
+            gamesRepository.cancelUnusableGames()
         }
     }
 

@@ -75,7 +75,7 @@ object AppSirenNavigation {
             link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true )
             embeddedEntity<User>(
-                rel = listOf("user associated to id"),
+                rel = listOf("user"),
             )
         }
 
@@ -123,7 +123,7 @@ object AppSirenNavigation {
                 title = "Play Intent"
             )
             embeddedEntity<GameStateInfo>(
-                rel = listOf("game associated to id")
+                rel = listOf(GAME_STATE_NODE_KEY)
             )
         }
 
@@ -185,9 +185,10 @@ object AppSirenNavigation {
         }
         node<NoEntitySiren>(nodeID = SHOTS_DEFINITION_NODE_KEY){
             self(Uris.Game.SHOTS_DEFINITION, optionalHrefExpand = true)
+            link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE,optionalHrefExpand = true)
 
             embeddedEntity<BoardDTO>(
-                rel = listOf("board"),
+                rel = listOf(FLEET_NODE_KEY),
             )
         }
 
