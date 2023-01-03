@@ -42,7 +42,7 @@ export async function getStatisticsWithEmbeddedPlayers(){
         const embeddedInfo = fetchedStatistics.entities.find((entity: EmbeddedEntity<IUserDTO>) => {
             const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, userInfoURI)
 
-            return entity.class.includes(userNodeKey) && uriProperties.userID == playerStatistics.playerID;
+            return entity.rel.includes(userNodeKey) && uriProperties.userID == playerStatistics.playerID;
         }) as EmbeddedEntity<IUserDTO>;
         
         delete newStats.playerID;
@@ -59,16 +59,14 @@ export async function getUserGamesWithEmbeddedState(){
     const gameStateNodeKey = 'game-state';
     const gameStateUri = fetchedGames.links.find((link: SirenLink) => link.rel.includes(gameStateNodeKey)).href;
     
-
     const gamesWithState = fetchedGames.properties.values.map((gameID: number) => {
 
         const embeddedInfo = fetchedGames.entities.find((entity: EmbeddedEntity<IGameStateInfoDTO>) => {
             const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, gameStateUri)
 
-            return entity.class.includes(gameStateNodeKey) && uriProperties.gameID == gameID;
+            return entity.rel.includes(gameStateNodeKey) && uriProperties.gameID == gameID;
         }) as EmbeddedEntity<IGameStateInfoDTO>;
 
-        console.log(embeddedInfo)
         return {
             gameID: gameID,
             state: embeddedInfo.properties
