@@ -2,7 +2,6 @@
 package pt.isel.daw.battleship.domain
 
 import pt.isel.daw.battleship.domain.board.*
-import pt.isel.daw.battleship.services.exception.InvalidParameterException
 import pt.isel.daw.battleship.utils.ID
 import pt.isel.daw.battleship.utils.TimeoutTime
 import pt.isel.daw.battleship.utils.UserID
@@ -81,7 +80,7 @@ data class Game(
 fun Game.makePlay(squares: List<Square>): Game {
     requireGameState(Game.State.PLAYING)
 
-    if (ranOutOfTimeFor(rules.playTimeout)) {
+    if (ranOutOfTime()) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
@@ -122,7 +121,25 @@ fun Game.Companion.new(players: Pair<UserID, UserID>, rules: GameRules) = Game(
 /**
  * Checks whether the game has ran out of time for the specified timeout.
  */
-private fun Game.ranOutOfTimeFor(timeout: Long) = System.currentTimeMillis() - lastUpdated > timeout
+private fun Game.ranOutOfTime(): Boolean{
+    val remainingTime = remainingTime()
+    return remainingTime == null || remainingTime <= 0
+}
+
+/**
+ * Returns the remaining time for the current game phase.
+ *
+ * @return the remaining time in milliseconds
+ */
+fun Game.remainingTime(): TimeoutTime? {
+    val timeout = when (state) {
+        Game.State.PLAYING -> rules.playTimeout
+        Game.State.PLACING_SHIPS -> rules.layoutDefinitionTimeout
+        else -> return null
+    }
+
+    return timeout - (System.currentTimeMillis() - lastUpdated)
+}
 
 /**
  * Returns a new game after placing the ships on the board
@@ -137,7 +154,7 @@ fun Game.placeShips(shipList: List<ShipInfo>, playerID: UserID): Game {
         "You already placed your ships."
     }
 
-    if (ranOutOfTimeFor(rules.layoutDefinitionTimeout)) {
+    if (ranOutOfTime()) {
         return this.copy(state = Game.State.CANCELLED)
     }
 
