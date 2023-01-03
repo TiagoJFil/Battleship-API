@@ -16,6 +16,8 @@ export const Styles = {
     PLAY_ICON: 'bx-play',
     REDO: 'bx-redo bx-flip-horizontal',
     REDO_ICON_BUTTON: 'redo-icon',
+    FLEET_SUBMIT_BUTTON: 'fleet-submit-button',
+    FLEET_SUBMIT_CONTAINER: 'fleet-submit-container',
     REDO_CONTAINTER: 'redo-container',
     PROGRESS_BAR_CONTAINER: 'progress-bar-container',
     TIMER: 'timer',

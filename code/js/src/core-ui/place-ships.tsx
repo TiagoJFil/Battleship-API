@@ -15,6 +15,7 @@ import { FleetControls, FleetState } from '../components/fleet/fleet-view';
 import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
 import { INITIAL_MODAL_STATE, ModalMessages, ModalState } from './modal-state-config';
 import { AppRoutes } from '../constants/routes';
+import { InfoToast, SuccessToast } from './toasts';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 const INTERVAL_TIME_MS = 1000
@@ -118,6 +119,8 @@ export function PlaceShips(){
     React.useEffect(() => { // Starts polling as soon as the player is ready
 
         if(!readyToPlay) return
+        SuccessToast("Ships placed successfully!")
+
         console.log("Started polling for game state.")
 
         const checkGameState = async () => {
@@ -229,8 +232,14 @@ export function PlaceShips(){
 
     const fleetControls: FleetControls = {
         onShipClick: onShipClicked,
-        onResetRequested: () => { if(!readyToPlay) clearBoards(gameRules.current) },
-        onSubmitRequested: () => { setReadyToPlay(true) }
+        onResetRequested: () => { 
+            if(!readyToPlay && placedShips.length !== 0){
+                clearBoards(gameRules.current)
+                InfoToast("Ships reset")
+        }  },
+        onSubmitRequested: () => {
+            setReadyToPlay(true)
+        }
     }
 
     const handleModalClose = () => navigate(AppRoutes.HOME, { replace: true })

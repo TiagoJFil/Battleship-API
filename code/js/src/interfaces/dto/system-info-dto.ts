@@ -8,7 +8,8 @@ export interface ISystemInfoDTO {
 export interface IAuthorDTO {
     name: string,
     email: string,
-    github: string
+    github: string,
+    iselID: number
 }
 
 

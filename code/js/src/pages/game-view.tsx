@@ -73,5 +73,7 @@ export function GameView(
                 </div>
             </div>  
     </section>
-    ) : <CircularProgress />
+    ) : <div className='screen-centered'> 
+            <CircularProgress size='6rem' />
+        </div>
 }

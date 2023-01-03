@@ -6,7 +6,7 @@ import { Fleet } from "../components/fleet/fleet-view"
 import { ProgressTimer } from "../components/progress-timer"
 import { FleetControls, FleetState } from "../components/fleet/fleet-view"
 import { BoardControls } from "../components/board/board-view"
-import { CircularProgress } from "@mui/material"
+import { CircularProgress, Typography } from "@mui/material"
 import { BarColor } from "../components/progress-bar"
 
 
@@ -50,7 +50,11 @@ export function PlaceShipView(
                         currentShots={[]}
                         controls={boardControls}
                     />
+                     <div className="helper-text">
+                    <Typography align='center' variant="body1" gutterBottom>To rotate a ship press the right mouse button</Typography>
                 </div>
+                </div>
+               
                 <div className="timer-space">
                     <ProgressTimer
                         maxValue={layoutDefinitionTimeout}
@@ -62,5 +66,7 @@ export function PlaceShipView(
                 </div>
             </div>  
     </section>
-    ) :  <CircularProgress />
+    ) :  <div className='screen-centered'> 
+            <CircularProgress size='6rem' />
+        </div>
 }

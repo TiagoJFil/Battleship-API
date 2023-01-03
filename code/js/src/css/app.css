@@ -17,17 +17,10 @@ html {
 }
 
 
-.page-title{
-    display : flex;
-    justify-content: center;
-    align-items: center;
-    height: 20%;
-}
-
 .app-title{
     font-size: 50px;
     font-weight: 700;
-    color: #bd1e33;
+    color: #347e9e;
     text-align: center;
 }
 
@@ -37,3 +30,35 @@ html {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.screen-centered-scaled{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(2.5);
+}
+
+.center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50%;
+}
+
+.page {
+    height: 100%
+}
+
+
+.cloud-container {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    justify-content: center;
+    display: flex;
+    box-shadow: 0 0 10px #ccc;
+    margin: 0 auto;
+    padding: 20px;
+    width: 300px;
+}
+

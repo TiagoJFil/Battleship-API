@@ -4,8 +4,9 @@ import '../../css/mini-fleet.css'
 import { Ship } from "../entities/ship"
 import { Styles } from "../../constants/styles"
 import { IconButton } from "../icons"
-import RedoIcon from '@mui/icons-material/Redo';
+import UndoIcon from '@mui/icons-material/Undo';
 import CheckIcon from '@mui/icons-material/Check';
+
 interface FleetProps{
     state: FleetState
     controls: FleetControls
@@ -49,12 +50,16 @@ export function Fleet(
             <div id={Styles.REMAINING_SHIPS}>
                 {availableShips.length > 0 ? 
                     fleet : 
-                    <IconButton icon={CheckIcon} onClick={onSubmitRequested}></IconButton>
+                    <div className={Styles.FLEET_SUBMIT_CONTAINER}>
+                        <div className={Styles.FLEET_SUBMIT_BUTTON}>
+                            <IconButton icon={CheckIcon} onClick={onSubmitRequested}></IconButton>
+                        </div>
+                    </div>
                 }
             </div>
             <div className={Styles.REDO_CONTAINTER}>
                 <div className= {Styles.REDO_ICON_BUTTON}>
-                    <IconButton icon={RedoIcon} onClick={onResetRequested}></IconButton>
+                    <IconButton icon={UndoIcon} onClick={onResetRequested}></IconButton>
                 </div>
             </div>
         </div>

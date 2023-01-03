@@ -75,7 +75,7 @@ object AppSirenNavigation {
             link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true )
             embeddedEntity<User>(
-                rel = listOf("user"),
+                rel = listOf(USER_NODE_KEY),
             )
         }
 
@@ -175,7 +175,7 @@ object AppSirenNavigation {
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true)
             embeddedEntity<User>(
-                rel = listOf("user associated to id"),
+                rel = listOf(USER_NODE_KEY),
             )
         }
 

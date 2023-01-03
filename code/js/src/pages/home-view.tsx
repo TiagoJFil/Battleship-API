@@ -2,12 +2,12 @@ import * as React from 'react'
 import { Outlet } from 'react-router-dom'
 import { authServices } from '../api/auth'
 import { IconLinkButtonList, IconLinkInfo } from '../components/icons'
-import { Styles } from '../constants/styles'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InfoIcon from '@mui/icons-material/Info';
 import LoginIcon from '@mui/icons-material/Login';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { Typography } from "@mui/material";
 import "../css/home.css"
 
 export function Home(){
@@ -36,7 +36,7 @@ export function Home(){
         },
         {
             title: "Play",
-            icon: PlayArrowIcon,
+            icon: PlayCircleIcon,
             link: "/lobby",
             cssTag: "play",
         },
@@ -52,7 +52,7 @@ export function Home(){
     return(
         <div className='home-page'>
             <div className='page-title'>
-                <span className='app-title'>Battleship</span>
+            <Typography className='app-title' align='center' variant="h1">Battleship</Typography>
             </div>
             <IconLinkButtonList icons={mainIconsButtonList}/>
             <Outlet/>
