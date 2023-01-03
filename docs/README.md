@@ -121,6 +121,7 @@ This only affects the responses that return a `SirenEntity`.
 ##### Problem
 
 ##### Siren
+//  optionalHrefExpand , if the link or action has optionalHrefExpand = true, it will be added to the entity even if there are no placeholders to replace,link will be on the following format, href: /api/v1/endpoint/:id
 
 ###### Siren relationship graph 
 
@@ -135,6 +136,8 @@ The Siren media returned by each endpoint also shows the different fields that a
 This can be used to get a better understanding of the api and how the different entities are related to each other.
 
 ### Service layer
+
+#### 
 
 ### Data layer
 

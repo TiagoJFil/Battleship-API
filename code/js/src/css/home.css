@@ -21,9 +21,6 @@
      height: 200px;
  }
 
-.play-button-container .icon-button:hover {
-    background-color: #bd0820
-}
 
  
  .play-button-container .icon-button {
@@ -40,30 +37,6 @@
     cursor: pointer;
 }
 
-.statistics-button-container{
-    width: 150px;
-    height: 150px;
-}
-
-.statistics-button-container .icon-button:hover {
-    background-color: #bd0820
-}
-
-.statistics-button-container .icon-button{
-    width: 150px;
-    height: 150px;
-    font-size: 90px;
-    border-radius: 50%;
-    position: absolute;
-    border: 1px solid #e6e6e6;
-    background-color: #bd1e33;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-
  .play-button-container .icon-button:hover .icon {
     color: #fff;
 }
@@ -73,19 +46,29 @@
     transition: color 0.3s;
 }
 
-.auth-button-container{
+.icon-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    scale: 2.5;
+}
+
+.auth-button-container,
+.statistics-button-container{
     width: 150px;
     height: 150px;
 }
 
-.auth-button-container .icon-button:hover {
+.auth-button-container .icon-button:hover,
+.statistics-button-container .icon-button:hover,
+.play-button-container .icon-button:hover {
     background-color: #bd0820
 }
 
+.statistics-button-container .icon-button,
 .auth-button-container .icon-button{
     width: 150px;
     height: 150px;
-    font-size: 90px;
     border-radius: 50%;
     position: absolute;
     border: 1px solid #e6e6e6;

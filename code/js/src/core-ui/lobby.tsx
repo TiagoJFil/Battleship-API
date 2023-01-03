@@ -18,7 +18,6 @@ export function Lobby() {
     const [lobbyID, setLobbyID] = React.useState<number | null>(null);
     const cancelled = React.useRef(false);
     const [customModalState, setCustomModalState] = React.useState<ModalState>(INITIAL_MODAL_STATE)
-
     const isPolling = gameID === null
 
     const tryCancelLobby = () => {

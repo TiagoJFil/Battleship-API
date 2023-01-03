@@ -1,6 +1,10 @@
-.Bottom-Nav-Outter {
+.bottom-bar-container {
     position: fixed;
     bottom: 2%;
     width: 100%;
     z-index: 999;
+}
+
+.bottom-bar-button{
+    scale: 1.5;
 }

@@ -1,25 +1,27 @@
 import * as React from 'react'
 import { Styles } from '../constants/styles';
 import { useNavigate } from 'react-router-dom'
+import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { SvgIconTypeMap } from '@mui/material';
 
 
-export function IconButton(prop : {id?: string, title?: string, iconClass: string, onClick: () => void}){
+export function IconButton(prop : {id?: string, title?: string, icon: OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
+    muiName: string;
+} , onClick: () => void}){
     return (
         <button id={prop.id} title={prop.title} className="icon-button" onClick={prop.onClick}>
-            <BoxIcon className ={prop.iconClass}/>
+            <div className="icon-container">
+                <prop.icon/>
+            </div>
         </button>
     )
 }
 
-export function BoxIcon(prop : {className: string}){
-    const className = Styles.BX_CLASS + ' ' + prop.className;
-    return ( <i className={className}/>)
-}
-
-
 export interface IconLinkInfo {
     title: string;
-    iconClass: string;
+    icon: OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
+        muiName: string;
+    };
     link: string;
     cssTag: string;
 }
@@ -32,11 +34,11 @@ export function IconLinkButtonList(prop : {icons: IconLinkInfo[]}){
     return (
         <div className="icon-list-container">
             <div className="icon-list">
-                {icons.map((icon, index) => {
-                    const containerClassName = `${icon.cssTag}-button-container`;
+                {icons.map((iconInfo, index) => {
+                    const containerClassName = `${iconInfo.cssTag}-button-container`;
                     return (
                     <div key={index} className={containerClassName} >
-                        <IconButton key={index} title={icon.title} iconClass={icon.iconClass} onClick={() => navigate(icon.link) } />
+                        <IconButton key={index} title={iconInfo.title} icon={iconInfo.icon} onClick={() => navigate(iconInfo.link) } />
                     </div>
                     )
                 })}

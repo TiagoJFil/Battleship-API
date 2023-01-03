@@ -10,7 +10,12 @@ html {
 
 #the-div{
     height: 100%;
+    background-Image: url(../../public/home_gif.gif );
+    background-size: contain;
+    min-width: 100%;
+    min-height: 100%;
 }
+
 
 .page-title{
     display : flex;
