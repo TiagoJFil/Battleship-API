@@ -16,7 +16,10 @@ import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
 import { INITIAL_MODAL_STATE, ModalMessages, ModalState } from './modal-state-config';
 import { AppRoutes } from '../constants/routes';
 import { InfoToast, SuccessToast } from './toasts';
- 
+import { GameTurn } from '../components/entities/turn';
+import { IBoardDTO, toBoard } from '../interfaces/dto/board-dto';
+import CircularProgress from '@mui/material/CircularProgress';
+
 const RIGHT_MOUSE_CLICK_EVENT = 2
 const INTERVAL_TIME_MS = 1000
 
@@ -43,7 +46,7 @@ export function PlaceShips(){
     const [readyToPlay, setReadyToPlay] = React.useState(false)
     const [remainingTimeMs, setRemainingTimeMs] = React.useState(null)
 
-    const loading = gameRules.current === null || remainingTimeMs === null
+    const loading = remainingTimeMs === null
 
     function clearBoards(gameRules: LayoutDefinitionRules){
         const newBoard = emptyBoard(gameRules.boardSide)
@@ -65,27 +68,20 @@ export function PlaceShips(){
             return response.properties
         }
 
-        const checkGameState = async (gameState: GameState) => {
+        const getMyBoard = async (gameID: number) => {
+            const response = await api.getBoard(gameID, GameTurn.MY)
+            return response.properties
+        }
+
+        const checkGameState = (gameState: GameState) => {
             if(gameState === GameState.PLAYING){
                 navigate(shootingGamePhaseURL, { replace: true })
-                return Promise.reject()
             }else if(gameState !== GameState.PLACING_SHIPS){
                 const modalMessage = gameState === GameState.FINISHED ? ModalMessages.Finished : ModalMessages.Cancelled
                 setCustomModalState({ message: modalMessage, isOpen: true })
             }
-
-            return Promise.resolve()
         }
 
-        getGameState(validatedGameID).then((gameState) => {
-            checkGameState(GameState[gameState.state])
-            console.log("Remaining time: ", gameState.remainingTime)
-            setRemainingTimeMs(gameState.remainingTime)
-        })
-
-    }, [])
-    
-    React.useEffect(() => {
         const getRequiredRules = async () => {
             const response = await api.getGameRules(validatedGameID)
             const gameRulesDTO: IGameRulesDTO = response.properties
@@ -107,14 +103,32 @@ export function PlaceShips(){
                 layoutDefinitionTimeout: gameRulesDTO.layoutDefinitionTimeout 
             }
         }
-    
-        getRequiredRules()
-        .then((rules) => {
-            gameRules.current = rules
-            clearBoards(rules)
-        })
+
+        const run = async () => {
+            const [gameStateDTO, myBoardDTO] = await Promise.all(
+                [getGameState(validatedGameID), getMyBoard(validatedGameID)]
+            )
+
+            checkGameState(GameState[gameStateDTO.state])
+            setRemainingTimeMs(gameStateDTO.remainingTime)
+
+            if(myBoardDTO.shipParts.length === 0){
+                const placeShipsRules = await getRequiredRules()
+                gameRules.current = placeShipsRules
+                clearBoards(placeShipsRules)
+                return
+            }
+
+            const myDomainBoard = toBoard(myBoardDTO)
+            boardSnapshot.current = myDomainBoard
+            setVisibleBoard(myDomainBoard)
+            setReadyToPlay(true)
+        }
+
+        run()
 
     }, [])
+
 
     React.useEffect(() => { // Starts polling as soon as the player is ready
 
@@ -135,22 +149,18 @@ export function PlaceShips(){
             console.log("Opponent not ready yet.")
         }
 
-        let intervalID: NodeJS.Timeout | null = null
+        const intervalID: NodeJS.Timer = setInterval(() => {
+            checkGameState()
+            .catch((problem) => {
+                if(problem.status === 401){
+                    setCustomModalState({ message: ModalMessages.NotLoggedIn, isOpen: true })
+                }
+                console.log(`Stopped polling for game state.`)
+                intervalID ?? clearInterval(intervalID)
+            })
 
-        api.defineShipLayout(validatedGameID, placedShips)
-        .then(() => {
-            intervalID = setInterval(() => {
-                checkGameState()
-                .catch((problem) => {
-                    if(problem.status === 401){
-                        setCustomModalState({ message: ModalMessages.NotLoggedIn, isOpen: true })
-                    }
-                    console.log(`Stopped polling for game state.`)
-                    intervalID ?? clearInterval(intervalID)
-                })
-                 
-            }, INTERVAL_TIME_MS)
-        })
+        }, INTERVAL_TIME_MS)
+
 
         return () => {
             intervalID ?? clearInterval(intervalID)
@@ -218,6 +228,17 @@ export function PlaceShips(){
         })
     }
 
+    const onFleetSubmit = () => {
+
+        if(readyToPlay) return
+
+        api.defineShipLayout(validatedGameID, placedShips)
+        .then(() => {
+            setReadyToPlay(true)
+        })
+
+    }
+
     const boardControls: BoardControls = {
         onSquareClick: onSquareClicked,
         onSquareHover: onSquareHover,
@@ -232,19 +253,19 @@ export function PlaceShips(){
 
     const fleetControls: FleetControls = {
         onShipClick: onShipClicked,
-        onResetRequested: () => { 
+        onResetRequested: () => {
             if(!readyToPlay && placedShips.length !== 0){
                 clearBoards(gameRules.current)
                 InfoToast("Ships reset")
         }  },
         onSubmitRequested: () => {
-            setReadyToPlay(true)
+            onFleetSubmit()
         }
     }
 
     const handleModalClose = () => navigate(AppRoutes.HOME, { replace: true })
 
-    return(
+    return !loading ? (
         <div>
             <PlaceShipView
                 board={visibleBoard}
@@ -263,5 +284,5 @@ export function PlaceShips(){
                 handleClose={handleModalClose}
             />
         </div>
-    )
+    ) : <CircularProgress />
 }

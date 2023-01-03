@@ -35,7 +35,7 @@ export function PlaceShipView(
         onTimeout
     }: PlaceShipViewProps
 ){
-    return !loading ? (
+    return  (
         <section id="layout-definition-view">
             <div className="layout-definition-view-space">
                 <div className="fleet-space">
@@ -66,7 +66,5 @@ export function PlaceShipView(
                 </div>
             </div>  
     </section>
-    ) :  <div className='screen-centered'> 
-            <CircularProgress size='6rem' />
-        </div>
+    )
 }
