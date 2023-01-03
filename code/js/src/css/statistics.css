@@ -1,0 +1,22 @@
+
+.statistics-container {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    justify-content: center;
+    display: flex;
+    box-shadow: 0 0 10px #ccc;
+    margin: 0 auto;
+    padding: 20px;
+    width: 700px;
+    height: 500px;
+
+}
+
+.statistics-center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70%;
+    width: 100%;
+}
