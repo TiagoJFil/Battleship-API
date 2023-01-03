@@ -173,7 +173,6 @@ export async function defineShot(gameID: number, shotsInfo: ISquareDTO[]): Promi
     return response.data
 }
 
-
 export async function getUserGames(): Promise<SirenEntity<IGamesListDTO>> { //todo change
     const response = await axios({
         url: `games/?embedded=true`,

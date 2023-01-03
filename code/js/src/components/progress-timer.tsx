@@ -5,7 +5,8 @@ import { CustomProgressBar } from "./progress-bar"
 import { GameConstants } from "../constants/game"
 
 interface TimerProps {
-  timeout: number //in ms
+  maxValue: number //in ms
+  startValue: number //in ms
   resetToggle: boolean
   onTimeout: () => void
 }
@@ -13,7 +14,7 @@ interface TimerProps {
 export function ProgressTimer(props: TimerProps){  
 
     const [percentage, setPercentage] = React.useState(100)
-    const [remainingTime, setRemainingTime] = React.useState(props.timeout)
+    const [remainingTime, setRemainingTime] = React.useState(props.startValue)
     const [isOver, setIsOver] = React.useState(false)
 
     useInterval(() => {
@@ -26,13 +27,13 @@ export function ProgressTimer(props: TimerProps){
           return Math.max(0, prev - GameConstants.TIMER_PERIOD_MS)
       })
       
-      const newPercentage = ~~((remainingTime / props.timeout) * 100)
+      const newPercentage = ~~((remainingTime / props.maxValue) * 100)
       setPercentage(Math.max(0, newPercentage))
 
     }, !isOver ? GameConstants.TIMER_PERIOD_MS : null) // Stops the interval when isOver is true
 
     React.useEffect(() => {
-      setRemainingTime(props.timeout)
+      setRemainingTime(props.maxValue)
       setIsOver(false)
     }, [props.resetToggle])
 

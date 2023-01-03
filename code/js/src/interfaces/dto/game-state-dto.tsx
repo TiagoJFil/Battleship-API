@@ -5,4 +5,5 @@ export interface IGameStateInfoDTO {
     player1ID: number,
     player2ID: number,
     turnID: number,
+    remainingTime: number
 }

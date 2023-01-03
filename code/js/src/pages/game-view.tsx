@@ -11,6 +11,7 @@ interface GameViewProps{
     playerBoard: Board
     opponentBoard: Board
     shotsDefinitionTimeout: number
+    shotsDefinitionRemainingTimeMs: number
     timerResetToggle: boolean
     onOpponentBoardSquareClick: (square: Square) => void
     onTimerTimeout: () => void
@@ -23,6 +24,7 @@ export function GameView(
         opponentBoard,
         onOpponentBoardSquareClick: onBoardSquareClick,
         shotsDefinitionTimeout,
+        shotsDefinitionRemainingTimeMs,
         timerResetToggle,
         onTimerTimeout
     }: GameViewProps
@@ -38,7 +40,8 @@ export function GameView(
                 </div>
                 <div className="timer-space">
                     <ProgressTimer
-                        timeout={shotsDefinitionTimeout}
+                        maxValue={shotsDefinitionTimeout}
+                        startValue={shotsDefinitionRemainingTimeMs}
                         onTimeout={onTimerTimeout}
                         resetToggle={timerResetToggle}
                     /> 

@@ -16,6 +16,7 @@ interface PlaceShipViewProps{
     fleetState: FleetState
     fleetControls: FleetControls
     layoutDefinitionTimeout: number
+    layoutDefinitionRemainingTimeMs: number
     timerResetToggle: boolean
     onTimeout: () => void
 }
@@ -26,6 +27,7 @@ export function PlaceShipView(
         boardControls, 
         loading,
         layoutDefinitionTimeout,
+        layoutDefinitionRemainingTimeMs,
         fleetState,
         fleetControls,
         timerResetToggle,
@@ -49,7 +51,8 @@ export function PlaceShipView(
                 </div>
                 <div className="timer-space">
                     <ProgressTimer
-                        timeout={layoutDefinitionTimeout}
+                        maxValue={layoutDefinitionTimeout}
+                        startValue={layoutDefinitionRemainingTimeMs}
                         resetToggle={timerResetToggle}
                         onTimeout={onTimeout}
                     /> 

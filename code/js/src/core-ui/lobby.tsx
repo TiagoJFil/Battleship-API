@@ -22,7 +22,7 @@ export function Lobby() {
     const isPolling = gameID === null
 
     const tryCancelLobby = () => {
-        if(lobbyID != null && gameID == null){
+        if(lobbyID != null && gameID === null){
             if(!isPolling && !cancelled.current){
                 api.leavelobby(lobbyID)
                 .then(() => cancelled.current = true)
@@ -32,7 +32,7 @@ export function Lobby() {
 
     const scheduleStartGame = (gameID: number ) => {
         setTimeout(() => {
-            navigate(`${AppRoutes.BASE_GAME}/${gameID}`, { replace: true })
+            navigate(`${AppRoutes.BASE_GAME}/${gameID}/layout-definition`, { replace: true })
         }, GameConstants.NAVIGATE_DELAY_MS)
     }
 
