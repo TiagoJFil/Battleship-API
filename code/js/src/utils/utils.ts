@@ -58,7 +58,7 @@ export async function getUserGamesWithEmbeddedState(){
     const fetchedGames = await getUserGames();
     const gameStateNodeKey = 'game-state';
     const gameStateUri = fetchedGames.links.find((link: SirenLink) => link.rel.includes(gameStateNodeKey)).href;
-    
+
     const gamesWithState = fetchedGames.properties.values.map((gameID: number) => {
 
         const embeddedInfo = fetchedGames.entities.find((entity: EmbeddedEntity<IGameStateInfoDTO>) => {

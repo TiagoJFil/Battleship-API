@@ -1,7 +1,7 @@
 /**
  * Contains the styles names for the css.
  */
-export const styles = {
+export const Styles = {
     BOARD: 'board',
     FLEET: 'fleet',
     FLEET_CONTAINER: 'fleet-container',
@@ -17,7 +17,7 @@ export const styles = {
     REDO: 'bx-redo bx-flip-horizontal',
     REDO_ICON_BUTTON: 'redo-icon',
     REDO_CONTAINTER: 'redo-container',
-    TIMEOUT_BAR_CONTAINER: 'timeout-bar-container',
+    PROGRESS_BAR_CONTAINER: 'progress-bar-container',
     TIMER: 'timer',
     TIMER_SPACE: 'timer-space',
     STATISTICS_ICON: 'bx-bar-chart-alt bx-flip-horizontal',

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Outlet } from 'react-router-dom'
 import { authServices } from '../api/auth'
 import { IconLinkButtonList, IconLinkInfo } from '../components/icons'
-import { styles } from '../constants/styles'
+import { Styles } from '../constants/styles'
 
 import "../css/home.css"
 
@@ -12,13 +12,13 @@ export function Home(){
     const authButton : IconLinkInfo = isLoggedIn ?
     {
         title : "Logout",
-        iconClass: styles.LOGOUT_ICON,
+        iconClass: Styles.LOGOUT_ICON,
         link: '/logout',
         cssTag: "auth"
     } :
     {
         title: 'Login',
-        iconClass: styles.LOGIN_ICON,
+        iconClass: Styles.LOGIN_ICON,
         link: '/login',
         cssTag: 'auth'
     }
@@ -26,19 +26,19 @@ export function Home(){
     const mainIconsButtonList : IconLinkInfo[] = [
         {
             title: "Statistics",
-            iconClass: styles.STATISTICS_ICON,
+            iconClass: Styles.STATISTICS_ICON,
             link: "/statistics",
             cssTag: "statistics",
         },
         {
             title: "Play",
-            iconClass: styles.PLAY_ICON,
+            iconClass: Styles.PLAY_ICON,
             link: "/lobby",
             cssTag: "play",
         },
         {
             title: "my games",
-            iconClass: styles.HOME_ICON,
+            iconClass: Styles.HOME_ICON,
             link: "/my/games",
             cssTag: "my-games",
         },

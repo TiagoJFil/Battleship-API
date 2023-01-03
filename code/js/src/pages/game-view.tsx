@@ -1,25 +1,30 @@
 import * as React from "react"
 import '../css/game.css'
 import { BoardView } from "../components/board/board-view"
-import { Timer } from "../components/progress-bar"
+import { ProgressTimer } from "../components/progress-timer"
 import { Board } from "../components/entities/board"
 import { Square } from "../components/entities/square"
+import { CircularProgress } from "@mui/material"
 
 interface GameViewProps{
     loading: boolean
     playerBoard: Board
     opponentBoard: Board
     shotsDefinitionTimeout: number
-    onBoardSquareClick: (square: Square) => void
+    timerResetToggle: boolean
+    onOpponentBoardSquareClick: (square: Square) => void
+    onTimerTimeout: () => void
 }
 
 export function GameView(
     {
-       loading,
-       playerBoard,
-       opponentBoard,
-       onBoardSquareClick,
-       shotsDefinitionTimeout,
+        loading,
+        playerBoard,
+        opponentBoard,
+        onOpponentBoardSquareClick: onBoardSquareClick,
+        shotsDefinitionTimeout,
+        timerResetToggle,
+        onTimerTimeout
     }: GameViewProps
 ){
     return !loading ? (
@@ -28,22 +33,23 @@ export function GameView(
                 <div className="boards-space">
                     <BoardView 
                         board={playerBoard}
-                        controls={{}}
+                        controls={{}} // No controls for the player board
                     />
                 </div>
                 <div className="timer-space">
-                    <Timer
+                    <ProgressTimer
                         timeout={shotsDefinitionTimeout}
-                        onTimeout={() => {}}
+                        onTimeout={onTimerTimeout}
+                        resetToggle={timerResetToggle}
                     /> 
                 </div>
                 <div className="boards-space">
                     <BoardView 
                         board={opponentBoard}
-                        controls={{onSquareClick: onBoardSquareClick}}
+                        controls={{onSquareClick: onBoardSquareClick}} // Controls for the opponent board
                     />
                 </div>
             </div>  
     </section>
-    ) : <div> Loading...</div>
+    ) : <CircularProgress />
 }

@@ -26,4 +26,9 @@ interface GameRepository {
      */
     fun getUserGames(userID: UserID): List<ID>
 
+    /**
+     * Cancels all the games that the timeout has been reached
+     */
+    fun cancelUnusableGames()
+
 }
