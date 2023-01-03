@@ -122,6 +122,10 @@ export function Game() {
                 changeTurn()
                 //clearInterval(intervalID)
             }
+
+            return () => {
+                clearInterval(intervalID)
+            }
         }
 
         const intervalID = setInterval(() => {
