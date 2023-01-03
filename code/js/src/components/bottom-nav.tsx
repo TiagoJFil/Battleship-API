@@ -12,9 +12,9 @@ export function BottomNav(){
     return (
         <div className='Bottom-Nav-Outter'>
             <BottomNavigation showLabels>
-                <BottomNavigationAction label="Favorites" icon={<ArrowBackIcon />} onClick={() => navigate(-1) } />
-                <BottomNavigationAction label="Recents" icon={<HomeIcon />} onClick={() => navigate("/") } />
-                <BottomNavigationAction label="Nearby" icon={<InfoIcon />} onClick={() => navigate("/info") } />
+                <BottomNavigationAction label="Back" icon={<ArrowBackIcon />} onClick={() => navigate(-1) } />
+                <BottomNavigationAction label="Home" icon={<HomeIcon />} onClick={() => navigate("/") } />
+                <BottomNavigationAction label="Info" icon={<InfoIcon />} onClick={() => navigate("/info") } />
             </BottomNavigation>
         </div>
     )

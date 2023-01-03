@@ -3,11 +3,13 @@ import useInterval  from "../hooks/use-interval"
 import '../css/timeout-bar.css'
 import { CustomProgressBar } from "./progress-bar"
 import { GameConstants } from "../constants/game"
+import { BarColor } from "./progress-bar"
 
 interface TimerProps {
   maxValue: number //in ms
   startValue: number //in ms
   resetToggle: boolean
+  barColor: BarColor
   onTimeout: () => void
 }
 
@@ -19,6 +21,7 @@ export function ProgressTimer(props: TimerProps){
 
     useInterval(() => {
       setRemainingTime((prev) => {
+          if(prev === null) return prev // Pause the timer when the remainingTime is null
           if(prev === 0){ 
               props.onTimeout()         
               setIsOver(true)
@@ -33,11 +36,17 @@ export function ProgressTimer(props: TimerProps){
     }, !isOver ? GameConstants.TIMER_PERIOD_MS : null) // Stops the interval when isOver is true
 
     React.useEffect(() => {
+      if(!props.resetToggle) return
+
       setRemainingTime(props.maxValue)
       setIsOver(false)
     }, [props.resetToggle])
 
+    React.useEffect(() => { // Force the timer to reRender when the startValue changes
+      setRemainingTime(props.startValue)
+    }, [props.startValue])
 
-    return <CustomProgressBar progress={percentage} />
+
+    return <CustomProgressBar progress={percentage} color={props.barColor} />
       
 }

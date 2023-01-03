@@ -32,6 +32,11 @@
 
 /*-*-*-*-*-*- SHIP -*-*-*-*-*-*/
 
+@keyframes gradientRace { /* Glowing effect from red to gray */
+  0%   { background-color:  var(--oc-gray-8); }
+  100% { background-color:  var(--oc-gray-4); }
+}
+
 .board .water:hover {
   background-color: var(--oc-gray-6);
 }
@@ -39,6 +44,11 @@
 .board .invalid {
   background-color: var(--oc-red-5);
   border: 1px solid var(--oc-gray-8);
+}
+
+.board .selected { /* Glowing effect */
+  border: 1px solid var(--oc-gray-8);
+  animation: gradientRace 1.2s infinite alternate;
 }
 
 .board .ship-part {
@@ -63,6 +73,3 @@
 .board .ship-part:hover {
   background-color: var(--oc-indigo-9);
 }
-
-
-

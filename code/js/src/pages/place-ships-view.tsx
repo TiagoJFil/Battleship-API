@@ -7,6 +7,7 @@ import { ProgressTimer } from "../components/progress-timer"
 import { FleetControls, FleetState } from "../components/fleet/fleet-view"
 import { BoardControls } from "../components/board/board-view"
 import { CircularProgress } from "@mui/material"
+import { BarColor } from "../components/progress-bar"
 
 
 interface PlaceShipViewProps{
@@ -46,6 +47,7 @@ export function PlaceShipView(
                 <div className="boards-space">
                     <BoardView 
                         board={board}
+                        currentShots={[]}
                         controls={boardControls}
                     />
                 </div>
@@ -54,6 +56,7 @@ export function PlaceShipView(
                         maxValue={layoutDefinitionTimeout}
                         startValue={layoutDefinitionRemainingTimeMs}
                         resetToggle={timerResetToggle}
+                        barColor={BarColor.PRIMARY}
                         onTimeout={onTimeout}
                     /> 
                 </div>

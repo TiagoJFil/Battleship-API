@@ -7,7 +7,8 @@ import { Styles } from '../../constants/styles';
 
 
 interface BoardViewProps{
-    board: Board
+    board: Board,
+    currentShots: Square[],
     controls: BoardControls
 }
 
@@ -21,6 +22,7 @@ export interface BoardControls{
 export function BoardView(
     {
         board, 
+        currentShots,
         controls,
     }: BoardViewProps
 ){
@@ -28,16 +30,17 @@ export function BoardView(
     const squaresViews: React.ReactElement[] = []
 
     const {onSquareHover, onSquareClick, onSquareLeave, onMouseDown} = controls
+    const shotsIds = currentShots.map(s => s.toID())
     
     for(let row = 0; row < board.side; row++){
         for(let col = 0; col < board.side; col++){
             const square = new Square(row, col)
-            
             const type = boardRepresentation.get(square.toID()) ?? SquareType.WATER
+            const className = shotsIds.includes(square.toID()) ? SquareType.SELECTED : type
             
             squaresViews.push(
                 <div 
-                    className={`square ${type}`} 
+                    className={className} 
                     key={`${row}-${col}`}
                     onClick={() => {onSquareClick?.(square)}}
                     onMouseEnter={() => onSquareHover?.(square)}

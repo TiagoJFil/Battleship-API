@@ -34,20 +34,21 @@ export function Game() {
 
     const [currentPlayerBoard, setPlayerBoard] = React.useState<Board>(null)
     const [currentOpponentBoard, setOpponentBoard] = React.useState<Board>(null)
+    const [currentShots, setCurrentShots] = React.useState<Array<Square>>([])
     const shotsDefinitionRules = React.useRef<ShotDefinitionRules>(null)
     const [turn, setTurn] = React.useState<GameTurn>(null)
     const [customModalState, setCustomModalState] = React.useState<ModalState>(INITIAL_MODAL_STATE)
     const [remainingTime, setRemainingTime] = React.useState<number>(null)
-    const [timerResetToggle, setTimerResetToggle] = React.useState(false)
+    const [timerResetToggle, setTimerResetToggle] = React.useState<boolean>(false)
 
     const loading = currentPlayerBoard === null || currentOpponentBoard === null;
+
+    const getGameState = async () => {
+        const gameStateResponse: SirenEntity<IGameStateInfoDTO> = await api.getGameState(validatedGameID)
+        return gameStateResponse.properties  
+    }
     
     React.useEffect(() => {
-
-        const getGameState = async () => {
-            const gameStateResponse: SirenEntity<IGameStateInfoDTO> = await api.getGameState(validatedGameID)
-            return gameStateResponse.properties  
-        }
 
         const updateGameState = async (turnID: number) => {
             const currentTurn = turnID === validatedUserID ? GameTurn.MY : GameTurn.OPPONENT
@@ -94,6 +95,25 @@ export function Game() {
     }, [])
 
     React.useEffect(() => { // If is not loading and is not my turn then start polling
+
+        if(loading) return
+
+        const checkWinner = (gameStateDTO: IGameStateInfoDTO) => {
+            const gameState = GameState[gameStateDTO.state]
+            if(gameState === GameState.FINISHED){
+                const winner = gameStateDTO.turnID === validatedUserID ? GameTurn.OPPONENT : GameTurn.MY //Last to play
+                const modalMessage = winner === GameTurn.MY ? ModalMessages.Won : ModalMessages.Lost
+                const newModalState: ModalState = {message: modalMessage, isOpen: true}
+                setCustomModalState(newModalState)
+            }
+        }
+
+        getGameState()
+        .then(gameStateDTO => {
+            checkWinner(gameStateDTO)
+            setRemainingTime(gameStateDTO.remainingTime)
+        })
+
         if(loading || turn === GameTurn.MY) return
 
         const getMyBoard = async() => {
@@ -114,7 +134,7 @@ export function Game() {
 
         const intervalID: NodeJS.Timer = setInterval(() => {
             getMyBoard()
-            .then(boardDTO => tryUpdateMyBoard(boardDTO))
+            .then((boardDTO) => tryUpdateMyBoard(boardDTO))
             
         }, INTERVAL_TIME_MS)
 
@@ -139,30 +159,43 @@ export function Game() {
         const squareType = boardRepresentation.get(squareID) ?? SquareType.WATER
 
         if(squareType !== SquareType.WATER) return
+        
+        setCurrentShots((prev: Array<Square>) => {
+            const shots = prev
+            const shotsIds = shots.map((shot) => shot.toID())
+            let newShots: Square[] = shots;
+            if(shotsIds.includes(squareID)){
+                newShots = shots.filter((shot) => shot.toID() !== squareID)
+            }else if(shots.length < shotsDefinitionRules.current.shotsPerTurn){
+                newShots = [...shots, squareClicked]
+            }
 
-        const makeShot = async () => {
-            const squareDTO = squareClicked.toDTO()
-            const shots = [squareDTO]
+            return newShots
+        })
+    }
+
+    const submitShots = () => {
+        const makeShots = async () => {
             
-            const sirenResponse = await api.defineShot(validatedGameID, shots)
+            const sirenResponse = await api.defineShot(
+                validatedGameID, 
+                currentShots.map((square) => square.toDTO())
+            )
 
             const embeddedEntity = sirenResponse.entities[0] as EmbeddedEntity<IBoardDTO>
             const embeddedBoardDTO = embeddedEntity.properties
-        
-            setOpponentBoard(toBoard(embeddedBoardDTO))
 
-            const gameInfo = await api.getGameState(validatedGameID)
-            const gameInfoDTO = gameInfo.properties
-
-            if(gameInfoDTO.state === GameState.FINISHED){
-                const winner = gameInfoDTO.turnID === validatedUserID ? GameTurn.OPPONENT : GameTurn.MY //Last to play
-                alert(`Game finished! Winner is ${winner}`) //CHANGE TO MODAL
-            }
-           
-            changeTurn()
+            return toBoard(embeddedBoardDTO)
         }
-        
-        makeShot()
+
+        if(turn !== GameTurn.MY && currentShots.length !== shotsDefinitionRules?.current?.shotsPerTurn) return
+
+        makeShots()
+        .then((newBoard) => { 
+            setOpponentBoard(newBoard)
+            changeTurn()
+            setCurrentShots([])
+        })
     }
 
     const onTimerTimeout = async () => {
@@ -178,11 +211,15 @@ export function Game() {
                 loading={loading}
                 playerBoard={currentPlayerBoard}
                 opponentBoard={currentOpponentBoard}
+                selectedShots={currentShots}
+                shotsRemaining={shotsDefinitionRules?.current?.shotsPerTurn - currentShots.length}
                 onOpponentBoardSquareClick={onOpponentBoardSquareClicked}
                 shotsDefinitionTimeout={shotsDefinitionRules?.current?.shotsDefinitionTimeout}
                 shotsDefinitionRemainingTimeMs={remainingTime}
                 timerResetToggle={timerResetToggle}
+                turn={turn}
                 onTimerTimeout={onTimerTimeout}
+                onSubmitShotsClick={submitShots}
             />
             <AnimatedModal
                 message={customModalState.message}

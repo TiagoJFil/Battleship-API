@@ -78,6 +78,7 @@ export function PlaceShips(){
 
         getGameState(validatedGameID).then((gameState) => {
             checkGameState(GameState[gameState.state])
+            console.log("Remaining time: ", gameState.remainingTime)
             setRemainingTimeMs(gameState.remainingTime)
         })
 
