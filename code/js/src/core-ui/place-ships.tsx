@@ -109,10 +109,9 @@ export function PlaceShips(){
             const myBoardDTO = await getMyBoard(validatedGameID)
 
             checkGameState(GameState[gameStateDTO.state])
-            
+            const placeShipsRules = await getRequiredRules()
+            gameRules.current = placeShipsRules
             if(myBoardDTO.shipParts.length === 0){
-                const placeShipsRules = await getRequiredRules()
-                gameRules.current = placeShipsRules
                 clearBoards(placeShipsRules)
             }else{
                 const myDomainBoard = toBoard(myBoardDTO)
@@ -152,14 +151,14 @@ export function PlaceShips(){
                     setCustomModalState({ message: ModalMessages.NotLoggedIn, isOpen: true })
                 }
                 console.log(`Stopped polling for game state.`)
-                intervalID ?? clearInterval(intervalID)
+                clearInterval(intervalID)
             })
                 
         }, INTERVAL_TIME_MS)
         
 
         return () => {
-            intervalID ?? clearInterval(intervalID)
+            clearInterval(intervalID)
         }
     }, [readyToPlay])
 

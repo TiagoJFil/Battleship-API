@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchLogin } from '../api/api';
 import { AuthForm } from '../components/auth/auth-form';
 import { ErrorToast } from '../core-ui/toasts';
-import { executeWhileDisabled } from '../utils/ButtonWrappers';
+import { executeWhileDisabled } from '../utils/buttonWrappers';
 import { validateAuth } from '../validations/auth-validation';
 import { Typography } from "@mui/material";
 export function Login() {

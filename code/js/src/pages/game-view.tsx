@@ -20,7 +20,7 @@ interface GameViewProps{
     turn: GameTurn
     onOpponentBoardSquareClick: (square: Square) => void
     onTimerTimeout: () => void
-    onSubmitShotsClick: () => void
+    onSubmitShotsClick: (button) => void
 }
 
 export function GameView(
@@ -69,7 +69,7 @@ export function GameView(
                     Shots remaining: {shotsRemaining}
                 </div>
                 <div className="submit-shots">
-                    <Button variant="contained" color="primary" onClick={onSubmitShotsClick}>Submit</Button>
+                  <Button variant="contained" color="primary" onClick={(e) => onSubmitShotsClick(e.target)}>Submit</Button>
                 </div>
             </div>  
     </section>

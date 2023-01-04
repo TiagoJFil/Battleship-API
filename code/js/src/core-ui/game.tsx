@@ -16,6 +16,7 @@ import { GameState } from '../components/entities/game-state'
 import { ModalState, ModalMessages, INITIAL_MODAL_STATE } from '../core-ui/modal-state-config'
 import AnimatedModal from '../components/modal'
 import { InfoToast } from './toasts'
+import { executeWhileDisabled } from '../utils/buttonWrappers'
 
 const INTERVAL_TIME_MS = 1000
 
@@ -182,7 +183,7 @@ export function Game() {
         })
     }
 
-    const submitShots = () => {
+    const submitShots = (button) => {
         const makeShots = async () => {
             
             const sirenResponse = await api.defineShot(
@@ -197,9 +198,8 @@ export function Game() {
         }
 
         if(turn !== GameTurn.MY && currentShots.length !== shotsDefinitionRules?.current?.shotsPerTurn) return
-
-        makeShots()
-        .then((newBoard) => { 
+        executeWhileDisabled(button,async () =>  {
+            const newBoard = await makeShots()
             setOpponentBoard(newBoard)
             changeTurn()
             setCurrentShots([])
