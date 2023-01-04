@@ -109,9 +109,11 @@ export async function getGameState(gameID: number, embedded: boolean=true): Prom
     return sendRelationRequest(relation, null, {embedded})
 }
 
+
+
 export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Promise<SirenEntity<undefined>> {
     const relation = await ensureRelation('layout-definition', async () => { await getGameState(gameID) })
-    return sendRelationRequest(relation, {ships: shipInfo})
+    return sendRelationRequest(relation, {shipsInfo: shipInfo})
 }
 
 export async function getBoard(gameID: number, whichFleet: string): Promise<SirenEntity<IBoardDTO>> {
