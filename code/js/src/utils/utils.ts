@@ -53,7 +53,7 @@ export async function getStatisticsWithEmbeddedPlayers(){
 
 
 export async function getGamesStateWithEmbeddedUsers(gameID : number){
-    const fetchedState = await getGameState(gameID,true);
+    const fetchedState = await getGameState(gameID, true);
     const userNodeKey = 'user';
     const userInfoURI = fetchedState.links.find((link: SirenLink) => link.rel.includes(userNodeKey)).href;
 

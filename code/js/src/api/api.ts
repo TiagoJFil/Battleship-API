@@ -100,13 +100,13 @@ export async function getGameRules(gameID: number): Promise<SirenEntity<IGameRul
     return sendRelationRequest(relation)
 }
 
-export async function getGameState(gameID: number): Promise<SirenEntity<IGameStateInfoDTO>> {
+export async function getGameState(gameID: number, embedded: boolean=true): Promise<SirenEntity<IGameStateInfoDTO>> {
     const relation = {
         key: 'game-state',
         href: `game/${gameID}/state`,
         method: 'GET'
     }
-    return sendRelationRequest(relation)
+    return sendRelationRequest(relation, null, {embedded})
 }
 
 export async function defineShipLayout(gameID: number, shipInfo: ShipInfo[]): Promise<SirenEntity<undefined>> {

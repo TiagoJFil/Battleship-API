@@ -18,6 +18,7 @@ import { AppRoutes } from '../constants/routes';
 import { GameTurn } from '../components/entities/turn';
 import { toBoard } from '../interfaces/dto/board-dto';
 import CircularProgress from '@mui/material/CircularProgress';
+import { InfoToast, SuccessToast } from './toasts';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 const INTERVAL_TIME_MS = 1000
@@ -225,6 +226,7 @@ export function PlaceShips(){
 
         api.defineShipLayout(validatedGameID, placedShips)
         .then(() => {
+            SuccessToast("Ships placed successfully!")
             setReadyToPlay(true)
         })
     }
@@ -243,7 +245,11 @@ export function PlaceShips(){
 
     const fleetControls: FleetControls = {
         onShipClick: onShipClicked,
-        onResetRequested: () => { if(!readyToPlay) clearBoards(gameRules.current) },
+        onResetRequested: () => {
+            if(!readyToPlay && placedShips.length !== 0){
+                clearBoards(gameRules.current)
+                InfoToast("Board cleared")
+        }  },
         onSubmitRequested: () => { onFleetSubmit() }
     }
 
@@ -268,5 +274,7 @@ export function PlaceShips(){
                 handleClose={handleModalClose}
             />
         </div>
-    ) : <CircularProgress />
+    ) : <div className='screen-centered'> 
+            <CircularProgress size='6rem' />
+        </div>
 }
