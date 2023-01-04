@@ -130,9 +130,10 @@ export async function getGameRules(gameID: number): Promise<SirenEntity<IGameRul
     return response.data
 }
 
-export async function getGameState(gameID: number): Promise<SirenEntity<IGameStateInfoDTO>> {
+export async function getGameState(gameID: number,embedded: boolean = false): Promise<SirenEntity<IGameStateInfoDTO>> {
+    let embeddedQuery = embedded ? "?embedded=true" : ""
     const response = await axios({
-        url: `game/${gameID}/state`,
+        url: `game/${gameID}/state` + embeddedQuery,
         method: 'GET',
     }).catchAsProblem()
 
