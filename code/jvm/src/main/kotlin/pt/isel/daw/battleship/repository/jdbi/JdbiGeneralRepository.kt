@@ -32,7 +32,7 @@ class JdbiGeneralRepository(
      */
     override fun getStatistics(): Statistics {
 
-        val numGames = handle.createQuery("SELECT COUNT(*) FROM game")
+        val numGames = handle.createQuery("SELECT COUNT(*) FROM game WHERE state = 'finished'")
             .mapTo<Int>()
             .one()
 
