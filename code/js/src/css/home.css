@@ -9,22 +9,30 @@
     height: 100%
 }
 
- .icon-list-container{
+.icon-list-container{
     display: flex;
     justify-content: center;
+    height: 50%;
  }
- .play-button-container {
+.icon-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    scale: 2.5;
+}
+
+.play-button-container .icon-button .icon-container{
+    scale: 4.5;
+}
+
+
+.play-button-container {
      display: flex;
      justify-content: center;
      align-items: normal;
      width: 200px;
      height: 200px;
  }
-
-.play-button-container .icon-button:hover {
-    background-color: #bd0820
-}
-
  
  .play-button-container .icon-button {
     width: 200px;
@@ -33,36 +41,12 @@
     border-radius: 50%;
     position: absolute;
     border: 1px solid #e6e6e6;
-    background-color: #e60e2a;
+    background-color: #347e9e;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
 }
-
-.statistics-button-container{
-    width: 150px;
-    height: 150px;
-}
-
-.statistics-button-container .icon-button:hover {
-    background-color: #bd0820
-}
-
-.statistics-button-container .icon-button{
-    width: 150px;
-    height: 150px;
-    font-size: 90px;
-    border-radius: 50%;
-    position: absolute;
-    border: 1px solid #e6e6e6;
-    background-color: #bd1e33;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
 
  .play-button-container .icon-button:hover .icon {
     color: #fff;
@@ -73,35 +57,32 @@
     transition: color 0.3s;
 }
 
-.auth-button-container{
+.auth-button-container,
+.statistics-button-container,
+.info-button-container {
     width: 150px;
     height: 150px;
 }
 
-.auth-button-container .icon-button:hover {
-    background-color: #bd0820
+.auth-button-container .icon-button:hover,
+.statistics-button-container .icon-button:hover,
+.play-button-container .icon-button:hover,
+.info-button-container .icon-button:hover {
+    background-color: #2d94c1
 }
 
-.auth-button-container .icon-button{
+.statistics-button-container .icon-button,
+.auth-button-container .icon-button,
+.info-button-container .icon-button{
     width: 150px;
     height: 150px;
-    font-size: 90px;
     border-radius: 50%;
     position: absolute;
     border: 1px solid #e6e6e6;
-    background-color: #bd1e33;
+    background-color: #347e9e;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
 }
 
-
- .play-button-container .icon-button:hover .icon {
-    color: #fff;
-}
-
- .play-button-container .icon-button .icon {
-    color: #fff;
-    transition: color 0.3s;
-}

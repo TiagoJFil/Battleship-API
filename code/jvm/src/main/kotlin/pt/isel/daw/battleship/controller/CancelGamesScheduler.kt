@@ -13,7 +13,7 @@ class CancelGamesScheduler(
 
 
     companion object{
-        const val CANCEL_DELAY: Long = 1000 * 60 * 60 * 24 // 1 day
+        const val CANCEL_DELAY: Long = 1000 * 60 // 1 minute
         val logger = LoggerFactory.getLogger(CancelGamesScheduler::class.java)
     }
 

@@ -2,20 +2,19 @@ import * as React from 'react'
 import { BrowserRouter, Navigate, Route, Routes, } from 'react-router-dom'
 import { Statistics } from './pages/statistics-view'
 import { Home } from './pages/home-view'
-import { Login } from './components/auth/login/login'
-import { Logout } from './components/auth/logout/logout'
-import { Register } from './components/auth/register'
+import { Register } from './pages/register-view'
 import { Lobby } from './core-ui/lobby'
 import { PlaceShips } from './core-ui/place-ships'
 import { Game } from './core-ui/game'
-import { Info } from './components/info'
 import { UserGames } from './pages/user-games-view'
 import { Outlet } from 'react-router-dom'
 import { BottomNav } from './components/bottom-nav'
 import { ToastContainer } from 'react-toastify';
 import "./css/app.css"
 import NotFound from './pages/not-found-view'
-
+import { Login } from './pages/login-view'
+import { Logout } from './pages/logout-view'
+import { Info } from './pages/info-view'
 
 export function App() {
     return (

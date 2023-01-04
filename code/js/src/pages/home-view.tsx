@@ -2,8 +2,12 @@ import * as React from 'react'
 import { Outlet } from 'react-router-dom'
 import { authServices } from '../api/auth'
 import { IconLinkButtonList, IconLinkInfo } from '../components/icons'
-import { Styles } from '../constants/styles'
-
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import InfoIcon from '@mui/icons-material/Info';
+import LoginIcon from '@mui/icons-material/Login';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Typography } from "@mui/material";
 import "../css/home.css"
 
 export function Home(){
@@ -12,13 +16,13 @@ export function Home(){
     const authButton : IconLinkInfo = isLoggedIn ?
     {
         title : "Logout",
-        iconClass: Styles.LOGOUT_ICON,
+        icon: LogoutIcon,
         link: '/logout',
         cssTag: "auth"
     } :
     {
         title: 'Login',
-        iconClass: Styles.LOGIN_ICON,
+        icon: LoginIcon,
         link: '/login',
         cssTag: 'auth'
     }
@@ -26,21 +30,21 @@ export function Home(){
     const mainIconsButtonList : IconLinkInfo[] = [
         {
             title: "Statistics",
-            iconClass: Styles.STATISTICS_ICON,
+            icon: LeaderboardIcon,
             link: "/statistics",
             cssTag: "statistics",
         },
         {
             title: "Play",
-            iconClass: Styles.PLAY_ICON,
+            icon: PlayCircleIcon,
             link: "/lobby",
             cssTag: "play",
         },
         {
-            title: "my games",
-            iconClass: Styles.HOME_ICON,
-            link: "/my/games",
-            cssTag: "my-games",
+            title: "Information",
+            icon: InfoIcon,
+            link: "/info",
+            cssTag: "info",
         },
         authButton
     ]
@@ -48,7 +52,7 @@ export function Home(){
     return(
         <div className='home-page'>
             <div className='page-title'>
-                <span className='app-title'>Battleship</span>
+            <Typography className='app-title' align='center' variant="h1">Battleship</Typography>
             </div>
             <IconLinkButtonList icons={mainIconsButtonList}/>
             <Outlet/>

@@ -9,6 +9,7 @@ import AnimatedModal from '../components/modal';
 import { INITIAL_MODAL_STATE, ModalState } from './modal-state-config';
 import { GameConstants } from '../constants/game';
 import { AppRoutes } from '../constants/routes';
+import { Typography } from "@mui/material";
 
 export function Lobby() {
 
@@ -17,13 +18,14 @@ export function Lobby() {
     const [gameID, setGameID] = React.useState<number | null>(null);
     const [lobbyID, setLobbyID] = React.useState<number | null>(null);
     const cancelled = React.useRef(false);
+    const isPolling = React.useRef(true);
     const [customModalState, setCustomModalState] = React.useState<ModalState>(INITIAL_MODAL_STATE)
-
-    const isPolling = gameID === null
 
     const tryCancelLobby = () => {
         if(lobbyID != null && gameID === null){
-            if(!isPolling && !cancelled.current){
+            console.log(isPolling.current)
+            if(isPolling.current && !cancelled.current){
+                console.log('Cancelling lobby')
                 api.leavelobby(lobbyID)
                 .then(() => cancelled.current = true)
             }
@@ -45,8 +47,10 @@ export function Lobby() {
 
         api.joinQueue()
         .then((lobbyInfo: SirenEntity<ILobbyInformationDTO>) => {
+            isPolling.current = true
             const lobbyInfoDto = lobbyInfo.properties
             if(lobbyInfoDto.gameID !== null){
+                isPolling.current = false
                 setGameID(lobbyInfoDto.gameID)
                 scheduleStartGame(lobbyInfoDto.gameID) // Passed as an argument because gameID may not be set yet
                 return
@@ -56,7 +60,9 @@ export function Lobby() {
         })
         .catch((err) => setCustomModalState({message: err.message, isOpen: true}))
 
-        return tryCancelLobby
+        return () => {
+            tryCancelLobby
+        } 
 
     }, [])
 
@@ -69,6 +75,7 @@ export function Lobby() {
             .then((lobbyInfoDto: SirenEntity<ILobbyInformationDTO>) => {
                 const gameID = lobbyInfoDto.properties.gameID
                 if(gameID !== null){
+                    isPolling.current = false
                     setGameID(gameID)
                     clearInterval(intervalID)
                     scheduleStartGame(gameID)
@@ -84,13 +91,25 @@ export function Lobby() {
 
     }, [lobbyID])
 
+    const textContainer = (text : string ) => (
+        <div className='center-container'>
+            <Typography variant="body1">{text}</Typography>
+        </div>
+    )
     return (
-        <div>
-            <h1>Lobby</h1>
-            {isPolling && <div>Waiting for other players...</div>}
-            {!isPolling && <div>Game is starting...</div>}
-            {isPolling && <CircularProgress />}
-            {!isPolling && <CircularProgress color="secondary" />}
+        <div className='page'>
+            <Typography className='app-title' align='center' variant="h2">Lobby</Typography>
+            {isPolling.current && textContainer("Waiting for other players...")}
+            {!isPolling.current && textContainer("Game is starting...")}
+            {isPolling.current && <div className='screen-centered'> 
+              <CircularProgress size='6rem' />
+            </div>
+            }
+            {!isPolling.current && <div className='screen-centered'> 
+            <CircularProgress size='6rem' color="secondary" />
+            </div>
+            }
+            
             <AnimatedModal
                 message={customModalState.message}
                 show={customModalState.isOpen}

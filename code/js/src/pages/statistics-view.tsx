@@ -3,17 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { authServices } from '../api/auth';
 import {IStatisticsDTO, INamedPlayerStatisticsDTO} from '../interfaces/dto/statistics-dto';
 import { getStatisticsWithEmbeddedPlayers } from '../utils/utils';
-
-
+import { Typography } from "@mui/material";
+import { CircularProgress } from '@mui/material';
+import { StatisticsTable } from '../components/statistics-table';
+import "../css/statistics.css"
 
 export function Statistics() {
-    const navigate = useNavigate();
-
     const [statistics, setStatistics] = React.useState<IStatisticsDTO | null>(null);
 
     React.useEffect(() => {
-        
-
         const getStatisticsInfo = async () => {
             const stats = await getStatisticsWithEmbeddedPlayers();
             setStatistics(stats);
@@ -22,33 +20,32 @@ export function Statistics() {
     }, []);
 
     if (statistics === null) {
-        return <div>Loading...</div>;
+        return  <div className='screen-centered'> 
+                    <CircularProgress size='6rem' />
+                </div>
     }
 
+    const tableHeaders = ['Rank', 'Player Name', 'Total Games', 'Wins'];
+
     return (
-        <div>
-            <h1>Statistics</h1>
-            <p>Number of games: {statistics.ngames}</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player ID</th>
-                        <th>Total Games</th>
-                        <th>Wins</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {statistics.ranking.map((playerStatistics: INamedPlayerStatisticsDTO) => (
-                        <tr key={playerStatistics.rank}>
-                            <td>{playerStatistics.rank}</td>
-                            <td>{playerStatistics.playerName}</td>
-                            <td>{playerStatistics.totalGames}</td>
-                            <td>{playerStatistics.wins}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div className='page'>
+            <Typography className='app-title' align='center' variant="h2">Statistics</Typography>
+            <div className='statistics-center'>
+
+                <div className=' statistics-container'>
+                    <Typography align='center' variant="body1">Total Games: {statistics.ngames}</Typography>
+            
+            
+                    <StatisticsTable headers={tableHeaders} data={statistics.ranking as INamedPlayerStatisticsDTO[]} />
+            
+                </div>
+            </div>
+            
+
+
+
+
+
         </div>
     );
 }

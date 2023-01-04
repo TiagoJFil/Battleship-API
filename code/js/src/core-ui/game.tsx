@@ -10,11 +10,12 @@ import { SquareType } from '../components/entities/square-type'
 import { IBoardDTO, toBoard } from '../interfaces/dto/board-dto'
 import { Board } from '../components/entities/board'
 import { IGameStateInfoDTO } from '../interfaces/dto/game-state-dto'
-import { getCookie, UID_COOKIE_NAME } from '../api/auth'
+import { authServices, getCookie, UID_COOKIE_NAME } from '../api/auth'
 import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto'
 import { GameState } from '../components/entities/game-state'
 import { ModalState, ModalMessages, INITIAL_MODAL_STATE } from '../core-ui/modal-state-config'
 import AnimatedModal from '../components/modal'
+import { InfoToast } from './toasts'
 
 const INTERVAL_TIME_MS = 1000
 
@@ -49,6 +50,10 @@ export function Game() {
     }
     
     React.useEffect(() => {
+        if(!authServices.isLoggedIn()){
+            navigate('/login', { replace: true }) 
+            return
+        }
 
         const updateGameState = async (turnID: number) => {
             const currentTurn = turnID === validatedUserID ? GameTurn.MY : GameTurn.OPPONENT
@@ -151,7 +156,10 @@ export function Game() {
 
     const onOpponentBoardSquareClicked = (squareClicked: Square) => {
 
-        if(turn !== GameTurn.MY) return   //TODO FIX
+        if(turn !== GameTurn.MY) {
+            InfoToast("It's not your turn")
+            return
+        }
 
         const boardRepresentation = currentOpponentBoard.asMap()
 

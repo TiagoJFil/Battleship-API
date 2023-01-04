@@ -16,6 +16,8 @@ export const Styles = {
     PLAY_ICON: 'bx-play',
     REDO: 'bx-redo bx-flip-horizontal',
     REDO_ICON_BUTTON: 'redo-icon',
+    FLEET_SUBMIT_BUTTON: 'fleet-submit-button',
+    FLEET_SUBMIT_CONTAINER: 'fleet-submit-container',
     REDO_CONTAINTER: 'redo-container',
     PROGRESS_BAR_CONTAINER: 'progress-bar-container',
     TIMER: 'timer',
@@ -24,5 +26,7 @@ export const Styles = {
     BACK_ICON: 'bx-arrow-back',
     FILLER: 'filler',
     MODAL_CONTAINER: 'modal-container',
-    MODAL: 'modal'
+    MODAL: 'modal',
+    BOTTOM_BAR_CONTAINER: 'bottom-bar-container',
+    BOTTOM_BAR_BUTTON: 'bottom-bar-button',
 }

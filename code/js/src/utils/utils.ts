@@ -1,4 +1,4 @@
-import { getStatistics, getUserGames } from "../api/api";
+import { getGameState, getStatistics, getUserGames } from "../api/api";
 import { IGameStateInfoDTO } from "../interfaces/dto/game-state-dto";
 import { IPlayerStatisticsDTO, IStatisticsDTO } from "../interfaces/dto/statistics-dto";
 import { IUserDTO } from "../interfaces/dto/user-dto";
@@ -38,11 +38,8 @@ export async function getStatisticsWithEmbeddedPlayers(){
     const namedPlayerStats = stats.ranking.map((playerStatistics: IPlayerStatisticsDTO) => {
         let newStats : any  = playerStatistics;
         
-        const getSelfLink = (link: SirenLink) => link.rel.includes('self');
         const embeddedInfo = fetchedStatistics.entities.find((entity: EmbeddedEntity<IUserDTO>) => {
-            const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, userInfoURI)
-
-            return entity.rel.includes(userNodeKey) && uriProperties.userID == playerStatistics.playerID;
+            return findUserWithId(playerStatistics.playerID, entity, userNodeKey, userInfoURI)
         }) as EmbeddedEntity<IUserDTO>;
         
         delete newStats.playerID;
@@ -53,6 +50,34 @@ export async function getStatisticsWithEmbeddedPlayers(){
     stats.ranking = namedPlayerStats;
     return stats;
 }
+
+
+export async function getGamesStateWithEmbeddedUsers(gameID : number){
+    const fetchedState = await getGameState(gameID,true);
+    const userNodeKey = 'user';
+    const userInfoURI = fetchedState.links.find((link: SirenLink) => link.rel.includes(userNodeKey)).href;
+
+    const User1ID = fetchedState.properties.player1ID 
+    const User2ID = fetchedState.properties.player2ID
+
+    const embeddedInfo1 = fetchedState.entities.find((entity: EmbeddedEntity<IUserDTO>) => {
+         return findUserWithId(User1ID, entity, userNodeKey, userInfoURI) 
+        }
+    ) as EmbeddedEntity<IUserDTO>;
+    
+    const embeddedInfo2 = fetchedState.entities.find((entity: EmbeddedEntity<IUserDTO>) => {
+        return findUserWithId(User2ID, entity, userNodeKey, userInfoURI) 
+       }
+    ) as EmbeddedEntity<IUserDTO>;
+
+    const state = fetchedState.properties;
+    return {
+        stateInfo: state,
+        player1: embeddedInfo1.properties,
+        player2: embeddedInfo2.properties
+    }
+}
+
 
 export async function getUserGamesWithEmbeddedState(){
     const fetchedGames = await getUserGames();
@@ -75,7 +100,12 @@ export async function getUserGamesWithEmbeddedState(){
     
     return gamesWithState;
 }
+function findUserWithId(userID : number,entity : EmbeddedEntity<IUserDTO>, userNodeKey : string, userInfoURI : string){
+    const uriProperties =  extractFromUri(entity.links.find(getSelfLink).href, userInfoURI)
 
-export function getSelfLink(link: SirenLink){
+    return entity.rel.includes(userNodeKey) && uriProperties.userID == userID;
+}
+
+function getSelfLink(link: SirenLink){
     return link.rel.includes('self');
 } 

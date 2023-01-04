@@ -1,0 +1,23 @@
+
+.GameContainer {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 40px;
+    justify-content: center;
+    display: flex;
+    box-shadow: 0 0 10px #ccc;
+    margin: 0 auto;
+    padding: 20px;
+    width: 200px;
+    height: 100px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-content: center;
+}
+.buttonList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+}
