@@ -75,7 +75,7 @@ object AppSirenNavigation {
             link(listOf(SYSTEM_INFO_NODE_KEY), Uris.Home.SYSTEM_INFO)
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true )
             embeddedEntity<User>(
-                rel = listOf("user"),
+                rel = listOf(USER_NODE_KEY),
             )
         }
 
@@ -132,7 +132,7 @@ object AppSirenNavigation {
             link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE)
             action(CANCEL_QUEUE_KEY, Uris.Lobby.CANCEL_QUEUE, "DELETE", title = "Cancel")
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER)
-            link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES) showWhen { it.gameID != null }
+            link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES, optionalHrefExpand = true)
         }
 
 
@@ -142,7 +142,8 @@ object AppSirenNavigation {
         }
 
         node<LobbyInformation>(PLAY_INTENT_NODE_KEY) {
-            self(href = Uris.Lobby.STATE, optionalHrefExpand = true)
+            self(href = Uris.Lobby.QUEUE)
+            link(rel=listOf(LOBBY_STATE_NODE_KEY), href=Uris.Lobby.STATE)
             lobbyInformationNav()
         }
 
@@ -165,7 +166,7 @@ object AppSirenNavigation {
                 href = Uris.Game.FLEET.replace(WHICH_FLEET_PLACEHOLDER, "my"),
                 rel = listOf(MY_FLEET_KEY),
                 title = "My Fleet"
-            ) showWhen { it.state == Game.State.PLAYING || it.state == Game.State.FINISHED }
+            ) showWhen { it.state == Game.State.PLAYING || it.state == Game.State.FINISHED || it.state == Game.State.PLACING_SHIPS }
             embeddedLink(
                 clazz = listOf(FLEET_NODE_KEY),
                 href = Uris.Game.FLEET.replace(WHICH_FLEET_PLACEHOLDER, "opponent"),
@@ -175,13 +176,14 @@ object AppSirenNavigation {
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
             link(listOf(USER_NODE_KEY), Uris.User.GET_USER, optionalHrefExpand = true)
             embeddedEntity<User>(
-                rel = listOf("user associated to id"),
+                rel = listOf(USER_NODE_KEY),
             )
         }
 
         node<NoEntitySiren>(nodeID = DEFINE_LAYOUT_NODE_ID){
             self(Uris.Game.LAYOUT_DEFINITION, optionalHrefExpand = true)
             link(listOf(GAME_RULES_NODE_KEY), Uris.Game.RULES)
+            link(listOf(GAME_STATE_NODE_KEY), Uris.Game.STATE, optionalHrefExpand = true)
         }
         node<NoEntitySiren>(nodeID = SHOTS_DEFINITION_NODE_KEY){
             self(Uris.Game.SHOTS_DEFINITION, optionalHrefExpand = true)

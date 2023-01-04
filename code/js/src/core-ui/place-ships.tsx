@@ -16,7 +16,7 @@ import { IGameRulesDTO } from '../interfaces/dto/game-rules-dto';
 import { INITIAL_MODAL_STATE, ModalMessages, ModalState } from './modal-state-config';
 import { AppRoutes } from '../constants/routes';
 import { GameTurn } from '../components/entities/turn';
-import { IBoardDTO, toBoard } from '../interfaces/dto/board-dto';
+import { toBoard } from '../interfaces/dto/board-dto';
 import CircularProgress from '@mui/material/CircularProgress';
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
@@ -104,24 +104,22 @@ export function PlaceShips(){
         }
 
         const run = async () => {
-            const [gameStateDTO, myBoardDTO] = await Promise.all(
-                [getGameState(validatedGameID), getMyBoard(validatedGameID)]
-            ) 
+            const gameStateDTO = await getGameState(validatedGameID)
+            const myBoardDTO = await getMyBoard(validatedGameID)
 
             checkGameState(GameState[gameStateDTO.state])
-            setRemainingTimeMs(gameStateDTO.remainingTime)
             
             if(myBoardDTO.shipParts.length === 0){
                 const placeShipsRules = await getRequiredRules()
                 gameRules.current = placeShipsRules
                 clearBoards(placeShipsRules)
-                return
+            }else{
+                const myDomainBoard = toBoard(myBoardDTO)
+                boardSnapshot.current = myDomainBoard
+                setVisibleBoard(myDomainBoard)
+                setReadyToPlay(true)
             }
-
-            const myDomainBoard = toBoard(myBoardDTO)
-            boardSnapshot.current = myDomainBoard
-            setVisibleBoard(myDomainBoard)
-            setReadyToPlay(true)
+            setRemainingTimeMs(gameStateDTO.remainingTime)
         }
         
         run()
@@ -219,21 +217,16 @@ export function PlaceShips(){
     }
 
     const onTimeout = () => {
-        api.defineShipLayout(validatedGameID, placedShips)
-        .catch(() => {
-            setCustomModalState({ message: ModalMessages.Cancelled, isOpen: true })
-        })
+        setCustomModalState({ message: ModalMessages.Cancelled, isOpen: true })
     }
 
     const onFleetSubmit = () => {
-
         if(readyToPlay) return
 
         api.defineShipLayout(validatedGameID, placedShips)
         .then(() => {
             setReadyToPlay(true)
         })
-
     }
 
     const boardControls: BoardControls = {

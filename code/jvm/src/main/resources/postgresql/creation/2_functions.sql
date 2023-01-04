@@ -53,11 +53,11 @@ end;
 $$;
 
 
-create function to_interval(value int) returns interval as $$
+create or replace function to_interval(value int) returns interval as $$
 select value * '1 minute'::interval;
 $$ language sql;
 
-create function getOutOfTimeoutGames() returns setof integer as $$
+create or replace function getOutOfTimeoutGames() returns setof integer as $$
 declare
     Vgameid integer;
     Vtimeout integer;
@@ -68,28 +68,28 @@ declare
 begin
 
     for Vgameid, VgameState in select id, state from gameview loop
-            if VgameState = 'playing' then
-                select playtimeout into Vtimeout from gameview where id = Vgameid;
-            end if;
-            if VgameState = 'placing_ships' then
-                select layoutdefinitiontimeout into Vtimeout from gameview where id = Vgameid;
-            end if;
+        if VgameState = 'playing' then
+            select playtimeout into Vtimeout from gameview where id = Vgameid;
+        end if;
+        if VgameState = 'placing_ships' then
+            select layoutdefinitiontimeout into Vtimeout from gameview where id = Vgameid;
+        end if;
 
-            select lastupdated into Vlastupdated from gameview where id = Vgameid;
-            select now()::timestamp into now;
-            select age(now, Vlastupdated::timestamp + to_interval((Vtimeout / (1000* 60)))) >= '0 seconds'::interval into outofplaytimeout;
+        select lastupdated into Vlastupdated from gameview where id = 18;
+        select now()::timestamp into now;
+        select age(now, Vlastupdated::timestamp + to_interval((Vtimeout / (1000* 60)))) >= '0 seconds'::interval
+        into outofplaytimeout;
 
-            if outofplaytimeout then
-                return next Vgameid;
-            end if;
-
-        end loop;
+        if outofplaytimeout then
+            return next Vgameid;
+        end if;
+    end loop;
 
     return;
 end;
 $$ language plpgsql;
 
-create procedure CancelOutOfTimeoutGames() as $$
+create or replace procedure CancelOutOfTimeoutGames() as $$
 begin
     update game set state = 'cancelled' where id in (select * from getOutOfTimeoutGames());
 end;
