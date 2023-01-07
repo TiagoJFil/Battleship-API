@@ -66,6 +66,5 @@ create table if not exists Board (
     foreign key (gameId) references Game(id),
     foreign key (userId) references "User"(id)
 );
+
 commit;
-
-

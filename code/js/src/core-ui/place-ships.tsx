@@ -216,7 +216,7 @@ export function PlaceShips(){
         }
     }
 
-    const onTimeout = () => {
+    const onTimeout = () => {//TODO: stop making requests to the server
         setCustomModalState({ message: ModalMessages.Cancelled, isOpen: true })
     }
 

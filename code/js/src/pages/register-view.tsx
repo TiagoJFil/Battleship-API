@@ -4,7 +4,7 @@ import { fetchRegister } from '../api/api'
 import { AuthForm } from '../components/auth/auth-form';
 import { useNavigate } from 'react-router-dom';
 import { ErrorToast } from '../core-ui/toasts';
-import { executeWhileDisabled } from '../utils/ButtonWrappers';
+import { executeWhileDisabled } from '../utils/buttonWrappers';
 import { Typography } from "@mui/material";
 
 export function Register(){

@@ -1,3 +1,5 @@
+begin;
+
 create or replace view GameView as
 select g.id,
        gr.boardSide,
@@ -132,3 +134,5 @@ on GameView for each row execute procedure insertGameView();
 create
 or replace trigger updateOnGameView instead of
 update on GameView for each row execute procedure updateGameView();
+
+commit;

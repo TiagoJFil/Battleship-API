@@ -1,3 +1,5 @@
+begin;
+
 create or replace function getGameId() returns int
     language plpgsql
     as $$
@@ -91,6 +93,8 @@ $$ language plpgsql;
 
 create or replace procedure CancelOutOfTimeoutGames() as $$
 begin
-    update game set state = 'cancelled' where id in (select * from getOutOfTimeoutGames());
+    update game set state = 'cancelled' where state != 'cancelled' and id in (select * from getOutOfTimeoutGames());
 end;
 $$ language plpgsql;
+
+commit;

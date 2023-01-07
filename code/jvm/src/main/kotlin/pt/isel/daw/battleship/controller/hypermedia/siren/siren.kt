@@ -3,6 +3,8 @@ package pt.isel.daw.battleship.controller.hypermedia.siren
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 private const val APPLICATION_TYPE = "application"
 private const val SIREN_SUBTYPE = "vnd.siren+json"
@@ -73,6 +75,11 @@ data class SirenEntity<T>(
  * Base class for admissible sub entities, namely, [EmbeddedLink] and [EmbeddedEntity].
  * Notice that this is a closed class hierarchy.
  */
+@JsonSubTypes(
+    JsonSubTypes.Type(value = EmbeddedLink::class, name = "link"),
+    JsonSubTypes.Type(value = EmbeddedEntity::class, name = "entity")
+)
+@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
 sealed class SubEntity
 
 @JsonInclude(NON_NULL)
