@@ -19,6 +19,10 @@ import { GameTurn } from '../components/entities/turn';
 import { toBoard } from '../interfaces/dto/board-dto';
 import CircularProgress from '@mui/material/CircularProgress';
 import { InfoToast, SuccessToast } from './toasts';
+import { timerReducer } from '../components/timer/timer-reducer';
+import useInterval from '../hooks/use-interval';
+import { GameConstants } from '../constants/game';
+import '../css/timeout-bar.css'
  
 const RIGHT_MOUSE_CLICK_EVENT = 2
 const INTERVAL_TIME_MS = 1000
@@ -44,10 +48,12 @@ export function PlaceShips(){
     const [placedShips, setPlacedShips] = React.useState([]) // Ships that have been placed
     const [customModalState, setCustomModalState] = React.useState<ModalState>(INITIAL_MODAL_STATE)
     const [readyToPlay, setReadyToPlay] = React.useState(false)
-    const [remainingTimeMs, setRemainingTimeMs] = React.useState(null)
+    const gameStatePoolInterval = React.useRef(null)
+    const [timerState, dispatchTimer]  = React.useReducer(timerReducer, {state: "stopped", currentValue: 0})
+    const loading = React.useRef(true)
+    const timerRunning = React.useRef(false)
 
-    const loading = remainingTimeMs === null
-
+    
     function clearBoards(gameRules: LayoutDefinitionRules){
         const newBoard = emptyBoard(gameRules.boardSide)
         setVisibleBoard(newBoard)
@@ -106,9 +112,9 @@ export function PlaceShips(){
 
         const run = async () => {
             const gameStateDTO = await getGameState(validatedGameID)
+            checkGameState(GameState[gameStateDTO.state])
             const myBoardDTO = await getMyBoard(validatedGameID)
 
-            checkGameState(GameState[gameStateDTO.state])
             const placeShipsRules = await getRequiredRules()
             gameRules.current = placeShipsRules
             if(myBoardDTO.shipParts.length === 0){
@@ -119,13 +125,28 @@ export function PlaceShips(){
                 setVisibleBoard(myDomainBoard)
                 setReadyToPlay(true)
             }
-            setRemainingTimeMs(gameStateDTO.remainingTime)
+            loading.current = false
+            if(gameStateDTO.remainingTime <= 0){ //if the user refreshes the page and the game is already cancelled
+                onTimeout()
+                return
+            } else{
+                console.log("starting timer")
+                dispatchTimer({type : "start", startValue : gameStateDTO.remainingTime})
+                timerRunning.current = true
+            }
         }
         
         run()
 
     }, [])
-    
+
+    useInterval(() => {
+        dispatchTimer({type: "update"})
+        if(timerState.state === "finished"){
+            onTimeout()
+            timerRunning.current = false
+        }
+    }, timerRunning.current ? GameConstants.TIMER_PERIOD_MS : null)
 
     React.useEffect(() => { // Starts polling as soon as the player is ready
 
@@ -138,27 +159,26 @@ export function PlaceShips(){
             const gameState = GameState[state]
             if(gameState === GameState.PLAYING){ 
                 navigate(shootingGamePhaseURL)
-                clearInterval(intervalID)
+                clearInterval(gameStatePoolInterval.current)
                 return 
             }
             console.log("Opponent not ready yet.")
         }
         
-        const intervalID: NodeJS.Timer = setInterval(() => {
+        gameStatePoolInterval.current = setInterval(() => {
             checkGameState()
             .catch((problem) => {
                 if(problem.status === 401){
                     setCustomModalState({ message: ModalMessages.NotLoggedIn, isOpen: true })
                 }
                 console.log(`Stopped polling for game state.`)
-                clearInterval(intervalID)
+                clearInterval(gameStatePoolInterval.current)
             })
                 
         }, INTERVAL_TIME_MS)
-        
 
         return () => {
-            clearInterval(intervalID)
+            clearInterval(gameStatePoolInterval.current)
         }
     }, [readyToPlay])
 
@@ -216,8 +236,9 @@ export function PlaceShips(){
         }
     }
 
-    const onTimeout = () => {//TODO: stop making requests to the server
+    const onTimeout = () => {
         setCustomModalState({ message: ModalMessages.Cancelled, isOpen: true })
+        clearInterval(gameStatePoolInterval.current)
     }
 
     const onFleetSubmit = () => {
@@ -253,19 +274,15 @@ export function PlaceShips(){
     }
 
     const handleModalClose = () => navigate(AppRoutes.HOME, { replace: true })
-
-    return !loading ? (
+    const timerPercentage = Math.round((timerState.currentValue / gameRules.current?.layoutDefinitionTimeout) * 100)
+    return !loading.current ? (
         <div>
             <PlaceShipView
                 board={visibleBoard}
                 boardControls={boardControls}
-                layoutDefinitionTimeout={gameRules.current?.layoutDefinitionTimeout}
-                layoutDefinitionRemainingTimeMs={remainingTimeMs}
+                timerPercentage={timerPercentage}
                 fleetState={fleetState}
                 fleetControls={fleetControls}
-                loading={loading}
-                timerResetToggle={null}
-                onTimeout={onTimeout}
             />
             <AnimatedModal
                 message={customModalState.message}

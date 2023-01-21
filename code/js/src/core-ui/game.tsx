@@ -17,6 +17,10 @@ import { ModalState, ModalMessages, INITIAL_MODAL_STATE } from '../core-ui/modal
 import AnimatedModal from '../components/modal'
 import { InfoToast } from './toasts'
 import { executeWhileDisabled } from '../utils/buttonWrappers'
+import useInterval from '../hooks/use-interval'
+import { timerReducer } from '../components/timer/timer-reducer'
+import { GameConstants } from '../constants/game'
+import '../css/timeout-bar.css'
 
 const INTERVAL_TIME_MS = 1000
 
@@ -40,16 +44,24 @@ export function Game() {
     const shotsDefinitionRules = React.useRef<ShotDefinitionRules>(null)
     const [turn, setTurn] = React.useState<GameTurn>(null)
     const [customModalState, setCustomModalState] = React.useState<ModalState>(INITIAL_MODAL_STATE)
-    const [remainingTime, setRemainingTime] = React.useState<number>(null)
-    const [timerResetToggle, setTimerResetToggle] = React.useState<boolean>(false)
-
-    const loading = currentPlayerBoard === null || currentOpponentBoard === null;
+    const MyFleetPoolInterval = React.useRef(null)
+    const loading = React.useRef<boolean>(true)
+    const [timerState, dispatchTimer]  = React.useReducer(timerReducer, {state: "stopped", currentValue: 0})
+    const timerRunning = React.useRef(false)
 
     const getGameState = async () => {
         const gameStateResponse: SirenEntity<IGameStateInfoDTO> = await api.getGameState(validatedGameID)
         return gameStateResponse.properties  
     }
-    
+    useInterval(() => {
+        dispatchTimer({type: "update"})
+        if(timerState.state === "finished"){
+            onTimerTimeout()
+            timerRunning.current = false
+        }
+        
+    }, timerRunning.current ? GameConstants.TIMER_PERIOD_MS : null)
+
     React.useEffect(() => {
         if(!authServices.isLoggedIn()){
             navigate('/login', { replace: true }) 
@@ -78,6 +90,7 @@ export function Game() {
             shotsDefinitionRules.current = newShotDefinitionRules
             setPlayerBoard(toBoard(playerBoardDTO))
             setOpponentBoard(toBoard(opponentBoardDTO))    
+            loading.current = false
         }
 
         getGameState()
@@ -87,7 +100,13 @@ export function Game() {
             if(gameState === GameState.PLACING_SHIPS){
                 navigate(`/game/${validatedGameID}/layout-definition`)
                 return
-            }else if(gameState !== GameState.PLAYING){
+            }else if(gameState === GameState.PLAYING){
+                if(gameStateDTO.remainingTime <= 0){ //if the user refreshes the page and the game is already cancelled
+                    onTimerTimeout()
+                    return
+                }
+            }
+            else if(gameState !== GameState.PLAYING){
                 const message = gameState === GameState.FINISHED ? ModalMessages.Finished : ModalMessages.Cancelled
                 const newModalState: ModalState = {message, isOpen: true} 
                 setCustomModalState(newModalState)
@@ -95,14 +114,15 @@ export function Game() {
             }
 
             updateGameState(gameStateDTO.turnID)
-            setRemainingTime(gameStateDTO.remainingTime)
+            dispatchTimer({type : "start", startValue : gameStateDTO.remainingTime})
+            timerRunning.current = true
         })
 
     }, [])
 
     React.useEffect(() => { // If is not loading and is not my turn then start polling
 
-        if(loading) return
+        if(loading.current) return
 
         const checkWinner = (gameStateDTO: IGameStateInfoDTO) => {
             const gameState = GameState[gameStateDTO.state]
@@ -111,16 +131,23 @@ export function Game() {
                 const modalMessage = winner === GameTurn.MY ? ModalMessages.Won : ModalMessages.Lost
                 const newModalState: ModalState = {message: modalMessage, isOpen: true}
                 setCustomModalState(newModalState)
+                clearInterval(MyFleetPoolInterval.current) //stop pooling for my fleet
+                console.log("stopping timer")
+                timerRunning.current = false
+                dispatchTimer({type : "stop"})
+            }else{
+                console.log("reseting timer")
+                dispatchTimer({type : "reset", startValue : gameStateDTO.remainingTime})
             }
         }
 
         getGameState()
         .then(gameStateDTO => {
             checkWinner(gameStateDTO)
-            setRemainingTime(gameStateDTO.remainingTime)
         })
-
-        if(loading || turn === GameTurn.MY) return
+        
+        
+        if(loading.current || turn === GameTurn.MY) return
 
         const getMyBoard = async() => {
             const siren: SirenEntity<IBoardDTO> = await api.getBoard(validatedGameID, GameTurn.MY)
@@ -133,19 +160,21 @@ export function Game() {
                                   boardDTO.hits.length !== currentPlayerBoard.hits.length
             if(boardChanged){
                 setPlayerBoard(toBoard(boardDTO))
+                console.log("Top changing turn")
                 changeTurn()
-                clearInterval(intervalID)
+                clearInterval(MyFleetPoolInterval.current)
             }
         }
 
-        const intervalID: NodeJS.Timer = setInterval(() => {
+        MyFleetPoolInterval.current = setInterval(() => {
             getMyBoard()
             .then((boardDTO) => tryUpdateMyBoard(boardDTO))
             
         }, INTERVAL_TIME_MS)
 
-        return () => clearInterval(intervalID)
-
+        return () => {
+            clearInterval(MyFleetPoolInterval.current)
+        }
     }, [turn])
 
 
@@ -197,36 +226,31 @@ export function Game() {
             return toBoard(embeddedBoardDTO)
         }
 
-        if(turn !== GameTurn.MY && currentShots.length !== shotsDefinitionRules?.current?.shotsPerTurn) return
+        if(turn !== GameTurn.MY || currentShots.length !== shotsDefinitionRules?.current?.shotsPerTurn) return
         executeWhileDisabled(button,async () =>  {
             const newBoard = await makeShots()
             setOpponentBoard(newBoard)
+            console.log("Bottom changing turn")
             changeTurn()
             setCurrentShots([])
         })
     }
 
     const onTimerTimeout = async () => {
-        api.defineShot(validatedGameID, [])
-        .finally(() => {
-            setCustomModalState({message: ModalMessages.Cancelled, isOpen: true})
-        })
+        setCustomModalState({message: ModalMessages.Cancelled, isOpen: true})
     }
-
+    const timerPercentage = Math.round((timerState.currentValue / shotsDefinitionRules.current?.shotsDefinitionTimeout) * 100)
     return (
         <div>
             <GameView
-                loading={loading}
+                loading={loading.current}
                 playerBoard={currentPlayerBoard}
                 opponentBoard={currentOpponentBoard}
                 selectedShots={currentShots}
                 shotsRemaining={shotsDefinitionRules?.current?.shotsPerTurn - currentShots.length}
                 onOpponentBoardSquareClick={onOpponentBoardSquareClicked}
-                shotsDefinitionTimeout={shotsDefinitionRules?.current?.shotsDefinitionTimeout}
-                shotsDefinitionRemainingTimeMs={remainingTime}
-                timerResetToggle={timerResetToggle}
                 turn={turn}
-                onTimerTimeout={onTimerTimeout}
+                timerPercentage={timerPercentage}
                 onSubmitShotsClick={submitShots}
             />
             <AnimatedModal

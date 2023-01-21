@@ -3,36 +3,27 @@ import '../css/game.css'
 import { Board } from "../components/entities/board"
 import { BoardView } from "../components/board/board-view"
 import { Fleet } from "../components/fleet/fleet-view"
-import { ProgressTimer } from "../components/progress-timer"
 import { FleetControls, FleetState } from "../components/fleet/fleet-view"
 import { BoardControls } from "../components/board/board-view"
-import { CircularProgress, Typography } from "@mui/material"
-import { BarColor } from "../components/progress-bar"
+import { Typography } from "@mui/material"
+import { BarColor, CustomProgressBar } from "../components/progress-bar"
 
 
 interface PlaceShipViewProps{
     board: Board
     boardControls: BoardControls
-    loading: boolean
     fleetState: FleetState
     fleetControls: FleetControls
-    layoutDefinitionTimeout: number
-    layoutDefinitionRemainingTimeMs: number
-    timerResetToggle: boolean
-    onTimeout: () => void
+    timerPercentage: number
 }
 
 export function PlaceShipView(
     {
         board,
-        boardControls, 
-        loading,
-        layoutDefinitionTimeout,
-        layoutDefinitionRemainingTimeMs,
+        boardControls,
         fleetState,
         fleetControls,
-        timerResetToggle,
-        onTimeout
+        timerPercentage
     }: PlaceShipViewProps
 ){
     return  (
@@ -56,13 +47,7 @@ export function PlaceShipView(
                 </div>
                
                 <div className="timer-space">
-                    <ProgressTimer
-                        maxValue={layoutDefinitionTimeout}
-                        startValue={layoutDefinitionRemainingTimeMs}
-                        resetToggle={timerResetToggle}
-                        barColor={BarColor.PRIMARY}
-                        onTimeout={onTimeout}
-                    /> 
+                    <CustomProgressBar progress={timerPercentage} color={BarColor.PRIMARY} />
                 </div>
             </div>  
     </section>

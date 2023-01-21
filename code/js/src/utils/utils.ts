@@ -59,13 +59,12 @@ export async function getGamesStateWithEmbeddedUsers(gameID : number){
 
     const User1ID = fetchedState.properties.player1ID 
     const User2ID = fetchedState.properties.player2ID
-    console.log(fetchedState)
+
     const embeddedEntities = fetchedState.entities.filter((entity: EmbeddedEntity<any>) => {
         return entity.rel.includes(userNodeKey)
     });
 
     const embeddedInfo1 = embeddedEntities.find((entity: EmbeddedEntity<IUserDTO>) => {
-        console.log(entity)
          return findUserWithId(User1ID, entity, userNodeKey, userInfoURI) 
         }
     ) as EmbeddedEntity<IUserDTO>;

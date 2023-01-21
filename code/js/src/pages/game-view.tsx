@@ -1,25 +1,21 @@
 import * as React from "react"
 import '../css/game.css'
 import { BoardView } from "../components/board/board-view"
-import { ProgressTimer } from "../components/progress-timer"
 import { Board } from "../components/entities/board"
 import { Square } from "../components/entities/square"
 import { Button, CircularProgress } from "@mui/material"
 import { GameTurn } from "../components/entities/turn"
-import { BarColor } from "../components/progress-bar"
+import { BarColor, CustomProgressBar } from "../components/progress-bar"
 
 interface GameViewProps{
     loading: boolean
     playerBoard: Board
     opponentBoard: Board
-    shotsDefinitionTimeout: number
     selectedShots: Square[]
     shotsRemaining: number
-    shotsDefinitionRemainingTimeMs: number
-    timerResetToggle: boolean
+    timerPercentage: number
     turn: GameTurn
     onOpponentBoardSquareClick: (square: Square) => void
-    onTimerTimeout: () => void
     onSubmitShotsClick: (button) => void
 }
 
@@ -30,12 +26,9 @@ export function GameView(
         opponentBoard,
         selectedShots,
         onOpponentBoardSquareClick,
-        shotsDefinitionTimeout,
         shotsRemaining,
-        shotsDefinitionRemainingTimeMs,
         turn,
-        timerResetToggle,
-        onTimerTimeout,
+        timerPercentage,
         onSubmitShotsClick,
     }: GameViewProps
 ){
@@ -50,13 +43,7 @@ export function GameView(
                     />
                 </div>
                 <div className="timer-space">
-                    <ProgressTimer
-                        maxValue={shotsDefinitionTimeout}
-                        startValue={shotsDefinitionRemainingTimeMs}
-                        onTimeout={onTimerTimeout}
-                        barColor={turn === GameTurn.MY ? BarColor.PRIMARY : BarColor.SECONDARY}
-                        resetToggle={timerResetToggle}
-                    /> 
+                    <CustomProgressBar progress={timerPercentage} color={turn === GameTurn.MY ? BarColor.PRIMARY : BarColor.SECONDARY} />
                 </div>
                 <div className="boards-space">
                     <BoardView 

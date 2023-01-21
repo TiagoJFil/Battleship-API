@@ -93,7 +93,7 @@ $$ language plpgsql;
 
 create or replace procedure CancelOutOfTimeoutGames() as $$
 begin
-    update game set state = 'cancelled' where state != 'cancelled' and id in (select * from getOutOfTimeoutGames());
+    update game set state = 'cancelled' where (state = 'playing' or state = 'placing_ships' )  and id in (select * from getOutOfTimeoutGames());
 end;
 $$ language plpgsql;
 

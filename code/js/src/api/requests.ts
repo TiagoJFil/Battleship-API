@@ -10,11 +10,11 @@ export async function sendRelationRequest(relation: Relation, data?: any, query?
         data: JSON.stringify(data)
     }).catchAndThrowAsProblem()
 
-    console.log(response.data)
+
 
     fillRelationsFromEntity(response.data)
 
-    console.log(storage)
+
 
     return response.data
 }
@@ -64,7 +64,7 @@ export const ensureRelation = async (relationKey: string, fillRelationsFunction?
         return RelationStorage.getRelation(relationKey)
     }
 
-    console.log(relation)
+
 
     return relation
 }

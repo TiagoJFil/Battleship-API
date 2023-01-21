@@ -39,12 +39,13 @@ join "User" u on u.id = ws.winner;
 
 CREATE OR REPLACE VIEW RankingView as
 
-    select u.id as playerId, count(g.id) as totalGames ,count(w.gameId) as wins
+    select u.id as playerId, count(distinct g.id) as totalGames, count(distinct w.gameId) as wins
     from "User" u
         left join WinnersView w on u.id = w.winner
-        left join game g on (u.id = g.player1 or u.id = g.player2) and g.state = 'finished'
+         join game g on (u.id = g.player1 or u.id = g.player2) and g.state = 'finished'
     group by u.id, u.name
-    order by wins desc;
+    order by wins desc,
+             totalGames desc;
 
 
 create or replace function insertGameView()
@@ -71,7 +72,8 @@ begin
         select id from GameRules
                   where boardSide = new.boardSide and shotsperturn = new.shotsPerTurn
                     and layoutdefinitiontimeout = new.layoutDefinitionTimeout
-                    and playtimeout = new.playTimeout into gameRulesId;
+                    and playtimeout = new.playTimeout and shiprules =shipRulesId
+                  into gameRulesId;
 
     end if;
 

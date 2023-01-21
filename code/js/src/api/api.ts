@@ -86,7 +86,7 @@ export async function leavelobby(lobbyID : number) : Promise< SirenEntity<any>> 
 
 export async function getStatistics(embedded: boolean = true): Promise<SirenEntity<IStatisticsDTO>> {
     const relation = await ensureRelation('statistics', fetchHome)
-    console.log(relation)
+
     return sendRelationRequest(relation,  null, {embedded})
 }
 
