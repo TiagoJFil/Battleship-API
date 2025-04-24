@@ -29,21 +29,8 @@ services:
       - 8081:8081
     networks:
       - back-network
-
-  battleship-service-2:
-    container_name: battleship-service-2
-    hostname: battleship-service-2
-    build:
-      context: ./code/jvm/
-      dockerfile: ./Dockerfile
-    environment:
-      PORT: 8082
-      JDBC_DATABASE_URL: "jdbc:postgresql://postgresdb:5432/postgres?user=postgres&password=postgres"
-    ports:
-      - 8082:8082
-    networks:
-      - back-network  
-
+    depends_on:
+      - postgresdb
 
   nginx:
     container_name: nginx
@@ -57,7 +44,6 @@ services:
       - front-network
     depends_on:
       - battleship-service-1
-      - battleship-service-2
 
   web_app:
     container_name: web_app
